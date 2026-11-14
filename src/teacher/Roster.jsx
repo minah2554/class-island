@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
 import {
   collection,
-  deleteDoc,
   deleteField,
   doc,
+  getDocs,
   increment,
   onSnapshot,
+  query,
   updateDoc,
+  where,
   writeBatch,
 } from 'firebase/firestore'
 import { read, utils, writeFile } from 'xlsx'
 import { db } from '../firebase'
+import { yearCol } from '../data'
 import { parseRoster } from '../roster'
 
 export default function Roster({ year }) {
@@ -67,8 +70,18 @@ export default function Roster({ year }) {
   const resetPw = (s) =>
     confirm(`${s.no} ${s.name}의 비밀번호를 리셋할까요?`) &&
     updateDoc(ref(s), { resetCount: increment(1), uid: deleteField() })
-  // shortcut: 학생 문서만 지운다. 기록 화면이 생기면 그 학생의 기록도 함께 지우도록 바꾼다.
-  const remove = (s) => confirm(`${s.no} ${s.name}을(를) 명단에서 삭제할까요?`) && deleteDoc(ref(s))
+  // 학생과 그 학생의 지각·벌칙·면제권 기록을 함께 지운다.
+  // shortcut: 독서기록장 칸은 달 문서 안에 남는다(명단에 없으면 화면에 안 보임), 년도 삭제 때 함께 지워진다.
+  async function remove(s) {
+    if (!confirm(`${s.no} ${s.name}을(를) 명단에서 삭제할까요?
+이 학생의 지각·청소면제권 기록도 함께 삭제됩니다.`)) return
+    const batch = writeBatch(db)
+    for (const name of ['tardies', 'penalties', 'ticketLog'])
+      (await getDocs(query(yearCol(year, name), where('no', '==', s.no)))).forEach((d) => batch.delete(d.ref))
+    batch.delete(doc(yearCol(year, 'tickets'), s.no))
+    batch.delete(ref(s))
+    await batch.commit()
+  }
 
   return (
     <section>

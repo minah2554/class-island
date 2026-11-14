@@ -76,3 +76,4 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .strip span { height: 12px; border: 1px solid #999; background: #fff; }
 .strip span.shade { background: #eee; }
 .strip span.on { background: var(--accent); border-color: var(--accent); }
+.sheet td { min-width: 2.4em; }
