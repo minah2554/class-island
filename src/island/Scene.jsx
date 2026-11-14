@@ -103,14 +103,14 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
 // 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], hold, children }) {
+export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], hold, lights = 0, children }) {
   const [target, setTarget] = useState(null)
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
   const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])
   const center = { x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6 }
 
   return (
-    <div className="scene" data-phase={phase} data-wx={kind}>
+    <div className="scene" data-phase={phase} data-wx={kind} style={{ '--lights': lights }}>
       <img className="bg" src={`assets/scenes/${bg}.webp`} alt="" draggable="false" />
 
       {/* 시간대 색 */}
@@ -136,7 +136,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
         const key = s.key ?? s.img
         const img = s.node ?? <img src={`assets/${s.img}.webp`} alt="" draggable="false" />
         // onClick이 없는 것은 장식이라 누를 수 없다
-        if (!s.onClick) return <div key={key} className="spot decor" style={style}>{img}</div>
+        if (!s.onClick) return <div key={key} className={`spot decor ${s.cls ?? ''}`} style={style}>{img}</div>
         return (
           <button
             key={key}

@@ -297,7 +297,6 @@ form.card { position: relative; }
 }
 
 /* 시간대 색·구름 그림자를 건물과 캐릭터 위에도 덮어서 밤에는 함께 어두워지게 한다 */
-.scene .sky { z-index: 95; }
 .scene .clouds { position: absolute; inset: 0; z-index: 96; pointer-events: none; }
 .scene .fireflies { position: absolute; inset: 0; z-index: 97; pointer-events: none; }
 /* 발밑 그림자: 건물과 캐릭터가 땅에 붙어 보이게 */
@@ -305,6 +304,17 @@ form.card { position: relative; }
 .me img { filter: none; }
 .scene[data-phase='night'] .me::before, .scene[data-phase='night'] .spot:not(.critter)::before { background: radial-gradient(closest-side, rgba(0, 0, 20, 0.5), transparent); }
 /* 밤에는 건물에서 따뜻한 불빛이 살짝 번진다 */
-.scene[data-phase='night'] .spot:not(.critter):not(.decor) img { filter: drop-shadow(0 0 10px rgba(255, 210, 120, 0.55)); }
-.scene[data-wx='rain'] .spot img, .scene[data-wx='storm'] .spot img, .scene[data-wx='rain'] .me img, .scene[data-wx='storm'] .me img { filter: saturate(0.8) brightness(0.85); }
-.scene[data-wx='cloudy'] .spot img, .scene[data-wx='cloudy'] .me img { filter: saturate(0.9) brightness(0.95); }
+
+/* 시간대·날씨에 따라 건물과 장식만 어두워진다. 캐릭터는 늘 또렷하게 보인다. */
+.scene[data-phase='night'] .spot:not(.critter):not(.lit) img { filter: brightness(calc(0.5 + var(--lights, 0) * 0.05)) saturate(0.8); }
+.scene[data-phase='dusk'] .spot:not(.critter) img { filter: sepia(0.25) brightness(0.92); }
+.scene[data-phase='dawn'] .spot:not(.critter) img { filter: brightness(0.95) saturate(0.9); }
+.scene[data-wx='rain'][data-phase='day'] .spot:not(.critter) img, .scene[data-wx='storm'][data-phase='day'] .spot:not(.critter) img { filter: saturate(0.8) brightness(0.85); }
+/* 섬에 조명이 많을수록 밤이 덜 어둡다 */
+.scene[data-phase='night'] .sky { background: rgba(35, 45, 110, calc(0.64 - var(--lights, 0) * 0.035)); }
+/* 조명: 밤에 불이 켜지고 주변 땅이 따뜻하게 밝아진다 */
+.scene[data-phase='night'] .spot.lit img { filter: drop-shadow(0 0 8px rgba(255, 214, 130, 0.9)) brightness(1.1); }
+.scene[data-phase='night'] .spot.lit::after { content: ''; position: absolute; left: 50%; top: 70%; width: 620%; aspect-ratio: 1.5; translate: -50% -50%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 214, 130, 0.5), rgba(255, 214, 130, 0.18) 55%, transparent); mix-blend-mode: screen; pointer-events: none; z-index: -1; animation: flicker 3s ease-in-out infinite alternate; }
+@keyframes flicker { to { opacity: 0.8; } }
+/* 독서기록장: 한 달을 잘한 학생 */
+.sheet td.star { background: #ffe58a; font-weight: 700; }

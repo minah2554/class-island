@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { deleteField, doc, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
 import { utils, writeFile } from 'xlsx'
-import { yearCol } from '../data'
+import { useDocs, yearCol } from '../data'
+import { perfectMonth } from '../island/gifts'
 import { db } from '../firebase'
 import { ask, tell } from '../popup'
 import { pad2, schoolMonths, weekdays } from '../records'
@@ -18,6 +19,7 @@ export default function Reading({ year, students, me }) {
   const [mode, setMode] = useState('toggle') // 칸을 누르면: toggle(○↔✕) | reason(기타 사유 넣기) | clear(지우기)
   const [reason, setReason] = useState('')
   const table = useRef()
+  const gifts = useDocs(year, 'gifts')
 
   const ref = doc(yearCol(year, 'reading'), month.id)
   useEffect(() => onSnapshot(ref, (s) => setData(s.data() ?? {})), [year, month.id])
@@ -37,6 +39,13 @@ export default function Reading({ year, students, me }) {
     // 학생이 '내 집'에서 자기 기록만 볼 수 있도록 학생별로도 남긴다
     const b = writeBatch(db)
     Object.entries(entries).forEach(([no, v]) => b.set(doc(yearCol(year, 'stats'), no), { reading: { [date]: v } }, { merge: true }))
+    // 섬 선물: 이번 저장으로 "한 달을 잘한 학생"이 바뀌면 그 학생의 선물 기록을 고친다
+    students.forEach((s) => {
+      const vals = days.map((dd) => (dd === d ? merged[s.no] : savedDay(dd)?.[s.no]))
+      const now = perfectMonth(vals)
+      const was = !!gifts.find((g) => g.id === s.no)?.months?.[month.id]?.perfect
+      if (now !== was) b.set(doc(yearCol(year, 'gifts'), s.no), { months: { [month.id]: { perfect: now } } }, { merge: true })
+    })
     b.commit()
     return setDoc(ref, { days: { [pad2(d)]: entries } }, { merge: true })
   }
@@ -59,6 +68,13 @@ export default function Reading({ year, students, me }) {
     const done = Object.values(entries).filter((v) => v === 'o').length
     if (await ask(`${month.m}/${day} — 제출 ${done}명, 그 밖 ${students.length - done}명.\n저장한 뒤에는 고칠 수 없습니다. 저장할까요?`)) put(day, entries)
   }
+
+  // 월말 독서기록장 제출 체크(선생님만). 체크하면 섬 선물이 하나 더 생긴다.
+  function setBook(s, on) {
+    setDoc(ref, { book: { [s.no]: on } }, { merge: true })
+    setDoc(doc(yearCol(year, 'gifts'), s.no), { months: { [month.id]: { book: on } } }, { merge: true })
+  }
+  const perfect = (s) => perfectMonth(days.map((d) => value(d, s.no)))
 
   const count = (s) => days.filter((d) => value(d, s.no) === 'o').length
   const submitted = (d) => students.filter((s) => value(d, s.no) === 'o').length
@@ -137,7 +153,7 @@ export default function Reading({ year, students, me }) {
             ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 선생님께 알려 주세요.'
             : '날짜를 고르고 [모두 제출] → 안 낸 친구 칸을 눌러 ✕로 바꾸기 → [저장].'
           : '[모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 한 번 더 누르면 다시 ○가 됩니다.'}{' '}
-        이 달 반 평균 제출률 {average}%
+        이 달 반 평균 제출률 {average}% · 달의 마지막 날까지 ✕ 없이 낸 학생은 이름이 노란색이 됩니다.
       </p>
       <div className="scroll">
         <table ref={table} className="sheet reading">
@@ -151,13 +167,16 @@ export default function Reading({ year, students, me }) {
                 </th>
               ))}
               <th className="sum">계</th>
+              <th>기록장 제출</th>
             </tr>
           </thead>
           <tbody>
             {students.map((s) => (
               <tr key={s.no}>
                 <td className="no">{Number(s.no.slice(2))}</td>
-                <td>{s.name}</td>
+                <td className={perfect(s) ? 'star' : ''} title={perfect(s) ? '이번 달을 모두 잘했어요' : undefined}>
+                  {s.name}
+                </td>
                 {days.map((d) => {
                   const v = value(d, s.no)
                   return (
@@ -169,6 +188,13 @@ export default function Reading({ year, students, me }) {
                   )
                 })}
                 <td className="sum">{count(s)}</td>
+                <td>
+                  {me ? (
+                    data.book?.[s.no] ? '✓' : ''
+                  ) : (
+                    <input type="checkbox" checked={!!data.book?.[s.no]} onChange={(e) => setBook(s, e.target.checked)} aria-label={`${s.name} ${month.m}월 독서기록장 제출`} />
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -179,6 +205,7 @@ export default function Reading({ year, students, me }) {
                 <td key={d}>{submitted(d) || ''}</td>
               ))}
               <td className="sum" />
+              <td>{students.filter((s) => data.book?.[s.no]).length || ''}</td>
             </tr>
           </tfoot>
         </table>

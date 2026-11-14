@@ -1,13 +1,19 @@
 import { useDoc, useWhere } from './hooks'
+import { doc, updateDoc } from 'firebase/firestore'
+import { db } from '../firebase'
+import { tell } from '../popup'
+import { badWord } from './banned'
 import { short } from '../records'
+import { giftParts } from './gifts'
 
 // 내 집: 내 지각·청소면제권·독서기록장을 볼 수 있다(남의 기록은 규칙상 볼 수 없다)
-export default function Home({ me }) {
+export default function Home({ me, settings = {} }) {
   const tardies = useWhere(me.year, 'tardies', 'no', me.no)
   const penalties = useWhere(me.year, 'penalties', 'no', me.no)
   const logs = useWhere(me.year, 'ticketLog', 'no', me.no)
   const ticket = useDoc(me.year, 'tickets', me.no)
   const stats = useDoc(me.year, 'stats', me.no)
+  const gp = giftParts(useDoc(me.year, 'gifts', me.no))
 
   const dates = tardies.map((t) => t.date).filter(Boolean).sort()
   const paid = penalties.filter((p) => p.kind === 'ticket').length
@@ -22,6 +28,15 @@ export default function Home({ me }) {
   const months = {}
   Object.entries(stats?.reading ?? {}).forEach(([d, val]) => (months[d.slice(0, 7)] ||= []).push([d, val]))
 
+  // 내 캐릭터를 누르면 나오는 말풍선을 고친다
+  async function saveGreeting(e) {
+    e.preventDefault()
+    const greeting = new FormData(e.target).get('greeting').trim()
+    if (badWord(greeting, settings.banned)) return tell('나쁜 말이 들어 있어요. 고운 말로 다시 써 주세요, 총총!')
+    await updateDoc(doc(db, 'years', String(me.year), 'students', me.no), { greeting })
+    tell(greeting ? '말풍선을 바꿨어요!' : '말풍선을 처음 인사말로 되돌렸어요.')
+  }
+
   return (
     <section>
       <div className="museum-head">
@@ -32,6 +47,28 @@ export default function Home({ me }) {
             {me.no} {me.name}
           </p>
         </div>
+      </div>
+
+      <form className="card" onSubmit={saveGreeting}>
+        <h3>내 말풍선</h3>
+        <p>
+          <small>내 캐릭터를 누르면 나오는 말이에요. 친구가 내 섬에 놀러 와도 보여요. (30자까지)</small>
+        </p>
+        <div className="row">
+          <input name="greeting" maxLength="30" defaultValue={me.greeting ?? ''} placeholder={`안녕! ${me.catchphrase ?? ''}`} aria-label="내 말풍선" style={{ flex: 1 }} />
+          <button>바꾸기</button>
+        </div>
+      </form>
+
+      <div className="card">
+        <h3>내 섬 선물 {gp.perfect + gp.book + gp.tickets + gp.bonus}개</h3>
+        <p>선물 1개마다 내 섬에 낮 아이템 1개와 밤 조명 1개가 생겨요.</p>
+        <p className="chips">
+          <span className="chip">한 달 독서 모두 제출 {gp.perfect}</span>
+          <span className="chip">월말 기록장 제출 {gp.book}</span>
+          <span className="chip">청소면제권 5장마다 {gp.tickets}</span>
+          <span className="chip">선생님 선물 {gp.bonus}</span>
+        </p>
       </div>
 
       <div className="card">

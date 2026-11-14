@@ -79,6 +79,7 @@ export default function Tickets({ year, students, me }) {
     changes.forEach(({ no, next }) => {
       const stored = { got: next.got, used: next.used - paid(no) }
       batch.set(doc(yearCol(year, 'tickets'), no), Object.fromEntries(sides.map((k) => [k, stored])), { merge: true })
+      batch.set(doc(yearCol(year, 'gifts'), no), { got: next.got }, { merge: true })
       batch.set(doc(yearCol(year, 'ticketLog')), { no, date: ymd(), ...log, by, at: serverTimestamp() })
     })
     await batch.commit()

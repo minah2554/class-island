@@ -10,6 +10,7 @@ import Board from './Board'
 import Bgm from './Bgm'
 import Center from './Center'
 import Country from './Country'
+import { DAY_ITEMS, LIGHTS, giftCount } from './gifts'
 import Guestbook from './Guestbook'
 import Home from './Home'
 import Hunt from './Hunt'
@@ -90,6 +91,7 @@ function World({ me }) {
   const [bought, setBought] = useState({})
   const cols = useDocs(me.year, 'collections')
   const daily = useDocs(me.year, 'daily')
+  const gifts = useDocs(me.year, 'gifts')
   // 주소 뒤에 ?sky=night&wx=rain 을 붙이면 시간대·날씨를 미리 볼 수 있다
   const forced = useMemo(() => new URLSearchParams(location.hash.split('?')[1] ?? ''), [])
 
@@ -115,12 +117,19 @@ function World({ me }) {
     setFriend(s)
     setScene(s.no === me.no ? 'island' : 'visit')
   }
+  // 섬 주인(내 섬이면 나, 놀러 갔으면 친구)이 받은 선물만큼 낮 아이템과 조명이 놓인다
+  const owner = scene === 'visit' ? friend?.no : me.no
+  const earned = giftCount(gifts.find((g) => g.id === owner))
+  const items = [...DAY_ITEMS.slice(0, earned), ...LIGHTS.slice(0, earned).map((l, i) => ({ ...l, key: `light${i}`, cls: 'lit' }))]
+  const lights = Math.min(earned, LIGHTS.length)
   const spots = {
     island: [
+      ...items,
       { x: 50, y: 33, w: 20, img: 'buildings/house', label: '내 집', onClick: () => setScene('house') },
       { x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '우편함', onClick: () => (setMailTo(''), setScene('mail')) },
     ],
     visit: [
+      ...items,
       { x: 50, y: 33, w: 20, img: 'buildings/house', label: `${friend?.islandName || friend?.name}의 집`, onClick: () => tell(`${friend?.name}의 집이에요. 문이 닫혀 있어요, 총총!`) },
       ...(me.teacher ? [] : [{ x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) }]),
     ],
@@ -134,7 +143,7 @@ function World({ me }) {
     ],
   }[scene]
   const inScene = ['island', 'plaza', 'sea', 'forest', 'visit'].includes(scene)
-  const others = scene === 'visit' && friend ? [{ id: friend.no, x: 40, y: 62, character: friend.character, name: friend.name, bubble: `어서 와! ${friend.catchphrase ?? ''}` }] : []
+  const others = scene === 'visit' && friend ? [{ id: friend.no, x: 40, y: 62, character: friend.character, name: friend.name, bubble: friend.greeting || `어서 와! ${friend.catchphrase ?? ''}` }] : []
   const tab = TAB_OF[scene] ?? scene
 
   return (
@@ -170,7 +179,7 @@ function World({ me }) {
         {
           museum: <Museum me={me} cols={cols} settings={settings} />,
           country: <Country me={me} cols={cols} settings={settings} bought={bought} onVisit={visit} onBoard={() => setScene('board')} onPlaza={() => setScene('plaza')} />,
-          house: <Home me={me} />,
+          house: <Home me={me} settings={settings} />,
           mail: <Mail me={me} settings={settings} to={mailTo} />,
           center: <Center me={me} settings={settings} left={left} />,
           board: <Board me={me} />,
@@ -185,9 +194,10 @@ function World({ me }) {
               phase,
               kind: w.kind,
               walk: WALK[scene === 'visit' ? 'island' : scene],
+              lights: scene === 'island' || scene === 'visit' ? lights : 0,
               others,
               character: me.character,
-              bubble: `안녕! ${me.catchphrase ?? ''}`,
+              bubble: me.greeting || `안녕! ${me.catchphrase ?? ''}`,
             }
             const { key, ...rest } = scn
             // 바다·숲에서는 물고기 그림자·곤충이 나타나는 채집 화면

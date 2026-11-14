@@ -4,7 +4,7 @@ import { db } from '../firebase'
 import { askText, tell } from '../popup'
 
 // 학년도 아래 컬렉션 이름 전부(백업·삭제 대상)
-const PARTS = ['students', 'tardies', 'penalties', 'tickets', 'ticketLog', 'reading', 'corrections', 'managerPins', 'collections', 'daily', 'stats', 'letters', 'complaints', 'notices', 'guestbook', 'plaza']
+const PARTS = ['students', 'tardies', 'penalties', 'tickets', 'ticketLog', 'reading', 'corrections', 'managerPins', 'collections', 'daily', 'stats', 'letters', 'complaints', 'notices', 'guestbook', 'plaza', 'gifts']
 const yearDoc = (y) => doc(db, 'years', String(y))
 
 // 설정(반장·나쁜 말 목록)과 학년도 백업·삭제

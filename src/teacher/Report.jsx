@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import { utils, writeFile } from 'xlsx'
-import { useDocs } from '../data'
+import { doc, setDoc } from 'firebase/firestore'
+import { useDocs, yearCol } from '../data'
+import { giftCount } from '../island/gifts'
 
 // 통계 리포트: 학생별 지각·청소면제권·독서·도감을 한 표로 모아 보고 엑셀로 내려받는다.
 export default function Report({ year, students }) {
@@ -9,6 +11,7 @@ export default function Report({ year, students }) {
   const tickets = useDocs(year, 'tickets')
   const months = useDocs(year, 'reading')
   const cols = useDocs(year, 'collections')
+  const gifts = useDocs(year, 'gifts')
   const table = useRef()
 
   const rows = students.map((s) => {
@@ -28,6 +31,8 @@ export default function Report({ year, students }) {
     )
     const c = cols.find((x) => x.id === s.no)
     return {
+      id: s.no,
+      gift: gifts.find((x) => x.id === s.no),
       no: Number(s.no.slice(2)),
       name: s.name,
       tardy: tardies.filter((x) => x.no === s.no).length,
@@ -66,6 +71,7 @@ export default function Report({ year, students }) {
           <b>{sum('kinds')}종</b>
         </div>
       </div>
+      <p className="hint">섬 선물 1개마다 학생의 섬에 낮 아이템 1개와 밤 조명 1개가 생깁니다: 한 달 독서 모두 제출 · 월말 기록장 제출 체크 · 청소면제권 받은 5장마다 · 선생님 선물(1인 1역을 잘한 학생 등).</p>
       <button className="ghost" onClick={() => writeFile(utils.table_to_book(table.current, { raw: true }), `섬마을_통계_${year}.xlsx`)}>
         엑셀 다운로드
       </button>
@@ -84,6 +90,8 @@ export default function Report({ year, students }) {
               <th>제출률(%)</th>
               <th>도감 종류</th>
               <th>잡은 횟수</th>
+              <th>섬 선물(합계)</th>
+              <th>선생님 선물</th>
             </tr>
           </thead>
           <tbody>
@@ -100,6 +108,18 @@ export default function Report({ year, students }) {
                 <td>{r.rate ?? ''}</td>
                 <td>{r.kinds}</td>
                 <td>{r.caught}</td>
+                <td>{giftCount(r.gift)}</td>
+                <td>
+                  <input
+                    key={r.gift?.bonus}
+                    type="number"
+                    min="0"
+                    className="num"
+                    defaultValue={r.gift?.bonus ?? 0}
+                    aria-label={`${r.name} 선생님 선물 개수`}
+                    onBlur={(e) => setDoc(doc(yearCol(year, 'gifts'), r.id), { bonus: Math.max(0, Math.floor(Number(e.target.value)) || 0) }, { merge: true })}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

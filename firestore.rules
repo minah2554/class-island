@@ -59,10 +59,11 @@ service cloud.firestore {
         allow get: if ownAccount();
         // 여권: 본인이 캐릭터·섬 이름·말버릇만 바꿀 수 있다
         allow update: if isMember(year) && no == myNo()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['character', 'islandName', 'catchphrase'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['character', 'islandName', 'catchphrase', 'greeting'])
           && request.resource.data.get('character', 1) in [1, 2, 3, 4, 5, 6, 7, 8]
           && request.resource.data.get('islandName', '').size() <= 12
-          && request.resource.data.get('catchphrase', '').size() <= 8;
+          && request.resource.data.get('catchphrase', '').size() <= 8
+          && request.resource.data.get('greeting', '').size() <= 30;
         // 섬 등록: 비어 있는 uid 칸에 자기 uid만 넣을 수 있다
         allow update: if ownAccount()
           && !('uid' in resource.data)
@@ -126,6 +127,12 @@ service cloud.firestore {
       match /daily/{date} {
         allow read: if isTeacher() || isMember(year);
         allow write: if isTeacher() || hasRole(year, 'reading');
+      }
+
+      // 섬 선물 기록: 반 모두가 읽고(친구 섬에서도 보인다), 선생님과 독서·면제권 담당이 쓴다
+      match /gifts/{no} {
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher() || hasRole(year, 'reading') || hasRole(year, 'tickets');
       }
 
       // 학생별 독서기록 사본(내 집에서 본인 것만 읽는다)
