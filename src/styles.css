@@ -5,7 +5,7 @@
   --ink: #3b4a3a;
   --accent: #5fae6b;
   --danger: #c0563f;
-  font-family: 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', system-ui, sans-serif;
   color: var(--ink);
 }
 * { box-sizing: border-box; }
