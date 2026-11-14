@@ -12,23 +12,34 @@ const AREA = {
   fish: { x0: 6, x1: 94, y0: 6, y1: 26, skip: (x) => x > 54 && x < 82 }, // 물 위(선착장 자리는 피한다)
   bug: { x0: 22, x1: 82, y0: 34, y1: 86, skip: () => false },
 }
+// 숲 그림 속 숨을 곳(나무 밑동·덤불·꽃·그루터기)의 자리(%)
+const HIDES = [
+  [16, 31], [13, 34], [23, 23], [29, 19], [42, 16], [50, 14], [58, 16], [67, 17], [76, 22], [82, 24],
+  [90, 36], [93, 44], [8, 50], [10, 62], [9, 84], [15, 90], [91, 64], [88, 86], [83, 90],
+]
 const MAX = 3 // 한 번에 보이는 생물 수
 
 let seq = 0
-function spawn(kind) {
+function spawn(kind, taken = []) {
   const a = AREA[kind]
   const n = draw()
   const tier = tierOf(n)
   let x
+  let y = a.y0 + Math.random() * (a.y1 - a.y0)
   do x = a.x0 + Math.random() * (a.x1 - a.x0)
   while (a.skip(x))
+  // 곤충은 아직 비어 있는 숨을 곳 가운데 한 곳에 나타난다
+  if (kind === 'bug') {
+    const free = HIDES.filter(([hx, hy]) => !taken.some((c) => Math.hypot(c.x - hx, c.y - hy) < 5))
+    ;[x, y] = (free.length ? free : HIDES)[Math.floor(Math.random() * (free.length || HIDES.length))]
+  }
   return {
     key: `c${++seq}`,
     n,
     tier,
     id: speciesId(kind, n),
     x,
-    y: a.y0 + Math.random() * (a.y1 - a.y0),
+    y,
     // 희귀할수록 빨리 사라진다
     until: Date.now() + (16 - tier * 2.5 + Math.random() * 6) * 1000,
     dur: 5 + Math.random() * 4,
@@ -83,11 +94,14 @@ export default function Hunt({ me, kind, cols, left, limit, scene }) {
 
   // 생물이 하나씩 나타나고, 시간이 지나면 달아난다(쫓는 중인 것은 남는다)
   useEffect(() => {
-    setCritters([spawn(kind), spawn(kind)])
+    setCritters(() => {
+      const first = spawn(kind)
+      return [first, spawn(kind, [first])]
+    })
     const t = setInterval(() => {
       setCritters((list) => {
         const alive = list.filter((c) => c.key === curRef.current?.key || c.until > Date.now())
-        return alive.length < MAX && stageRef.current === 'idle' && Math.random() < 0.6 ? [...alive, spawn(kind)] : alive
+        return alive.length < MAX && stageRef.current === 'idle' && Math.random() < 0.6 ? [...alive, spawn(kind, alive)] : alive
       })
     }, 1500)
     return () => clearInterval(t)
@@ -136,7 +150,7 @@ export default function Hunt({ me, kind, cols, left, limit, scene }) {
     key: c.key,
     x: c.x,
     y: c.y,
-    w: kind === 'fish' ? 5 + c.tier * 1.6 : 5,
+    w: kind === 'fish' ? 5 + c.tier * 1.6 : 4,
     cls: `critter ${kind} ${cur?.key === c.key ? 'picked' : ''}`,
     style: { '--dur': `${c.dur}s` },
     // 물고기는 그림자만, 곤충은 모습이 보인다
@@ -152,7 +166,7 @@ export default function Hunt({ me, kind, cols, left, limit, scene }) {
       <p className="hunt-top" role="status">
         {k.label} · 오늘 남은 횟수 <b>{left}</b>/{limit}
       </p>
-      {stage === 'idle' && <p className="hunt-tip">{kind === 'fish' ? '물속에 그림자가 보이면 눌러서 낚싯대를 던져요.' : '곤충이 보이면 눌러서 살금살금 다가가요.'}</p>}
+      {stage === 'idle' && <p className="hunt-tip">{kind === 'fish' ? '물속에 그림자가 보이면 눌러서 낚싯대를 던져요.' : '나무와 꽃 근처를 잘 봐요. 곤충이 고개를 내밀면 눌러서 살금살금 다가가요.'}</p>}
       {stage === 'go' && <p className="hunt-tip">{kind === 'fish' ? '물가로 가는 중…' : '살금살금…'}</p>}
       {cur && kind === 'fish' && (stage === 'wait' || stage === 'play') && (
         <i className={`bobber ${stage === 'play' ? 'bite' : ''}`} style={{ left: `${cur.x}%`, top: `${cur.y}%` }} aria-hidden="true" />

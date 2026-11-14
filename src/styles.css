@@ -229,7 +229,10 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 /* 채집: 물고기 그림자·곤충, 찌, 안내 */
 .spot.critter { transform: translate(-50%, -50%); animation: appear 0.6s ease-out; }
 .spot.critter.fish { animation: appear 0.6s ease-out, swim var(--dur, 6s) ease-in-out infinite alternate; }
-.spot.critter.bug { animation: appear 0.6s ease-out, flutter calc(var(--dur, 6s) / 3) ease-in-out infinite alternate; }
+/* 곤충은 숨었다가 고개를 내밀기를 되풀이한다(잡으러 가는 동안은 나와 있다) */
+.spot.critter.bug { animation: appear 0.6s ease-out, peek var(--dur, 6s) ease-in-out infinite; }
+.spot.critter.bug.picked { animation: none; opacity: 1; }
+@keyframes peek { 0%, 100% { opacity: 0.15; scale: 0.6; translate: 0 18%; } 25%, 75% { opacity: 1; scale: 1; translate: 0 0; } 50% { opacity: 1; scale: 1; translate: 6% -8%; } }
 .spot.critter.bug img { filter: drop-shadow(0 6px 3px rgba(0, 0, 0, 0.25)); animation: wing 0.5s ease-in-out infinite alternate; }
 .spot.critter.picked { animation-play-state: paused; }
 .shadow-fish { display: block; width: 100%; aspect-ratio: 2.4; border-radius: 60% 45% 45% 60%; background: radial-gradient(closest-side, rgba(10, 50, 80, 0.6), rgba(10, 50, 80, 0.32) 70%, transparent); position: relative; }
