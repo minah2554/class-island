@@ -51,6 +51,12 @@ service cloud.firestore {
         allow write: if isTeacher();
         // 본인 문서는 등록 전에도 읽을 수 있다(이름 확인용)
         allow get: if ownAccount();
+        // 여권: 본인이 캐릭터·섬 이름·말버릇만 바꿀 수 있다
+        allow update: if isMember(year) && no == myNo()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['character', 'islandName', 'catchphrase'])
+          && request.resource.data.get('character', 1) in [1, 2, 3, 4, 5, 6, 7, 8]
+          && request.resource.data.get('islandName', '').size() <= 12
+          && request.resource.data.get('catchphrase', '').size() <= 8;
         // 섬 등록: 비어 있는 uid 칸에 자기 uid만 넣을 수 있다
         allow update: if ownAccount()
           && !('uid' in resource.data)
@@ -101,6 +107,19 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['days'])
           && request.resource.data.days.diff(resource.data.get('days', {})).affectedKeys()
              == request.resource.data.days.diff(resource.data.get('days', {})).addedKeys();
+      }
+
+      // 도감 기록: 반 전체가 읽고(누가 잡았는지), 각자 자기 문서에만 쓴다.
+      // shortcut: 횟수·결과는 브라우저가 계산해서 마음먹고 조작하는 학생은 막지 못한다. 막으려면 Cloud Functions(유료 요금제)가 필요하다.
+      match /collections/{no} {
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher();
+        allow create, update: if isMember(year) && no == myNo();
+      }
+      // 날짜별 "반 전원 독서 제출" 표시(채집 보너스)
+      match /daily/{date} {
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher() || hasRole(year, 'reading');
       }
 
       match /corrections/{id} {

@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { configured } from './firebase'
+import Island from './island/Island'
 import Manager from './manager/Manager'
 import Teacher from './teacher/Teacher'
 import Footer from './Footer'
@@ -18,12 +19,7 @@ function Page() {
     return <p className="card">Firebase 설정이 비어 있습니다. <code>src/firebaseConfig.js</code>에 값을 넣어 주세요.</p>
   if (hash.startsWith('#/teacher')) return <Teacher />
   if (hash.startsWith('#/manager')) return <Manager />
-  return (
-    <main className="card center">
-      <h1>총총섬</h1>
-      <p>섬은 아직 공사 중이에요, 총총!</p>
-    </main>
-  )
+  return <Island />
 }
 
 function App() {

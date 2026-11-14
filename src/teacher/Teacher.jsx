@@ -107,6 +107,8 @@ function Dashboard() {
   const [year, setYear] = useState(schoolYear)
   const [country, setCountry] = useState('')
   const [tab, setTab] = useState('명단')
+  const [cfg, setCfg] = useState({})
+  const save = (patch) => setDoc(doc(db, 'years', String(year)), patch, { merge: true })
   const students = useStudents(year)
   const Tab = TABS[tab]
   // 탭 이름 옆에 확인할 건수를 보여 준다
@@ -116,7 +118,10 @@ function Dashboard() {
   }
 
   useEffect(
-    () => onSnapshot(doc(db, 'years', String(year)), (snap) => setCountry(snap.data()?.countryName ?? '')),
+    () => onSnapshot(doc(db, 'years', String(year)), (snap) => {
+        setCountry(snap.data()?.countryName ?? '')
+        setCfg(snap.data() ?? {})
+      }),
     [year],
   )
 
@@ -140,6 +145,14 @@ function Dashboard() {
             onChange={(e) => setCountry(e.target.value)}
             onBlur={() => setDoc(doc(db, 'years', String(year)), { countryName: country.trim() }, { merge: true })}
           />
+        </label>
+        <label>
+          채집 횟수(하루)
+          <input type="number" min="1" max="10" style={{ width: '5em' }} key={cfg.catchPerDay} defaultValue={cfg.catchPerDay ?? 2} onBlur={(e) => save({ catchPerDay: Math.min(10, Math.max(1, Number(e.target.value) || 2)) })} />
+        </label>
+        <label>
+          도감 완성 보상
+          <input key={cfg.reward} defaultValue={cfg.reward ?? ''} placeholder="예: 단체 간식!" onBlur={(e) => save({ reward: e.target.value.trim() })} />
         </label>
         <button className="ghost" onClick={() => signOut(auth)}>
           로그아웃

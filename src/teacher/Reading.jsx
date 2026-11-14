@@ -27,7 +27,13 @@ export default function Reading({ year, students, me }) {
   const locked = !!me && !!savedDay(day) // 담당자는 이미 저장된 날짜를 못 고친다
   const drafting = !!me && !locked
   const value = (d, no) => (drafting && d === day ? draft[no] : savedDay(d)?.[no])
-  const put = (d, entries) => setDoc(ref, { days: { [pad2(d)]: entries } }, { merge: true })
+  // 날짜마다 "반 전원 제출" 표시를 함께 남긴다(학생 채집 보너스용)
+  const put = (d, entries) => {
+    const merged = { ...savedDay(d), ...entries }
+    const allRead = students.length > 0 && students.every((s) => merged[s.no] === 'o')
+    setDoc(doc(yearCol(year, 'daily'), `${month.y}-${pad2(month.m)}-${pad2(d)}`), { allRead })
+    return setDoc(ref, { days: { [pad2(d)]: entries } }, { merge: true })
+  }
 
   // 칸을 누르면 고른 방식대로 값을 넣는다. ○와 ✕는 누를 때마다 서로 바뀐다.
   function press(d, s) {
