@@ -4,6 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import { parseEmail } from './account'
 import { auth, db, schoolYear } from './firebase'
 import { useYears } from './years'
+import Bgm from './island/Bgm'
 import RoomLinks from './RoomLinks'
 import { cancel, enter, register } from './student'
 
@@ -63,13 +64,13 @@ function Login({ title, landing }) {
   if (!started)
     return (
       <div className="landing">
-        <img className="landing-bg" src="assets/scenes/title.webp" alt="" />
-        <div className="landing-fx" aria-hidden="true">
-          <i className="cloud" style={{ top: '8%', animationDuration: '60s' }} />
-          <i className="cloud" style={{ top: '22%', animationDuration: '85s', animationDelay: '-30s', scale: '0.7' }} />
-          <i className="cloud" style={{ top: '14%', animationDuration: '110s', animationDelay: '-70s', scale: '1.2' }} />
-          <img className="plane" src="assets/ui/plane.webp" alt="" />
-          <b className="glint" />
+        <Bgm track="morning" float />
+        <div className="landing-art" aria-hidden="true">
+          <img className="landing-bg" src="assets/title/bg.webp" alt="" />
+          <img className="cloud" src="assets/title/cloud1.webp" alt="" style={{ top: '13%', animationDuration: '70s', animationDelay: '-20s' }} />
+          <img className="cloud small" src="assets/title/cloud2.webp" alt="" style={{ top: '27%', animationDuration: '95s', animationDelay: '-60s' }} />
+          <img className="cloud" src="assets/title/cloud3.webp" alt="" style={{ top: '20%', animationDuration: '120s', animationDelay: '-95s' }} />
+          <img className="plane" src="assets/title/plane.webp" alt="" />
         </div>
         <h1 className="title">우리 반 섬나라</h1>
         <div className="landing-cta">
@@ -81,7 +82,8 @@ function Login({ title, landing }) {
 
   return (
     <form className="card center narrow" onSubmit={submit}>
-      <img className="login-banner" src="assets/scenes/title.webp" alt="" />
+      {landing && <Bgm track="morning" float />}
+      <img className="login-banner" src="assets/title/bg.webp" alt="" />
       {title && <h1 className="title">{title}</h1>}
       {step === 'form' ? (
         <>

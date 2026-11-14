@@ -201,12 +201,6 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 .history-body { max-height: 60vh; overflow-y: auto; text-align: left; }
 .history-body h4 { margin: 10px 0 4px; }
 
-.landing { position: relative; max-width: 440px; margin: 0 auto; border-radius: 24px; overflow: hidden; border: 2px solid var(--line); }
-.landing img { width: 100%; display: block; max-height: 88vh; object-fit: cover; object-position: 50% 100%; }
-.landing .title { position: absolute; top: 7%; left: 0; right: 0; text-align: center; font-size: 2.4rem; color: #fff; text-shadow: 0 3px 8px rgba(40, 90, 130, 0.45); }
-.landing-cta { position: absolute; bottom: 5%; left: 0; right: 0; display: grid; justify-items: center; gap: 10px; }
-.landing-cta > button { font-size: 1.15rem; padding: 10px 34px; border-radius: 22px; }
-.login-banner { width: 100%; height: 150px; object-fit: cover; object-position: 50% 78%; border-radius: 14px; }
 .rooms { display: flex; justify-content: center; gap: 10px; }
 .rooms button { font-size: 0.85rem; padding: 4px 14px; border-radius: 14px; }
 .stats { gap: 10px; }
@@ -219,22 +213,6 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 .spot:hover img { filter: brightness(1.06); }
 
 /* 첫 화면 움직임 */
-.landing-bg { animation: floaty 9s ease-in-out infinite alternate; transform-origin: 50% 90%; }
-@keyframes floaty { from { transform: scale(1.02) translateY(0); } to { transform: scale(1.06) translateY(-1%); } }
-.landing-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.landing-fx .cloud { position: absolute; left: -22%; width: 16%; aspect-ratio: 2.2; border-radius: 50%; background: #fffdf6; box-shadow: 3.2vw -1.6vw 0 0.3vw #fffdf6, 6vw 0.3vw 0 -0.4vw #fffdf6; opacity: 0.95; animation: cloudmove linear infinite; }
-@keyframes cloudmove { to { transform: translateX(800%); } }
-.landing-fx .plane { position: absolute; top: 30%; left: 0; width: 15%; max-height: none; animation: fly 26s linear infinite, bob 3s ease-in-out infinite alternate; }
-@keyframes fly { from { left: 105%; } to { left: -25%; } }
-@keyframes bob { from { margin-top: -1.5%; rotate: -2deg; } to { margin-top: 1.5%; rotate: 2deg; } }
-.landing-fx .glint { position: absolute; left: 0; right: 0; bottom: 0; height: 16%; background: repeating-linear-gradient(100deg, transparent 0 9%, rgba(255, 255, 255, 0.28) 10% 11%, transparent 12% 20%); background-size: 200% 100%; animation: glint 7s linear infinite; mix-blend-mode: soft-light; }
-@keyframes glint { to { background-position: -200% 0; } }
-@media (min-width: 768px) {
-  .landing { max-width: 1100px; aspect-ratio: 16 / 9; max-height: 82vh; }
-  .landing .landing-bg { width: 100%; height: 100%; max-height: none; object-fit: cover; object-position: 50% 76%; }
-  .landing .title { font-size: 3.4rem; top: 6%; }
-}
-@media (prefers-reduced-motion: reduce) { .landing * { animation: none !important; } }
 
 /* 섬나라 전경: 작은 섬마다 친구 캐릭터와 섬 이름표 */
 .isle { position: absolute; transform: translate(-50%, -80%); width: 5.5%; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); animation: isle-bob 4s ease-in-out infinite; }
@@ -262,7 +240,6 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 @keyframes wing { to { scale: 0.92 1.06; rotate: 4deg; } }
 .bobber { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: linear-gradient(#e2533f 50%, #fff 50%); border: 1px solid #7a2a20; z-index: 98; animation: bobfloat 1.4s ease-in-out infinite alternate; box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.25); }
 .bobber.bite { animation: bite 0.25s ease-in-out infinite alternate; }
-@keyframes bobfloat { to { translate: 0 3px; } }
 @keyframes bite { to { translate: 0 8px; scale: 0.85; } }
 .hunt-top, .hunt-tip { position: absolute; margin: 0; z-index: 100; background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); border-radius: 12px; padding: 3px 12px; font-size: 0.85rem; }
 .hunt-top { top: 10px; left: 10px; }
@@ -272,3 +249,59 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 .pop { animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1); }
 @keyframes pop { from { scale: 0.3; opacity: 0; } }
 .clock { background: #fff6cf; font-variant-numeric: tabular-nums; }
+
+/* ===== 첫 화면 =====
+   세로 화면: 그림 전체(2:3)가 딱 맞게 보인다. 가로 화면: 16:9 안에 그림 아래쪽(섬)을 크게 두고 양옆은 하늘·바다색으로 잇는다. */
+.landing { --art: 90%; --lift: 10%; --horizon: 66.2%; position: relative; margin: 0 auto; width: min(100%, 560px, calc(86svh * 3 / 5)); aspect-ratio: 3 / 5; border-radius: 24px; overflow: hidden; border: 2px solid var(--line); }
+.landing-art { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#abe0f9 0, #b9e6f9 var(--horizon), #74d0e3 var(--horizon), #5bc8c8 100%); }
+.landing-bg { position: absolute; bottom: var(--lift); left: 50%; translate: -50% 0; height: var(--art); width: auto; max-width: none; display: block; }
+.landing .cloud { position: absolute; left: -30%; width: 30%; animation: cloudmove linear infinite; }
+.landing .cloud.small { width: 17%; }
+@keyframes cloudmove { to { left: 115%; } }
+.landing .plane { position: absolute; top: 37%; width: 30%; animation: fly 24s linear infinite, bob 2.6s ease-in-out infinite alternate; }
+@keyframes fly { from { left: 110%; } to { left: -40%; } }
+@keyframes bob { from { translate: 0 -8%; rotate: -2deg; } to { translate: 0 8%; rotate: 2deg; } }
+.landing .title { position: absolute; top: 7%; left: 0; right: 0; margin: 0; text-align: center; font-size: clamp(1.8rem, 7vw, 2.6rem); color: #fff; text-shadow: 0 3px 8px rgba(40, 90, 130, 0.45); }
+.landing-cta { position: absolute; bottom: 2.5%; left: 0; right: 0; display: grid; justify-items: center; gap: 10px; }
+.landing-cta > button { font-size: 1.15rem; padding: 10px 34px; border-radius: 22px; }
+@media (min-aspect-ratio: 1/1) {
+  .landing { --art: 160%; --lift: 0%; --horizon: 57.8%; width: min(100%, 1100px, calc(84svh * 16 / 9)); aspect-ratio: 16 / 9; }
+  /* 그림 양옆 끝을 흐리게 해서 하늘·바다색과 자연스럽게 잇는다 */
+  .landing-bg { -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); }
+  .landing .cloud { width: 15%; }
+  .landing .cloud.small { width: 9%; }
+  .landing .plane { width: 15%; top: 30%; }
+  .landing .title { top: 6%; font-size: clamp(2.2rem, 5vw, 3.4rem); }
+}
+@media (prefers-reduced-motion: reduce) { .landing * { animation: none !important; } .landing .cloud { left: 12%; } .landing .plane { left: 62%; } }
+
+/* 로그인 칸 위 그림: 섬 전체가 잘리지 않게 */
+.login-banner { display: block; width: 100%; aspect-ratio: 1.55; object-fit: cover; object-position: 50% 95%; border-radius: 14px; }
+
+/* 소리 버튼 */
+.sound { display: inline-grid; place-items: center; width: 38px; height: 38px; padding: 0; border-radius: 50%; }
+.sound.float { position: absolute; top: 10px; right: 10px; z-index: 5; background: rgba(255, 253, 247, 0.9); }
+form.card { position: relative; }
+
+/* 작은 화면 */
+@media (max-width: 520px) {
+  .page { padding-left: 10px; padding-right: 10px; }
+  .bar { gap: 6px; }
+  .tabs { gap: 4px; }
+  .tabs button { padding: 6px 10px; font-size: 0.9rem; }
+  .hunt-tip { white-space: normal; width: 90%; text-align: center; }
+  .isle span, .spot span { font-size: 0.62rem; padding: 0 4px; }
+}
+
+/* 시간대 색·구름 그림자를 건물과 캐릭터 위에도 덮어서 밤에는 함께 어두워지게 한다 */
+.scene .sky { z-index: 95; }
+.scene .clouds { position: absolute; inset: 0; z-index: 96; pointer-events: none; }
+.scene .fireflies { position: absolute; inset: 0; z-index: 97; pointer-events: none; }
+/* 발밑 그림자: 건물과 캐릭터가 땅에 붙어 보이게 */
+.me::before, .spot:not(.critter)::before { content: ''; position: absolute; left: 8%; right: 8%; bottom: 3%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(20, 40, 20, 0.38), transparent); z-index: -1; pointer-events: none; }
+.me img { filter: none; }
+.scene[data-phase='night'] .me::before, .scene[data-phase='night'] .spot:not(.critter)::before { background: radial-gradient(closest-side, rgba(0, 0, 20, 0.5), transparent); }
+/* 밤에는 건물에서 따뜻한 불빛이 살짝 번진다 */
+.scene[data-phase='night'] .spot:not(.critter):not(.decor) img { filter: drop-shadow(0 0 10px rgba(255, 210, 120, 0.55)); }
+.scene[data-wx='rain'] .spot img, .scene[data-wx='storm'] .spot img, .scene[data-wx='rain'] .me img, .scene[data-wx='storm'] .me img { filter: saturate(0.8) brightness(0.85); }
+.scene[data-wx='cloudy'] .spot img, .scene[data-wx='cloudy'] .me img { filter: saturate(0.9) brightness(0.95); }

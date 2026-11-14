@@ -5,7 +5,8 @@ export const trackOf = (hour) => (hour >= 5 && hour < 12 ? 'morning' : hour >= 1
 const VOLUME = 0.18
 const KEY = 'island-bgm-off'
 
-export default function Bgm({ hour }) {
+// track을 주면 그 곡을, 아니면 hour(시)에 맞는 곡을 튼다. float면 화면 오른쪽 위에 떠 있는 버튼이 된다.
+export default function Bgm({ hour, track: fixed, float }) {
   const audio = useRef()
   const [off, setOff] = useState(() => {
     try {
@@ -14,7 +15,7 @@ export default function Bgm({ hour }) {
       return false
     }
   })
-  const track = trackOf(hour)
+  const track = fixed ?? trackOf(hour)
 
   useEffect(() => {
     const el = audio.current
@@ -39,8 +40,11 @@ export default function Bgm({ hour }) {
   return (
     <>
       <audio ref={audio} src={`assets/bgm/${track}.mp3`} loop preload="none" />
-      <button className="ghost" onClick={toggle} aria-pressed={!off}>
-        {off ? '음악 켜기' : '음악 끄기'}
+      <button type="button" className={`ghost sound ${float ? 'float' : ''}`} onClick={toggle} aria-pressed={!off} aria-label={off ? '배경음악 켜기' : '배경음악 끄기'} title={off ? '배경음악 켜기' : '배경음악 끄기'}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
+          {off ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}
+        </svg>
       </button>
     </>
   )

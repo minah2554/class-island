@@ -79,10 +79,10 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
     // 산책: 가까운 곳으로 조금 걷고, 잠깐 쉬었다가 다시 걷는다
     const stroll = () => {
       const p = at.current
-      const dur = go(p.x + (Math.random() - 0.5) * 36, p.y + (Math.random() - 0.5) * 24)
-      later(stroll, dur * 1000 + 1200 + Math.random() * 2800)
+      const dur = go(p.x + (Math.random() - 0.5) * 50, p.y + (Math.random() - 0.5) * 34)
+      later(stroll, dur * 1000 + 500 + Math.random() * 1300)
     }
-    later(stroll, 600 + Math.random() * 1500)
+    later(stroll, 300 + Math.random() * 500)
     return clear
   }, [target, hold])
 
