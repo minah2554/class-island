@@ -146,9 +146,11 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .me img, .spot img { width: 100%; display: block; pointer-events: none; }
 .me img { filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.25)); }
 .me img { transform-origin: 50% 100%; }
-.me.walking img { animation: waddle 0.42s ease-in-out infinite; }
-@keyframes waddle { 0%, 100% { rotate: -3deg; translate: 0 0; } 50% { rotate: 3deg; translate: 0 -5%; } }
+/* 걸을 때: 가는 쪽으로 몸을 기울이며 통통 뛰고, 착지할 때 살짝 눌린다 */
+.me.walking img { animation: hop 0.44s ease-in-out infinite; }
+@keyframes hop { 0%, 100% { rotate: calc(var(--lean) * 4deg); translate: 0 0; scale: 1.05 0.93; } 50% { rotate: calc(var(--lean) * 7deg); translate: 0 -9%; scale: 0.96 1.05; } }
 @keyframes idle { 50% { scale: 1 0.97; } }
+.me:not(.walking):not(.other) img { animation: idle 3s ease-in-out infinite; }
 .bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 4px 10px; white-space: nowrap; font-size: 0.85rem; }
 .spot span { position: absolute; left: 50%; bottom: -2%; transform: translateX(-50%); background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); border-radius: 10px; padding: 1px 8px; font-size: 0.78rem; white-space: nowrap; }
 .wx { background: #e8f4fb; border-radius: 12px; padding: 4px 10px; font-size: 0.85rem; }

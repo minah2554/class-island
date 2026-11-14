@@ -89,7 +89,7 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
   return (
     <button
       className={`me ${pos.moving ? 'walking' : ''}`}
-      style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y)}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s` }}
+      style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y)}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s`, '--lean': pos.flip ? -1 : 1 }}
       onClick={() => setTalk(!talk)}
       aria-label={name || '내 캐릭터'}
     >
