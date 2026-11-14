@@ -27,6 +27,12 @@ service cloud.firestore {
     }
 
     // 교사 계정 등록: 아직 없을 때 딱 한 번만 만들 수 있고, 이후에는 아무도 바꿀 수 없다.
+    // 학년도 목록: 로그인 화면에서 읽어야 하므로 누구나 읽고, 추가는 선생님만
+    match /config/years {
+      allow get: if true;
+      allow write: if isTeacher();
+    }
+
     match /config/teacher {
       allow get: if true;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;

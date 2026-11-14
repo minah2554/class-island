@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { signOut } from 'firebase/auth'
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore'
-import RoomLinks from '../RoomLinks'
 import StudentGate from '../StudentGate'
 import { syncClock, kst } from '../clock'
 import { useDocs } from '../data'
@@ -27,12 +26,13 @@ const WALK = {
   sea: { x0: 6, x1: 94, y0: 52, y1: 92 },
   forest: { x0: 14, x1: 86, y0: 34, y1: 90 },
 }
-const NAV = [['island', '내 섬'], ['plaza', '마을 광장'], ['sea', '바다 낚시'], ['forest', '숲 곤충'], ['museum', '박물관'], ['country', '총총섬']]
+const Wrap = ({ className, children }) => (className ? <main className={className}>{children}</main> : <div>{children}</div>)
+const NAV = [['island', '내 섬'], ['plaza', '마을 광장'], ['sea', '바다 낚시'], ['forest', '숲 곤충'], ['museum', '박물관'], ['country', '섬나라']]
 // 안쪽 화면은 어느 탭에 속하는지
 const TAB_OF = { house: 'island', mail: 'island', visit: 'country', center: 'plaza', board: 'plaza', shop: 'plaza' }
 
 export default function Island() {
-  return <StudentGate title="총총섬">{(me) => (me.character ? <World me={me} /> : <Passport me={me} />)}</StudentGate>
+  return <StudentGate landing>{(me) => (me.character ? <World me={me} /> : <Passport me={me} />)}</StudentGate>
 }
 
 // 여권: 캐릭터와 섬 이름, 말버릇을 정한다
@@ -73,8 +73,13 @@ function Passport({ me }) {
   )
 }
 
+// 교사실의 '섬마을' 탭: 학생 로그인 없이 섬 구경만 한다(캐릭터·채집·편지·민원·기부는 없다)
+export function Village({ year }) {
+  return <World me={{ year, no: '', name: '선생님', teacher: true }} />
+}
+
 function World({ me }) {
-  const [scene, setScene] = useState('island')
+  const [scene, setScene] = useState(me.teacher ? 'plaza' : 'island')
   const [wx, setWx] = useState(undefined) // undefined: 불러오는 중, null: 실패
   const [, tick] = useState(0)
   const [settings, setSettings] = useState({})
@@ -115,7 +120,7 @@ function World({ me }) {
     ],
     visit: [
       { x: 50, y: 33, w: 20, img: 'buildings/house', label: `${friend?.islandName || friend?.name}의 집`, onClick: () => tell(`${friend?.name}의 집이에요. 문이 닫혀 있어요, 총총!`) },
-      { x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) },
+      ...(me.teacher ? [] : [{ x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) }]),
     ],
     plaza: [
       { x: 50, y: 62, w: 17, img: 'decor/decor_01', label: '', onClick: () => {} },
@@ -131,7 +136,7 @@ function World({ me }) {
   const tab = TAB_OF[scene] ?? scene
 
   return (
-    <main className="page">
+    <Wrap className={me.teacher ? undefined : 'page'}>
       <header className="bar">
         <h1>{settings.countryName || '우리 반 섬나라'}</h1>
         <span className="wx" role="status">
@@ -141,13 +146,14 @@ function World({ me }) {
           {me.islandName ? `${me.islandName} · ` : ''}
           {me.name}
         </span>
-        <RoomLinks />
-        <button className="ghost" onClick={() => signOut(auth)}>
-          로그아웃
-        </button>
+        {!me.teacher && (
+          <button className="ghost" onClick={() => signOut(auth)}>
+            로그아웃
+          </button>
+        )}
       </header>
       <nav className="tabs">
-        {NAV.map(([k, label]) => (
+        {NAV.filter(([k]) => !(me.teacher && k === 'island')).map(([k, label]) => (
           <button key={k} className={tab === k ? '' : 'ghost'} aria-pressed={tab === k} onClick={() => setScene(k)}>
             {label}
           </button>
@@ -178,10 +184,10 @@ function World({ me }) {
             spots={spots}
           />
           {scene === 'visit' && friend && <Guestbook me={me} friend={friend} settings={settings} />}
-          {scene === 'sea' && <Catch me={me} kind="fish" cols={cols} left={left} limit={limit} />}
-          {scene === 'forest' && <Catch me={me} kind="bug" cols={cols} left={left} limit={limit} />}
+          {!me.teacher && scene === 'sea' && <Catch me={me} kind="fish" cols={cols} left={left} limit={limit} />}
+          {!me.teacher && scene === 'forest' && <Catch me={me} kind="bug" cols={cols} left={left} limit={limit} />}
         </>
       )}
-    </main>
+    </Wrap>
   )
 }

@@ -14,11 +14,11 @@ export default function Footer() {
           />
           <div>
             <span className="f-wm">MINARI STUDIO</span>
-            <span className="f-tag">Classroom Tools for Teachers · 총총섬</span>
+            <span className="f-tag">Classroom Tools for Teachers</span>
           </div>
         </div>
         <div className="f-legal">
-          © 2026 MINARI STUDIO. All rights reserved.<span className="sep">|</span>Chongchong Island Web App {VERSION}
+          © 2026 MINARI STUDIO. All rights reserved.<span className="sep">|</span>Island Web App {VERSION}
           <span className="f-long">
             <br />
             본 웹앱의 디자인·아이콘·소스 코드에 대한 권리는 MINARI STUDIO에 있으며, 무단 복제 및 재배포를 금합니다.

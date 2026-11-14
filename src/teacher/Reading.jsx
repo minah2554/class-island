@@ -112,7 +112,7 @@ export default function Reading({ year, students, me }) {
             <input key={month.id + (data.off ?? '')} defaultValue={(data.off ?? []).join(', ')} placeholder="예: 1, 15" onBlur={(e) => saveOff(e.target.value)} />
           </label>
         )}
-        <button className="ghost" onClick={() => writeFile(utils.table_to_book(table.current, { raw: true }), `총총섬_독서기록장_${month.id}.xlsx`)}>
+        <button className="ghost" onClick={() => writeFile(utils.table_to_book(table.current, { raw: true }), `섬마을_독서기록장_${month.id}.xlsx`)}>
           엑셀 다운로드
         </button>
       </div>

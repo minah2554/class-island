@@ -17,7 +17,7 @@ export default function Manage({ year, students }) {
     const out = { year, saved: new Date().toISOString(), settings: cfg }
     for (const p of PARTS) out[p] = (await getDocs(collection(yearDoc(year), p))).docs.map((d) => ({ id: d.id, ...d.data() }))
     const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' }))
-    Object.assign(document.createElement('a'), { href: url, download: `총총섬_${year}학년도_백업.json` }).click()
+    Object.assign(document.createElement('a'), { href: url, download: `섬마을_${year}학년도_백업.json` }).click()
     URL.revokeObjectURL(url)
   }
 

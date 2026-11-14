@@ -22,10 +22,12 @@ export default function Guestbook({ me, friend, settings }) {
   return (
     <section className="card catch">
       <h3>{friend.islandName || friend.name} 방명록</h3>
+      {!me.teacher && (
       <form className="row" onSubmit={write}>
         <input name="text" maxLength="100" placeholder="한마디 남기기 (100자)" required aria-label="방명록 글" style={{ flex: 1 }} />
         <button>남기기</button>
       </form>
+      )}
       {notes.map((n) => (
         <p key={n.id} className="memo">
           <b>{n.fromName}</b> {n.text} <small>{when(n)}</small>

@@ -39,7 +39,7 @@ export default function Tardy({ year, students, me }) {
     (await ask(`${s.name}의 지각 기록(${short(t.date)})을 삭제할까요?`)) && deleteDoc(doc(yearCol(year, 'tardies'), t.id))
 
   function download() {
-    writeFile(utils.table_to_book(table.current, { raw: true }), `총총섬_지각_${year}.xlsx`)
+    writeFile(utils.table_to_book(table.current, { raw: true }), `섬마을_지각_${year}.xlsx`)
   }
 
   return (

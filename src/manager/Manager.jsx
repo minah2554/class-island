@@ -13,7 +13,7 @@ import Tickets from '../teacher/Tickets'
 const TABS = { tardy: Tardy, tickets: Tickets, reading: Reading }
 
 export default function Manager() {
-  return <StudentGate title="총총섬 담당자실">{(me) => <Room me={me} />}</StudentGate>
+  return <StudentGate title="담당 친구 입구">{(me) => <Room me={me} />}</StudentGate>
 }
 
 function Room({ me }) {
@@ -36,7 +36,7 @@ function Room({ me }) {
   if (!roles.length)
     return (
       <main className="card center narrow">
-        <h1>총총섬 담당자실</h1>
+        <h1 className="title">담당 친구 방</h1>
         <p>{me.name} 님은 맡은 1인 1역이 없어요.</p>
         {out}
       </main>
@@ -56,7 +56,7 @@ function Room({ me }) {
   if (!open)
     return (
       <form className="card center narrow" onSubmit={unlock}>
-        <h1>총총섬 담당자실</h1>
+        <h1 className="title">담당 친구 방</h1>
         <p>
           {me.name} · {roles.map((r) => ROLES[r]).join(', ')} 담당
         </p>
@@ -80,11 +80,11 @@ function Room({ me }) {
   return (
     <main className="page">
       <header className="bar">
-        <h1>총총섬 담당자실</h1>
+        <h1 className="title">담당 친구 방</h1>
         <span>
           {me.name} · {me.year}학년도
         </span>
-        <RoomLinks />
+        <RoomLinks show={['#/']} />
         {out}
       </header>
       <nav className="tabs">

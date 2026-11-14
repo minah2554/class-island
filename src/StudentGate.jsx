@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { parseEmail } from './account'
-import { auth, db, schoolYear, yearOptions } from './firebase'
+import { auth, db, schoolYear } from './firebase'
+import { useYears } from './years'
 import RoomLinks from './RoomLinks'
 import { cancel, enter, register } from './student'
 
 // 학생 로그인을 통과해야 children(me)를 보여 준다. me = 학생 문서 + year
-export default function StudentGate({ title, children }) {
+export default function StudentGate({ title, landing, children }) {
   const [user, setUser] = useState(undefined)
   const [me, setMe] = useState(null)
 
@@ -27,10 +28,12 @@ export default function StudentGate({ title, children }) {
 
   if (user === undefined) return <p className="card center">불러오는 중…</p>
   if (id && me?.uid === user.uid) return children({ ...me, year: id.year })
-  return <Login title={title} />
+  return <Login title={title} landing={landing} />
 }
 
-function Login({ title }) {
+function Login({ title, landing }) {
+  const years = useYears()
+  const [started, setStarted] = useState(!landing) // 첫 화면은 그림과 [로그인하기]만 보여 준다
   const [step, setStep] = useState('form') // form | confirm(처음 온 학생의 비밀번호 확인)
   const [form, setForm] = useState({ year: schoolYear(), no: '', name: '', pin: '' })
   const [error, setError] = useState('')
@@ -57,15 +60,28 @@ function Login({ title }) {
     setBusy(false)
   }
 
+  if (!started)
+    return (
+      <div className="landing">
+        <img src="assets/scenes/title.webp" alt="" />
+        <h1 className="title">우리 반 섬나라</h1>
+        <div className="landing-cta">
+          <button onClick={() => setStarted(true)}>로그인하기</button>
+          <RoomLinks />
+        </div>
+      </div>
+    )
+
   return (
     <form className="card center narrow" onSubmit={submit}>
-      <h1>{title}</h1>
+      <img className="login-banner" src="assets/scenes/title.webp" alt="" />
+      {title && <h1 className="title">{title}</h1>}
       {step === 'form' ? (
         <>
           <label>
             학년도
             <select value={form.year} onChange={set('year')}>
-              {yearOptions().map((y) => (
+              {years.map((y) => (
                 <option key={y}>{y}</option>
               ))}
             </select>

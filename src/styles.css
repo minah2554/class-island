@@ -1,3 +1,4 @@
+@font-face { font-family: 'MemomentKkukkuk'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2508-2@1.0/memomentKkukKkuk.woff2') format('woff2'); font-weight: normal; font-display: swap; }
 :root {
   --bg: #f4f9ee;
   --card: #fffdf7;
@@ -10,8 +11,9 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
-h1 { font-size: 1.4rem; margin: 0; }
-h2 { font-size: 1.2rem; }
+h1 { font-size: 1.5rem; margin: 0; }
+h2 { font-size: 1.25rem; }
+h1, h2 { font-family: 'MemomentKkukkuk', 'Pretendard Variable', Pretendard, sans-serif; font-weight: normal; letter-spacing: 0.02em; }
 h3 { font-size: 1rem; margin: 0 0 8px; }
 small { font-weight: normal; color: #7a8a78; }
 
@@ -190,3 +192,23 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .islands .dex-card button { margin-top: 4px; }
 textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-radius: 12px; padding: 8px; box-sizing: border-box; }
 
+
+/* 청소면제권 표: 가로 스크롤 없이 한 화면에 들어오게 하고, 날짜 내역은 팝업으로 */
+.sheet.tickets { width: 100%; }
+.sheet.tickets td { white-space: nowrap; }
+.sheet.tickets .meter { min-width: 110px; }
+.history { width: min(520px, 94vw); }
+.history-body { max-height: 60vh; overflow-y: auto; text-align: left; }
+.history-body h4 { margin: 10px 0 4px; }
+
+.landing { position: relative; max-width: 440px; margin: 0 auto; border-radius: 24px; overflow: hidden; border: 2px solid var(--line); }
+.landing img { width: 100%; display: block; max-height: 88vh; object-fit: cover; object-position: 50% 100%; }
+.landing .title { position: absolute; top: 7%; left: 0; right: 0; text-align: center; font-size: 2.4rem; color: #fff; text-shadow: 0 3px 8px rgba(40, 90, 130, 0.45); }
+.landing-cta { position: absolute; bottom: 5%; left: 0; right: 0; display: grid; justify-items: center; gap: 10px; }
+.landing-cta > button { font-size: 1.15rem; padding: 10px 34px; border-radius: 22px; }
+.login-banner { width: 100%; height: 150px; object-fit: cover; object-position: 50% 78%; border-radius: 14px; }
+.rooms { display: flex; justify-content: center; gap: 10px; }
+.rooms button { font-size: 0.85rem; padding: 4px 14px; border-radius: 14px; }
+.stats { gap: 10px; }
+.stats .card { display: grid; gap: 2px; min-width: 130px; }
+.stats b { font-size: 1.3rem; }

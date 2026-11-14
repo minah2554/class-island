@@ -3,7 +3,7 @@ import { ALL } from './species'
 import { fund } from './Shop'
 import { when } from './hooks'
 
-// 총총섬 전체: 반 소식과 모든 친구 섬. [놀러가기]로 친구 섬에 간다.
+// 섬나라 전체: 반 소식과 모든 친구 섬. [놀러가기]로 친구 섬에 간다.
 export default function Country({ me, cols, settings, bought, onVisit, onBoard }) {
   const students = useStudents(me.year).filter((s) => s.character) // 여권을 만든 친구만
   const notices = useDocs(me.year, 'notices').sort((a, b) => (b.at?.seconds ?? 9e9) - (a.at?.seconds ?? 9e9))

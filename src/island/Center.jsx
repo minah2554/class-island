@@ -43,6 +43,7 @@ export default function Center({ me, settings, left }) {
         <img src="assets/npc/rabbit_talk.webp" alt="" />
         <span className="bubble">{say}</span>
       </button>
+      {!me.teacher && (
       <form className="card" onSubmit={send}>
         <h3>민원함</h3>
         <p>
@@ -51,6 +52,7 @@ export default function Center({ me, settings, left }) {
         <textarea name="text" maxLength="300" rows="4" required placeholder="바라는 점이나 불편한 점" />
         <button>민원 내기</button>
       </form>
+      )}
       {mine.map((c) => (
         <article key={c.id} className="card">
           <small>{when(c)}</small>

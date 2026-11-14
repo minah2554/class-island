@@ -8,20 +8,24 @@ import {
   signOut,
 } from 'firebase/auth'
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore'
-import { TEACHER_EMAIL, auth, db, pad, schoolYear, yearOptions } from '../firebase'
+import { TEACHER_EMAIL, auth, db, pad, schoolYear } from '../firebase'
+import { askText, tell } from '../popup'
+import { useYears } from '../years'
+import { Village } from '../island/Island'
 import { useDocs, useStudents } from '../data'
 import { mismatched } from '../records'
 import RoomLinks from '../RoomLinks'
 import Corrections from './Corrections'
 import Reading from './Reading'
 import Manage from './Manage'
+import Report from './Report'
 import Notices from './Notices'
 import Post from './Post'
 import Roster from './Roster'
 import Tardy from './Tardy'
 import Tickets from './Tickets'
 
-const TABS = { 명단: Roster, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, '정정 요청': Corrections, '편지·민원': Post, 공지: Notices, '설정·백업': Manage }
+const TABS = { 명단: Roster, 통계: Report, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, '정정 요청': Corrections, '편지·민원': Post, 공지: Notices, 섬마을: Village, '설정·백업': Manage }
 
 const teacherDoc = () => doc(db, 'config', 'teacher')
 
@@ -89,7 +93,7 @@ export default function Teacher() {
   if (state === 'ok') return <Dashboard />
   return (
     <form className="card center narrow" onSubmit={submit}>
-      <h1>총총섬 교사실</h1>
+      <h1 className="title">선생님 방</h1>
       {state === 'setup' && <p>처음 한 번, 교사 비밀번호를 정합니다.</p>}
       <label>
         비밀번호
@@ -111,6 +115,7 @@ export default function Teacher() {
 function Dashboard() {
   const [year, setYear] = useState(schoolYear)
   const [country, setCountry] = useState('')
+  const years = useYears()
   const [tab, setTab] = useState('명단')
   const [cfg, setCfg] = useState({})
   const save = (patch) => setDoc(doc(db, 'years', String(year)), patch, { merge: true })
@@ -134,15 +139,28 @@ function Dashboard() {
   return (
     <main className="page">
       <header className="bar">
-        <h1>총총섬 교사실</h1>
+        <h1 className="title">선생님 방</h1>
         <label>
           학년도
           <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
-            {yearOptions().map((y) => (
+            {years.map((y) => (
               <option key={y}>{y}</option>
             ))}
           </select>
         </label>
+        <button
+          className="ghost"
+          onClick={async () => {
+            const typed = await askText('추가할 학년도를 숫자로 적어 주세요. 예: 2027')
+            if (typed === null) return
+            const y = Number(typed.trim())
+            if (!Number.isInteger(y) || y < 2020 || y > 2100) return tell('2020~2100 사이의 학년도(숫자)를 적어 주세요.')
+            await setDoc(doc(db, 'config', 'years'), { list: [...new Set([...years, y])] }, { merge: true })
+            setYear(y)
+          }}
+        >
+          학년도 추가
+        </button>
         <label>
           나라 이름
           <input
@@ -184,7 +202,7 @@ function Dashboard() {
           </button>
         ))}
       </nav>
-      <Tab year={year} students={students} />
+      <Tab year={year} students={students} cfg={cfg} />
     </main>
   )
 }

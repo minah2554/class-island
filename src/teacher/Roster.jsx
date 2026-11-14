@@ -64,7 +64,7 @@ export default function Roster({ year }) {
   function template() {
     const book = utils.book_new()
     utils.book_append_sheet(book, utils.aoa_to_sheet([['학번', '이름'], ['2101', '홍길동']]), '명단')
-    writeFile(book, '총총섬_명단_양식.xlsx')
+    writeFile(book, '섬마을_명단_양식.xlsx')
   }
 
   async function addOne(e) {

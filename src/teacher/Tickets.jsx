@@ -33,6 +33,7 @@ export default function Tickets({ year, students, me }) {
   const [n, setN] = useState(1)
   const [date, setDate] = useState(ymd)
   const [reason, setReason] = useState('')
+  const [openNo, setOpenNo] = useState(null) // 날짜별 내역을 펼쳐 볼 학생
   const side = me ? 'm' : 't'
   const by = me ?? 'teacher'
 
@@ -62,7 +63,7 @@ export default function Tickets({ year, students, me }) {
     if (l.type === 'take') return `${d} −${l.n} 회수${why}`
     if (l.type === 'use') return `${d} ${l.n}장${why}`
     if (l.type === 'late') return `${d} 지각 반납 1장`
-    if (l.type === 'confirm') return `${d} 확정 ${col === 'got' ? l.got : l.used}장`
+    if (l.type === 'confirm') return `${d} 확정 ${(col === 'got' ? l.got : l.used) ?? ''}장`
     return `${d} ${l.n}장으로 수정`
   }
   // 받은 쪽 내역인지 사용 쪽 내역인지
@@ -126,10 +127,9 @@ export default function Tickets({ year, students, me }) {
     const book = utils.book_new()
     utils.book_append_sheet(book, utils.aoa_to_sheet([['번호', '학번', '이름', '받음', '사용', '남음', '배부 내역', '사용 내역'], ...summary]), '현황')
     utils.book_append_sheet(book, utils.aoa_to_sheet([['날짜', '번호', '학번', '이름', '구분', '개수', '사유', '입력'], ...detail.sort((a, b) => a[0].localeCompare(b[0]))]), '날짜별 내역')
-    writeFile(book, `총총섬_청소면제권_${year}.xlsx`)
+    writeFile(book, `섬마을_청소면제권_${year}.xlsx`)
   }
 
-  const chips = (list, col) => (list.length ? list.map((l) => <span key={l.id} className="chip">{text(l, col)}</span>) : '-')
 
   return (
     <section>
@@ -163,7 +163,7 @@ export default function Tickets({ year, students, me }) {
       </div>
       {me && <p className="hint">저장한 기록은 고칠 수 없으니 잘못 입력했으면 아래 정정 요청으로 선생님께 알려 주세요.</p>}
       <div className="scroll">
-        <table className="sheet wrap">
+        <table className="sheet tickets">
           <thead>
             <tr>
               <th>
@@ -175,12 +175,11 @@ export default function Tickets({ year, students, me }) {
               <th>번호</th>
               <th>이름</th>
               <th>현황</th>
-              <th>배부 내역</th>
-              <th>사용 내역</th>
               {!me && <th>받음</th>}
               {!me && <th>사용</th>}
               {!me && <th>담당자 기록</th>}
               {!me && <th>이중 체크</th>}
+              <th>날짜별 내역</th>
             </tr>
           </thead>
           <tbody>
@@ -199,8 +198,6 @@ export default function Tickets({ year, students, me }) {
                   <td>
                     <Meter got={t.got} used={t.used} max={max} />
                   </td>
-                  <td className="chips">{chips(h.filter(isGot), 'got')}</td>
-                  <td className="chips">{chips(h.filter(isUsed), 'used')}</td>
                   {!me &&
                     ['got', 'used'].map((f) => (
                       <td key={f}>
@@ -233,12 +230,62 @@ export default function Tickets({ year, students, me }) {
                       )}
                     </td>
                   )}
+                  <td>
+                    <button className="ghost" onClick={() => setOpenNo(s.no)} disabled={!h.length}>
+                      내역 {h.length}건
+                    </button>
+                  </td>
                 </tr>
               )
             })}
           </tbody>
         </table>
       </div>
+      {openNo && <History student={students.find((s) => s.no === openNo)} list={history(openNo)} onClose={() => setOpenNo(null)} />}
     </section>
+  )
+}
+
+// 한 학생의 날짜별 내역: 최근 날짜가 위, 달마다 묶는다(1년이 쌓여도 표가 늘어나지 않는다)
+function History({ student, list, onClose }) {
+  const label = (l) => {
+    if (l.type === 'give') return `+${l.n}장 배부`
+    if (l.type === 'take') return `${l.n}장 회수`
+    if (l.type === 'use') return `${l.n}장 사용`
+    if (l.type === 'late') return '지각 반납 1장'
+    if (l.type === 'confirm') return `확정 (받음 ${l.got ?? '?'} · 사용 ${l.used ?? '?'})`
+    return `${l.field === 'got' ? '받음' : '사용'} ${l.n}장으로 수정`
+  }
+  const sorted = [...list].sort((a, b) => b.date.localeCompare(a.date))
+  const months = [...new Set(sorted.map((l) => l.date.slice(0, 7) || '이전'))]
+  return (
+    <dialog className="popup history" ref={(d) => d && !d.open && d.showModal()} onClose={onClose}>
+      <form method="dialog">
+        <h3>
+          {student?.name} 청소면제권 내역 <small>{list.length}건</small>
+        </h3>
+        <div className="history-body">
+          {months.map((m) => (
+            <div key={m}>
+              <h4>{m === '이전' ? '날짜 없음' : `${Number(m.slice(0, 4))}년 ${Number(m.slice(5))}월`}</h4>
+              <table className="sheet">
+                <tbody>
+                  {sorted
+                    .filter((l) => (l.date.slice(0, 7) || '이전') === m)
+                    .map((l) => (
+                      <tr key={l.id}>
+                        <td>{short(l.date)}</td>
+                        <td className="left-text">{label(l)}</td>
+                        <td className="left-text">{l.reason ?? ''}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+        <button>닫기</button>
+      </form>
+    </dialog>
   )
 }

@@ -50,10 +50,12 @@ export default function Shop({ me, cols, bought = {} }) {
           <p>
             <img src="assets/ui/shell.webp" alt="" className="mini" /> 내 조개 <b>{have}</b>개 · 반 기금 <b>{pool}</b>개
           </p>
+          {!me.teacher && (
           <form className="row" onSubmit={donate}>
             <input name="n" type="number" min="1" max={have} placeholder="기부할 개수" style={{ width: '9em' }} aria-label="기부할 조개 개수" />
             <button disabled={have < 1}>기금에 보태기</button>
           </form>
+          )}
           <small>물고기·곤충을 잡으면 조개를 얻어요. 희귀할수록 많이 줘요.</small>
         </div>
       </div>
@@ -65,7 +67,7 @@ export default function Shop({ me, cols, bought = {} }) {
             {bought[d.id] ? (
               <small>광장에 놓였어요</small>
             ) : (
-              <button onClick={() => buy(d)} disabled={pool < d.cost}>
+              <button onClick={() => buy(d)} disabled={me.teacher || pool < d.cost}>
                 {d.cost}개로 사기
               </button>
             )}
