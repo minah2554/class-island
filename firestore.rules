@@ -72,12 +72,12 @@ service cloud.firestore {
 
       // 담당자는 새 기록을 추가만 할 수 있다. 수정·삭제는 선생님만.
       match /tardies/{id} {
-        allow read: if isTeacher() || isManager(year);
+        allow read: if isTeacher() || isManager(year) || (isMember(year) && resource.data.no == myNo());
         allow write: if isTeacher();
         allow create: if hasRole(year, 'tardy') && request.resource.data.by == myNo();
       }
       match /penalties/{id} {
-        allow read: if isTeacher() || isManager(year);
+        allow read: if isTeacher() || isManager(year) || (isMember(year) && resource.data.no == myNo());
         allow write: if isTeacher();
         allow create: if hasRole(year, 'tardy') && request.resource.data.by == myNo();
       }
@@ -86,14 +86,14 @@ service cloud.firestore {
       // shortcut: 한 문서에 m과 t가 같이 있어 담당자가 선생님 값(t)을 읽을 수는 있다(화면에는 안 보임).
       // 완전히 숨겨야 하면 문서를 둘로 나눈다.
       match /tickets/{no} {
-        allow read: if isTeacher() || isManager(year);
+        allow read: if isTeacher() || isManager(year) || (isMember(year) && no == myNo());
         allow write: if isTeacher();
         allow create: if hasRole(year, 'tickets') && request.resource.data.keys().hasOnly(['m']);
         allow update: if hasRole(year, 'tickets')
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['m']);
       }
       match /ticketLog/{id} {
-        allow read: if isTeacher() || isManager(year);
+        allow read: if isTeacher() || isManager(year) || (isMember(year) && resource.data.no == myNo());
         allow write: if isTeacher();
         allow create: if hasRole(year, 'tickets') && request.resource.data.by == myNo();
       }
@@ -120,6 +120,43 @@ service cloud.firestore {
       match /daily/{date} {
         allow read: if isTeacher() || isMember(year);
         allow write: if isTeacher() || hasRole(year, 'reading');
+      }
+
+      // 학생별 독서기록 사본(내 집에서 본인 것만 읽는다)
+      match /stats/{no} {
+        allow read: if isTeacher() || (isMember(year) && no == myNo());
+        allow write: if isTeacher() || hasRole(year, 'reading');
+      }
+
+      // 편지: 보낸 사람·받는 사람·선생님만 읽는다. 지우는 것은 선생님만.
+      match /letters/{id} {
+        allow read: if isTeacher() || (isMember(year) && (resource.data.from == myNo() || resource.data.to == myNo()));
+        allow write: if isTeacher();
+        allow create: if isMember(year) && request.resource.data.from == myNo()
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 300;
+      }
+      // 민원: 이름은 선생님과 낸 본인만 볼 수 있다
+      match /complaints/{id} {
+        allow read: if isTeacher() || (isMember(year) && resource.data.from == myNo());
+        allow write: if isTeacher();
+        allow create: if isMember(year) && request.resource.data.from == myNo()
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 300;
+      }
+      match /notices/{id} {
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher();
+      }
+      match /guestbook/{id} {
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher();
+        allow create: if isMember(year) && request.resource.data.from == myNo()
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 100;
+      }
+      // 광장 꾸미기: 산 물건 표시만 학생이 바꿀 수 있다
+      match /plaza/{id} {
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher();
+        allow create, update: if isMember(year) && request.resource.data.keys().hasOnly(['bought']);
       }
 
       match /corrections/{id} {

@@ -1,0 +1,15 @@
+{
+  "name": "총총섬",
+  "short_name": "총총섬",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f3f8ec",
+  "theme_color": "#f3f8ec",
+  "icons": [
+    {
+      "src": "assets/minari-logo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

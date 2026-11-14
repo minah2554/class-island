@@ -11,13 +11,17 @@ import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import { TEACHER_EMAIL, auth, db, pad, schoolYear, yearOptions } from '../firebase'
 import { useDocs, useStudents } from '../data'
 import { mismatched } from '../records'
+import RoomLinks from '../RoomLinks'
 import Corrections from './Corrections'
 import Reading from './Reading'
+import Manage from './Manage'
+import Notices from './Notices'
+import Post from './Post'
 import Roster from './Roster'
 import Tardy from './Tardy'
 import Tickets from './Tickets'
 
-const TABS = { 명단: Roster, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, '정정 요청': Corrections }
+const TABS = { 명단: Roster, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, '정정 요청': Corrections, '편지·민원': Post, 공지: Notices, '설정·백업': Manage }
 
 const teacherDoc = () => doc(db, 'config', 'teacher')
 
@@ -99,6 +103,7 @@ export default function Teacher() {
       )}
       {error && <p className="error" role="alert">{error}</p>}
       <button>{state === 'setup' ? '교사 계정 만들기' : '들어가기'}</button>
+      <RoomLinks />
     </form>
   )
 }
@@ -115,6 +120,7 @@ function Dashboard() {
   const alerts = {
     청소면제권: useDocs(year, 'tickets').filter(mismatched).length,
     '정정 요청': useDocs(year, 'corrections').filter((c) => !c.done).length,
+    '편지·민원': useDocs(year, 'complaints').filter((c) => !c.reply).length,
   }
 
   useEffect(
@@ -154,6 +160,7 @@ function Dashboard() {
           도감 완성 보상
           <input key={cfg.reward} defaultValue={cfg.reward ?? ''} placeholder="예: 단체 간식!" onBlur={(e) => save({ reward: e.target.value.trim() })} />
         </label>
+        <RoomLinks />
         <button className="ghost" onClick={() => signOut(auth)}>
           로그아웃
         </button>

@@ -3,6 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { parseEmail } from './account'
 import { auth, db, schoolYear, yearOptions } from './firebase'
+import RoomLinks from './RoomLinks'
 import { cancel, enter, register } from './student'
 
 // 학생 로그인을 통과해야 children(me)를 보여 준다. me = 학생 문서 + year
@@ -90,6 +91,7 @@ function Login({ title }) {
       )}
       {error && <p className="error" role="alert">{error}</p>}
       <button disabled={busy}>{step === 'form' ? '들어가기' : '비밀번호 정하기'}</button>
+      <RoomLinks />
     </form>
   )
 }

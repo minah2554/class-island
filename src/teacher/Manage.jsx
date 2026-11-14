@@ -1,0 +1,78 @@
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
+import { useEffect, useState } from 'react'
+import { db } from '../firebase'
+import { askText, tell } from '../popup'
+
+// 학년도 아래 컬렉션 이름 전부(백업·삭제 대상)
+const PARTS = ['students', 'tardies', 'penalties', 'tickets', 'ticketLog', 'reading', 'corrections', 'managerPins', 'collections', 'daily', 'stats', 'letters', 'complaints', 'notices', 'guestbook', 'plaza']
+const yearDoc = (y) => doc(db, 'years', String(y))
+
+// 설정(반장·나쁜 말 목록)과 학년도 백업·삭제
+export default function Manage({ year, students }) {
+  const [cfg, setCfg] = useState({})
+  useEffect(() => onSnapshot(yearDoc(year), (s) => setCfg(s.data() ?? {})), [year])
+  const save = (patch) => setDoc(yearDoc(year), patch, { merge: true })
+
+  async function backup() {
+    const out = { year, saved: new Date().toISOString(), settings: cfg }
+    for (const p of PARTS) out[p] = (await getDocs(collection(yearDoc(year), p))).docs.map((d) => ({ id: d.id, ...d.data() }))
+    const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' }))
+    Object.assign(document.createElement('a'), { href: url, download: `총총섬_${year}학년도_백업.json` }).click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function wipe() {
+    const typed = await askText(`${year}학년도의 모든 기록을 지웁니다. 먼저 백업을 받으셨나요?\n계속하려면 ${year} 를 입력하세요.`)
+    if (typed === null) return
+    if (typed.trim() !== String(year)) return tell('학년도가 맞지 않아 취소했습니다.')
+    for (const p of PARTS) {
+      const docs = (await getDocs(collection(yearDoc(year), p))).docs
+      for (let i = 0; i < docs.length; i += 400) {
+        const b = writeBatch(db)
+        docs.slice(i, i + 400).forEach((d) => b.delete(d.ref))
+        await b.commit()
+      }
+    }
+    await deleteDoc(yearDoc(year))
+    await deleteDoc(doc(db, 'loginIndex', String(year)))
+    tell(`${year}학년도 기록을 지웠습니다. (로그인 계정 자체는 Firebase 콘솔 Authentication에서 따로 지울 수 있습니다.)`)
+  }
+
+  return (
+    <section>
+      <h2>설정</h2>
+      <div className="card">
+        <label>
+          반장 (학생이 반장님께 편지를 쓸 때 쓰입니다)
+          <select value={cfg.president ?? ''} onChange={(e) => save({ president: e.target.value })}>
+            <option value="">정하지 않음</option>
+            {students.map((s) => (
+              <option key={s.no} value={s.no}>
+                {s.no} {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          추가로 막을 낱말 (쉼표로 구분, 기본 나쁜 말은 이미 막혀 있습니다)
+          <input
+            key={(cfg.banned ?? []).join()}
+            defaultValue={(cfg.banned ?? []).join(', ')}
+            placeholder="예: 바보, 못생김"
+            onBlur={(e) => save({ banned: e.target.value.split(/[,\s]+/).map((w) => w.trim()).filter(Boolean) })}
+          />
+        </label>
+      </div>
+      <h2>백업과 삭제</h2>
+      <div className="card">
+        <p>{year}학년도의 명단·지각·면제권·독서기록·편지·민원 등 모든 기록을 파일 하나로 내려받습니다.</p>
+        <div className="row">
+          <button onClick={backup}>{year}학년도 백업 받기</button>
+          <button className="danger" onClick={wipe}>
+            {year}학년도 기록 모두 지우기
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}

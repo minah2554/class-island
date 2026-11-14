@@ -4,6 +4,7 @@ import { addDoc, doc, onSnapshot, query, serverTimestamp, setDoc, where } from '
 import StudentGate from '../StudentGate'
 import { useStudents, yearCol } from '../data'
 import { auth } from '../firebase'
+import RoomLinks from '../RoomLinks'
 import { ROLES } from '../roles'
 import Reading from '../teacher/Reading'
 import Tardy from '../teacher/Tardy'
@@ -83,6 +84,7 @@ function Room({ me }) {
         <span>
           {me.name} · {me.year}학년도
         </span>
+        <RoomLinks />
         {out}
       </header>
       <nav className="tabs">

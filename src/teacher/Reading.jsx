@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { deleteField, doc, onSnapshot, setDoc } from 'firebase/firestore'
+import { deleteField, doc, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
 import { utils, writeFile } from 'xlsx'
 import { yearCol } from '../data'
+import { db } from '../firebase'
 import { ask, tell } from '../popup'
 import { pad2, schoolMonths, weekdays } from '../records'
 
@@ -31,7 +32,12 @@ export default function Reading({ year, students, me }) {
   const put = (d, entries) => {
     const merged = { ...savedDay(d), ...entries }
     const allRead = students.length > 0 && students.every((s) => merged[s.no] === 'o')
-    setDoc(doc(yearCol(year, 'daily'), `${month.y}-${pad2(month.m)}-${pad2(d)}`), { allRead })
+    const date = `${month.y}-${pad2(month.m)}-${pad2(d)}`
+    setDoc(doc(yearCol(year, 'daily'), date), { allRead })
+    // 학생이 '내 집'에서 자기 기록만 볼 수 있도록 학생별로도 남긴다
+    const b = writeBatch(db)
+    Object.entries(entries).forEach(([no, v]) => b.set(doc(yearCol(year, 'stats'), no), { reading: { [date]: v } }, { merge: true }))
+    b.commit()
     return setDoc(ref, { days: { [pad2(d)]: entries } }, { merge: true })
   }
 

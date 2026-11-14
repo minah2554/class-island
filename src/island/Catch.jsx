@@ -6,6 +6,8 @@ import { tell } from '../popup'
 import { KINDS, TIERS, draw, imageOf, nameOf, speciesId, tierOf } from './species'
 
 // 막대 위를 오가는 표시가 초록 구간 안에 있을 때 [지금!]을 누르면 성공. 희귀할수록 구간이 좁고 빠르다.
+const SHELLS = [1, 2, 4, 8, 20]
+
 function Timing({ tier, onDone }) {
   const t = TIERS[tier]
   const [zone] = useState(() => ({ x: 0.1 + Math.random() * (0.8 - t.zone), w: t.zone }))
@@ -64,7 +66,8 @@ export default function Catch({ me, kind, cols, left, limit }) {
     setStage('result')
     if (!ok) return
     const first = !mine.items?.[cur.id]
-    await setDoc(ref, { name: me.name, items: { [cur.id]: { n: increment(1), ...(first ? { first: serverTimestamp() } : {}) } } }, { merge: true })
+    // 희귀할수록 조개를 많이 준다(꾸미기 상점에서 쓴다)
+    await setDoc(ref, { name: me.name, shells: increment(SHELLS[cur.tier]), items: { [cur.id]: { n: increment(1), ...(first ? { first: serverTimestamp() } : {}) } } }, { merge: true })
   }
 
   const classNew = cur && !cols.some((c) => c.items?.[cur.id])
@@ -90,7 +93,7 @@ export default function Catch({ me, kind, cols, left, limit }) {
           <img src={imageOf(cur.id)} alt="" className={got ? '' : 'shadow'} />
           {got ? (
             <p>
-              <b>{nameOf(cur.id)}</b> 잡았어요! <span className="chip">{TIERS[cur.tier].label}</span>
+              <b>{nameOf(cur.id)}</b> 잡았어요! 조개 +{SHELLS[cur.tier]} <span className="chip">{TIERS[cur.tier].label}</span>
               {classNew && <strong className="new"> 반에서 처음 발견!</strong>}
             </p>
           ) : (

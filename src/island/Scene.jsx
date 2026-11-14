@@ -1,5 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 
+// 멀리(위쪽) 있을수록 작게 보이게 해서 깊이감을 준다
+const depth = (y) => 7.5 + y * 0.06
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
 
 // 걸어 다닐 수 있는 영역 안으로 목표 지점을 끌어온다. walk: 타원 {cx,cy,rx,ry} 또는 사각형 {x0,x1,y0,y1} (모두 %)
@@ -49,8 +51,8 @@ function Weather({ kind }) {
 
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 걸어 다닌다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], children }) {
-  const [pos, setPos] = useState({ x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6, flip: false, moving: false })
+export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], children }) {
+  const [pos, setPos] = useState({ x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6, flip: false, moving: false, dur: 0 })
   const [talk, setTalk] = useState(false)
   const timer = useRef()
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
@@ -58,9 +60,13 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
 
   function go(x, y) {
     const [nx, ny] = limit(walk, x, y)
-    setPos((p) => ({ x: nx, y: ny, flip: nx < p.x, moving: true }))
-    clearTimeout(timer.current)
-    timer.current = setTimeout(() => setPos((p) => ({ ...p, moving: false })), 900)
+    // 걷는 속도는 늘 같게: 먼 곳은 오래, 가까운 곳은 짧게 (화면이 3:2라 가로를 1.5배로 계산)
+    setPos((p) => {
+      const dur = Math.min(3, Math.max(0.2, Math.hypot((nx - p.x) * 1.5, ny - p.y) * 0.05))
+      clearTimeout(timer.current)
+      timer.current = setTimeout(() => setPos((q) => ({ ...q, moving: false })), dur * 1000)
+      return { x: nx, y: ny, flip: Math.abs(nx - p.x) < 0.5 ? p.flip : nx < p.x, moving: true, dur }
+    })
   }
   function click(e) {
     const r = e.currentTarget.getBoundingClientRect()
@@ -114,7 +120,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
       {character && (
         <button
           className={`me ${pos.moving ? 'walking' : ''}`}
-          style={{ left: `${pos.x}%`, top: `${pos.y}%`, zIndex: Math.round(pos.y) }}
+          style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y)}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s` }}
           onClick={(e) => {
             e.stopPropagation()
             setTalk(!talk)
@@ -125,6 +131,14 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
           <img src={`assets/characters/char_0${character}.webp`} alt="" draggable="false" style={{ transform: pos.flip ? 'scaleX(-1)' : undefined }} />
         </button>
       )}
+
+      {others.map((o) => (
+        <div key={o.id} className="me other" style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${depth(o.y)}%`, zIndex: Math.round(o.y) }}>
+          {o.bubble && <span className="bubble">{o.bubble}</span>}
+          <img src={`assets/characters/char_0${o.character}.webp`} alt="" draggable="false" />
+          {o.name && <span className="tag">{o.name}</span>}
+        </div>
+      ))}
 
       <Weather kind={kind} />
       {children}
