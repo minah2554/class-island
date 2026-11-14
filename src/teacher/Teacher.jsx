@@ -24,6 +24,13 @@ function message(e) {
 export default function Teacher() {
   const [state, setState] = useState('loading') // loading | setup | login | ok
   const [error, setError] = useState('')
+  const [slow, setSlow] = useState(false)
+
+  // Firestore가 없으면 SDK가 오류 없이 계속 재시도하므로 오래 걸리면 안내한다.
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), 8000)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(
     () =>
@@ -62,7 +69,11 @@ export default function Teacher() {
     }
   }
 
-  if (state === 'loading') return <p className="card center">불러오는 중…</p>
+  if (state === 'loading') return (
+      <p className="card center">
+        {slow ? '서버에 연결하지 못했습니다. 인터넷 연결과 Firebase 콘솔의 Firestore Database 생성 여부를 확인해 주세요.' : '불러오는 중…'}
+      </p>
+    )
   if (state === 'ok') return <Dashboard />
   return (
     <form className="card center narrow" onSubmit={submit}>

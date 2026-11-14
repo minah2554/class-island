@@ -1,10 +1,9 @@
-// Firebase 콘솔 → 프로젝트 설정 → 내 앱(웹) → SDK 설정 및 구성 의 값을 붙여 넣는다.
-// 이 값은 비밀이 아니다(공개되어도 보안 규칙이 데이터를 지킨다).
+// Firebase 콘솔 → 프로젝트 설정 → 내 앱(웹)의 값. 비밀이 아니다(보안 규칙이 데이터를 지킨다).
 export const firebaseConfig = {
-  apiKey: '',
+  apiKey: 'AIzaSyAsKWYJXzGeEJL1bXDmRB93UTZwp_wtOBY',
   authDomain: 'class-island.firebaseapp.com',
   projectId: 'class-island',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
+  storageBucket: 'class-island.firebasestorage.app',
+  messagingSenderId: '689583212562',
+  appId: '1:689583212562:web:1e47b79fa3499d966830cb',
 }
