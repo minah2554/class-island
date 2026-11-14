@@ -163,7 +163,7 @@ function World({ me }) {
       {!inScene ? (
         {
           museum: <Museum me={me} cols={cols} settings={settings} />,
-          country: <Country me={me} cols={cols} settings={settings} bought={bought} onVisit={visit} onBoard={() => setScene('board')} />,
+          country: <Country me={me} cols={cols} settings={settings} bought={bought} onVisit={visit} onBoard={() => setScene('board')} onPlaza={() => setScene('plaza')} />,
           house: <Home me={me} />,
           mail: <Mail me={me} settings={settings} to={mailTo} />,
           center: <Center me={me} settings={settings} left={left} />,

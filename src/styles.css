@@ -235,3 +235,15 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
   .landing .title { font-size: 3.4rem; top: 6%; }
 }
 @media (prefers-reduced-motion: reduce) { .landing * { animation: none !important; } }
+
+/* 섬나라 전경: 작은 섬마다 친구 캐릭터와 섬 이름표 */
+.isle { position: absolute; transform: translate(-50%, -80%); width: 5.5%; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); animation: isle-bob 4s ease-in-out infinite; }
+.isle img { width: 100%; display: block; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.25)); }
+.isle span { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); border-radius: 10px; padding: 0 7px; font-size: 0.72rem; white-space: nowrap; }
+.isle:hover img { scale: 1.12; }
+.isle.mine span { background: var(--accent); color: #fff; font-weight: 700; }
+.isle.empty { cursor: default; animation: none; opacity: 0.75; }
+.isle.empty span { top: 40%; background: rgba(255, 255, 255, 0.6); border-style: dashed; }
+.isle.plaza { width: auto; animation: none; transform: translate(-50%, -50%); }
+.isle.plaza span { position: static; transform: none; display: block; font-size: 0.9rem; padding: 3px 12px; font-weight: 700; }
+@keyframes isle-bob { 50% { margin-top: -0.5%; } }
