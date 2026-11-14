@@ -109,7 +109,7 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .done { opacity: 0.65; }
 
 /* ===== 섬 화면 ===== */
-.scene { position: relative; width: 100%; max-width: 960px; margin: 0 auto; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; border: 2px solid var(--line); isolation: isolate; cursor: pointer; user-select: none; }
+.scene { position: relative; width: 100%; max-width: 960px; margin: 0 auto; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; border: 2px solid var(--line); isolation: isolate; user-select: none; }
 .scene .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: filter 3s; }
 .scene .sky { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; transition: background 3s; }
 .scene[data-phase='dawn'] .sky { background: linear-gradient(160deg, rgba(255, 205, 190, 0.6), rgba(255, 235, 205, 0.2)); }
@@ -212,3 +212,26 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 .stats { gap: 10px; }
 .stats .card { display: grid; gap: 2px; min-width: 130px; }
 .stats b { font-size: 1.3rem; }
+
+/* 장식은 누를 수 없고, 가는 중인 건물은 살짝 강조 */
+.spot.decor { cursor: default; pointer-events: none; }
+.spot.going span { background: var(--accent); color: #fff; }
+.spot:hover img { filter: brightness(1.06); }
+
+/* 첫 화면 움직임 */
+.landing-bg { animation: floaty 9s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+@keyframes floaty { from { transform: scale(1.02) translateY(0); } to { transform: scale(1.06) translateY(-1%); } }
+.landing-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.landing-fx .cloud { position: absolute; left: -22%; width: 16%; aspect-ratio: 2.2; border-radius: 50%; background: #fffdf6; box-shadow: 3.2vw -1.6vw 0 0.3vw #fffdf6, 6vw 0.3vw 0 -0.4vw #fffdf6; opacity: 0.95; animation: cloudmove linear infinite; }
+@keyframes cloudmove { to { transform: translateX(800%); } }
+.landing-fx .plane { position: absolute; top: 30%; left: 0; width: 15%; max-height: none; animation: fly 26s linear infinite, bob 3s ease-in-out infinite alternate; }
+@keyframes fly { from { left: 105%; } to { left: -25%; } }
+@keyframes bob { from { margin-top: -1.5%; rotate: -2deg; } to { margin-top: 1.5%; rotate: 2deg; } }
+.landing-fx .glint { position: absolute; left: 0; right: 0; bottom: 0; height: 16%; background: repeating-linear-gradient(100deg, transparent 0 9%, rgba(255, 255, 255, 0.28) 10% 11%, transparent 12% 20%); background-size: 200% 100%; animation: glint 7s linear infinite; mix-blend-mode: soft-light; }
+@keyframes glint { to { background-position: -200% 0; } }
+@media (min-width: 768px) {
+  .landing { max-width: 1100px; aspect-ratio: 16 / 9; max-height: 82vh; }
+  .landing .landing-bg { width: 100%; height: 100%; max-height: none; object-fit: cover; object-position: 50% 76%; }
+  .landing .title { font-size: 3.4rem; top: 6%; }
+}
+@media (prefers-reduced-motion: reduce) { .landing * { animation: none !important; } }

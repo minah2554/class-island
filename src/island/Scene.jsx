@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 // 멀리(위쪽) 있을수록 작게 보이게 해서 깊이감을 준다
 const depth = (y) => 7.5 + y * 0.06
@@ -49,39 +49,67 @@ function Weather({ kind }) {
   return null
 }
 
-// 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 걸어 다닌다.
-// bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], children }) {
-  const [pos, setPos] = useState({ x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6, flip: false, moving: false, dur: 0 })
+// 혼자 돌아다니는 캐릭터. target이 생기면 그곳으로 걸어가고 도착하면 onArrive를 부른다.
+function Walker({ walk, character, bubble, name, start, target, onArrive }) {
+  const [pos, setPos] = useState({ ...start, flip: false, moving: false, dur: 0 })
   const [talk, setTalk] = useState(false)
-  const timer = useRef()
-  const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
-  const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])
+  const at = useRef(start) // 지금 향하는 곳
+  const timers = useRef([])
+  const later = (f, ms) => timers.current.push(setTimeout(f, ms))
 
+  // 걷는 속도는 늘 같게: 먼 곳은 오래, 가까운 곳은 짧게 (화면이 3:2라 가로를 1.5배로 계산). 걸리는 시간(초)을 돌려준다.
   function go(x, y) {
     const [nx, ny] = limit(walk, x, y)
-    // 걷는 속도는 늘 같게: 먼 곳은 오래, 가까운 곳은 짧게 (화면이 3:2라 가로를 1.5배로 계산)
-    setPos((p) => {
-      const dur = Math.min(3, Math.max(0.2, Math.hypot((nx - p.x) * 1.5, ny - p.y) * 0.05))
-      clearTimeout(timer.current)
-      timer.current = setTimeout(() => setPos((q) => ({ ...q, moving: false })), dur * 1000)
-      return { x: nx, y: ny, flip: Math.abs(nx - p.x) < 0.5 ? p.flip : nx < p.x, moving: true, dur }
-    })
-  }
-  function click(e) {
-    const r = e.currentTarget.getBoundingClientRect()
-    go(((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100)
-  }
-  function key(e) {
-    const step = { ArrowLeft: [-7, 0], ArrowRight: [7, 0], ArrowUp: [0, -7], ArrowDown: [0, 7] }[e.key]
-    if (step) {
-      e.preventDefault()
-      go(pos.x + step[0], pos.y + step[1])
-    }
+    const p = at.current
+    const dur = Math.min(3.5, Math.max(0.2, Math.hypot((nx - p.x) * 1.5, ny - p.y) * 0.06))
+    at.current = { x: nx, y: ny }
+    setPos((q) => ({ x: nx, y: ny, flip: Math.abs(nx - p.x) < 0.5 ? q.flip : nx < p.x, moving: true, dur }))
+    later(() => setPos((q) => ({ ...q, moving: false })), dur * 1000)
+    return dur
   }
 
+  useEffect(() => {
+    const clear = () => (timers.current.forEach(clearTimeout), (timers.current = []))
+    clear()
+    if (target) {
+      later(onArrive, go(target.x, target.y) * 1000 + 150)
+      return clear
+    }
+    // 산책: 가까운 곳으로 조금 걷고, 잠깐 쉬었다가 다시 걷는다
+    const stroll = () => {
+      const p = at.current
+      const dur = go(p.x + (Math.random() - 0.5) * 36, p.y + (Math.random() - 0.5) * 24)
+      later(stroll, dur * 1000 + 1200 + Math.random() * 2800)
+    }
+    later(stroll, 600 + Math.random() * 1500)
+    return clear
+  }, [target])
+
   return (
-    <div className="scene" data-phase={phase} data-wx={kind} onClick={click} onKeyDown={key} tabIndex={0} role="application" aria-label="화면을 누르면 캐릭터가 걸어가요. 방향키로도 움직여요.">
+    <button
+      className={`me ${pos.moving ? 'walking' : ''}`}
+      style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y)}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s` }}
+      onClick={() => setTalk(!talk)}
+      aria-label={name || '내 캐릭터'}
+    >
+      {talk && bubble && <span className="bubble">{bubble}</span>}
+      <img src={`assets/characters/char_0${character}.webp`} alt="" draggable="false" style={{ transform: pos.flip ? 'scaleX(-1)' : undefined }} />
+      {name && <span className="tag">{name}</span>}
+    </button>
+  )
+}
+
+// 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
+// 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
+// bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
+export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], children }) {
+  const [target, setTarget] = useState(null)
+  const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
+  const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])
+  const center = { x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6 }
+
+  return (
+    <div className="scene" data-phase={phase} data-wx={kind}>
       <img className="bg" src={`assets/scenes/${bg}.webp`} alt="" draggable="false" />
 
       {/* 시간대 색 */}
@@ -102,42 +130,40 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
         </div>
       )}
 
-      {spots.map((s) => (
-        <button
-          key={s.img}
-          className="spot"
-          style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, zIndex: Math.round(s.y) }}
-          onClick={(e) => {
-            e.stopPropagation()
-            s.onClick()
-          }}
-        >
-          <img src={`assets/${s.img}.webp`} alt="" draggable="false" />
-          {s.label && <span>{s.label}</span>}
-        </button>
-      ))}
+      {spots.map((s) => {
+        const style = { left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, zIndex: Math.round(s.y) }
+        const img = <img src={`assets/${s.img}.webp`} alt="" draggable="false" />
+        // 이름표가 없는 것은 장식이라 누를 수 없다
+        if (!s.label) return <div key={s.img} className="spot decor" style={style}>{img}</div>
+        return (
+          <button
+            key={s.img}
+            className={`spot ${target?.img === s.img ? 'going' : ''}`}
+            style={style}
+            onClick={() => (character ? setTarget({ x: s.x, y: s.y + 3, img: s.img, fn: s.onClick }) : s.onClick())}
+          >
+            {img}
+            <span>{s.label}</span>
+          </button>
+        )
+      })}
 
       {character && (
-        <button
-          className={`me ${pos.moving ? 'walking' : ''}`}
-          style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y)}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s` }}
-          onClick={(e) => {
-            e.stopPropagation()
-            setTalk(!talk)
+        <Walker
+          walk={walk}
+          character={character}
+          bubble={bubble}
+          start={center}
+          target={target}
+          onArrive={() => {
+            const fn = target?.fn
+            setTarget(null)
+            fn?.()
           }}
-          aria-label="내 캐릭터"
-        >
-          {talk && bubble && <span className="bubble">{bubble}</span>}
-          <img src={`assets/characters/char_0${character}.webp`} alt="" draggable="false" style={{ transform: pos.flip ? 'scaleX(-1)' : undefined }} />
-        </button>
+        />
       )}
-
       {others.map((o) => (
-        <div key={o.id} className="me other" style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${depth(o.y)}%`, zIndex: Math.round(o.y) }}>
-          {o.bubble && <span className="bubble">{o.bubble}</span>}
-          <img src={`assets/characters/char_0${o.character}.webp`} alt="" draggable="false" />
-          {o.name && <span className="tag">{o.name}</span>}
-        </div>
+        <Walker key={o.id} walk={walk} character={o.character} bubble={o.bubble} name={o.name} start={{ x: o.x, y: o.y }} />
       ))}
 
       <Weather kind={kind} />

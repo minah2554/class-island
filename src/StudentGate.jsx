@@ -63,7 +63,14 @@ function Login({ title, landing }) {
   if (!started)
     return (
       <div className="landing">
-        <img src="assets/scenes/title.webp" alt="" />
+        <img className="landing-bg" src="assets/scenes/title.webp" alt="" />
+        <div className="landing-fx" aria-hidden="true">
+          <i className="cloud" style={{ top: '8%', animationDuration: '60s' }} />
+          <i className="cloud" style={{ top: '22%', animationDuration: '85s', animationDelay: '-30s', scale: '0.7' }} />
+          <i className="cloud" style={{ top: '14%', animationDuration: '110s', animationDelay: '-70s', scale: '1.2' }} />
+          <img className="plane" src="assets/ui/plane.webp" alt="" />
+          <b className="glint" />
+        </div>
         <h1 className="title">우리 반 섬나라</h1>
         <div className="landing-cta">
           <button onClick={() => setStarted(true)}>로그인하기</button>
