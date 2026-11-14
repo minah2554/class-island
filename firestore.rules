@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isTeacher() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/config/teacher).data.uid == request.auth.uid;
+    }
+
+    // 교사 계정 등록: 아직 없을 때 딱 한 번만 만들 수 있고, 이후에는 아무도 바꿀 수 없다.
+    match /config/teacher {
+      allow get: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // 지금은 교사만. 학생·담당자 권한은 해당 화면을 만들 때 추가한다.
+    match /years/{document=**} {
+      allow read, write: if isTeacher();
+    }
+  }
+}

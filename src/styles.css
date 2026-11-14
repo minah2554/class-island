@@ -1,0 +1,55 @@
+:root {
+  --bg: #f4f9ee;
+  --card: #fffdf7;
+  --line: #cfe3c0;
+  --ink: #3b4a3a;
+  --accent: #5fae6b;
+  --danger: #c0563f;
+  font-family: 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+  color: var(--ink);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+h1 { font-size: 1.4rem; margin: 0; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1rem; margin: 0 0 8px; }
+small { font-weight: normal; color: #7a8a78; }
+
+.page { max-width: 960px; margin: 0 auto; padding: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin: 12px 0; }
+.center { max-width: 480px; margin: 15vh auto; text-align: center; }
+.narrow { display: grid; gap: 12px; }
+.bar, .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.bar h1 { margin-right: auto; align-self: center; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid .card { margin: 0; }
+.card form + h3 { margin-top: 16px; }
+
+label { display: grid; gap: 4px; font-size: 0.85rem; text-align: left; }
+input, select, textarea, button { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+textarea { width: 100%; resize: vertical; }
+button { background: var(--accent); border-color: var(--accent); color: #fff; cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: default; }
+button.ghost { background: #fff; color: var(--ink); border-color: var(--line); }
+button.danger { color: var(--danger); }
+:focus-visible { outline: 3px solid #f2b84b; outline-offset: 1px; }
+
+.error { color: var(--danger); margin: 0; }
+.notes { padding-left: 32px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--card); }
+th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: center; white-space: nowrap; }
+th { background: #dff0d3; }
+td input { width: 8em; text-align: center; }
+td button { padding: 4px 8px; margin: 0 2px; }
+
+.footer { margin-top: 40px; padding: 16px; border-top: 1px solid var(--line); background: var(--card); }
+.footer-in { max-width: 960px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+.f-brand { display: flex; gap: 10px; align-items: center; }
+.f-wm { display: block; font-weight: 700; letter-spacing: 0.08em; }
+.f-tag { display: block; font-size: 0.75rem; color: #7a8a78; }
+.f-legal { font-size: 0.72rem; color: #7a8a78; line-height: 1.6; }
+.f-legal .sep { margin: 0 8px; }
+/* 좁은 화면에서는 권리 문구를 빼고 한 줄만 보여 준다 */
+@media (max-width: 640px) { .f-long { display: none; } }
+@media print { .no-print { display: none; } }
