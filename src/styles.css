@@ -171,7 +171,7 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .new { color: var(--danger); }
 
 .museum-head { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
-.museum-head img { width: 150px; border-radius: 14px; aspect-ratio: 3 / 2; object-fit: cover; }
+.museum-head > img { width: 150px; border-radius: 14px; aspect-ratio: 3 / 2; object-fit: cover; }
 .museum-head > div { flex: 1; }
 .museum-head h2 { margin: 0 0 4px; }
 .dex { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
@@ -320,3 +320,16 @@ form.card { position: relative; }
 @keyframes flicker { to { opacity: 0.8; } }
 /* 독서기록장: 한 달을 잘한 학생 */
 .sheet td.star { background: #ffe58a; font-weight: 700; }
+
+/* 상점·박물관 */
+.shopbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 8px; }
+.spot.sold img { opacity: 0.5; filter: grayscale(0.6); }
+.exhibit { position: absolute; width: 6.5%; background: none; border: 0; padding: 0; cursor: pointer; transform: translate(-50%, -50%); animation: drift var(--d) ease-in-out infinite alternate; }
+.exhibit img { width: 100%; display: block; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.25)); }
+.exhibit.fish img { animation: turn calc(var(--d) * 2) steps(1) infinite; }
+.exhibit.bug img { animation: flutter 0.9s ease-in-out infinite alternate; }
+.exhibit:hover { z-index: 99 !important; scale: 1.3; }
+@keyframes drift { from { translate: calc(var(--a) * -90%) calc(var(--a) * 20%); } to { translate: calc(var(--a) * 90%) calc(var(--a) * -20%); } }
+@keyframes turn { 0% { scale: -1 1; } 50% { scale: 1 1; } }
+@keyframes flutter { from { rotate: -12deg; } to { rotate: 12deg; translate: 0 -8%; } }
+.empty-note { position: absolute; left: 50%; top: 62%; translate: -50% 0; background: rgba(255, 253, 247, 0.9); border-radius: 12px; padding: 6px 12px; margin: 0; }
