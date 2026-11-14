@@ -247,3 +247,28 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
 .isle.plaza { width: auto; animation: none; transform: translate(-50%, -50%); }
 .isle.plaza span { position: static; transform: none; display: block; font-size: 0.9rem; padding: 3px 12px; font-weight: 700; }
 @keyframes isle-bob { 50% { margin-top: -0.5%; } }
+
+/* 채집: 물고기 그림자·곤충, 찌, 안내 */
+.spot.critter { transform: translate(-50%, -50%); animation: appear 0.6s ease-out; }
+.spot.critter.fish { animation: appear 0.6s ease-out, swim var(--dur, 6s) ease-in-out infinite alternate; }
+.spot.critter.bug { animation: appear 0.6s ease-out, flutter calc(var(--dur, 6s) / 3) ease-in-out infinite alternate; }
+.spot.critter.bug img { filter: drop-shadow(0 6px 3px rgba(0, 0, 0, 0.25)); animation: wing 0.5s ease-in-out infinite alternate; }
+.spot.critter.picked { animation-play-state: paused; }
+.shadow-fish { display: block; width: 100%; aspect-ratio: 2.4; border-radius: 60% 45% 45% 60%; background: radial-gradient(closest-side, rgba(10, 50, 80, 0.6), rgba(10, 50, 80, 0.32) 70%, transparent); position: relative; }
+.shadow-fish::after { content: ''; position: absolute; right: -18%; top: 22%; width: 26%; height: 56%; background: rgba(10, 50, 80, 0.4); clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+@keyframes appear { from { opacity: 0; scale: 0.6; } }
+@keyframes swim { from { margin-left: -5%; } to { margin-left: 5%; margin-top: 1.5%; } }
+@keyframes flutter { from { margin-left: -2%; margin-top: -1%; } to { margin-left: 2%; margin-top: 1%; } }
+@keyframes wing { to { scale: 0.92 1.06; rotate: 4deg; } }
+.bobber { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: linear-gradient(#e2533f 50%, #fff 50%); border: 1px solid #7a2a20; z-index: 98; animation: bobfloat 1.4s ease-in-out infinite alternate; box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.25); }
+.bobber.bite { animation: bite 0.25s ease-in-out infinite alternate; }
+@keyframes bobfloat { to { translate: 0 3px; } }
+@keyframes bite { to { translate: 0 8px; scale: 0.85; } }
+.hunt-top, .hunt-tip { position: absolute; margin: 0; z-index: 100; background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); border-radius: 12px; padding: 3px 12px; font-size: 0.85rem; }
+.hunt-top { top: 10px; left: 10px; }
+.hunt-tip { bottom: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+.hunt-ui { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(420px, 92%); z-index: 101; text-align: center; }
+.hunt-ui p { margin: 0 0 8px; }
+.pop { animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1); }
+@keyframes pop { from { scale: 0.3; opacity: 0; } }
+.clock { background: #fff6cf; font-variant-numeric: tabular-nums; }

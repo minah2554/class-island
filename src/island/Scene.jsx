@@ -50,7 +50,7 @@ function Weather({ kind }) {
 }
 
 // 혼자 돌아다니는 캐릭터. target이 생기면 그곳으로 걸어가고 도착하면 onArrive를 부른다.
-function Walker({ walk, character, bubble, name, start, target, onArrive }) {
+function Walker({ walk, character, bubble, name, start, target, onArrive, hold }) {
   const [pos, setPos] = useState({ ...start, flip: false, moving: false, dur: 0 })
   const [talk, setTalk] = useState(false)
   const at = useRef(start) // 지금 향하는 곳
@@ -75,6 +75,7 @@ function Walker({ walk, character, bubble, name, start, target, onArrive }) {
       later(onArrive, go(target.x, target.y) * 1000 + 150)
       return clear
     }
+    if (hold) return clear // 낚시·채집 중에는 제자리에 있는다
     // 산책: 가까운 곳으로 조금 걷고, 잠깐 쉬었다가 다시 걷는다
     const stroll = () => {
       const p = at.current
@@ -83,7 +84,7 @@ function Walker({ walk, character, bubble, name, start, target, onArrive }) {
     }
     later(stroll, 600 + Math.random() * 1500)
     return clear
-  }, [target])
+  }, [target, hold])
 
   return (
     <button
@@ -102,7 +103,7 @@ function Walker({ walk, character, bubble, name, start, target, onArrive }) {
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
 // 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], children }) {
+export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], hold, children }) {
   const [target, setTarget] = useState(null)
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
   const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])
@@ -132,18 +133,24 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
 
       {spots.map((s) => {
         const style = { left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, zIndex: Math.round(s.y) }
-        const img = <img src={`assets/${s.img}.webp`} alt="" draggable="false" />
-        // 이름표가 없는 것은 장식이라 누를 수 없다
-        if (!s.label) return <div key={s.img} className="spot decor" style={style}>{img}</div>
+        const key = s.key ?? s.img
+        const img = s.node ?? <img src={`assets/${s.img}.webp`} alt="" draggable="false" />
+        // onClick이 없는 것은 장식이라 누를 수 없다
+        if (!s.onClick) return <div key={key} className="spot decor" style={style}>{img}</div>
         return (
           <button
-            key={s.img}
-            className={`spot ${target?.img === s.img ? 'going' : ''}`}
-            style={style}
-            onClick={() => (character ? setTarget({ x: s.x, y: s.y + 3, img: s.img, fn: s.onClick }) : s.onClick())}
+            key={key}
+            className={`spot ${s.cls ?? ''} ${target?.key === key ? 'going' : ''}`}
+            style={{ ...style, ...s.style }}
+            aria-label={s.label || s.name}
+            onClick={() => {
+              if (s.guard && !s.guard()) return
+              // 캐릭터가 그 앞(stand)까지 걸어간 뒤에 onClick이 불린다
+              character ? setTarget({ ...(s.stand ?? { x: s.x, y: s.y + 3 }), key, fn: s.onClick }) : s.onClick()
+            }}
           >
             {img}
-            <span>{s.label}</span>
+            {s.label && <span>{s.label}</span>}
           </button>
         )
       })}
@@ -155,6 +162,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
           bubble={bubble}
           start={center}
           target={target}
+          hold={hold}
           onArrive={() => {
             const fn = target?.fn
             setTarget(null)

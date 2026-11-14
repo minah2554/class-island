@@ -6,3 +6,4 @@ dist
 
 # 원본 이미지(114MB)는 저장소에 올리지 않는다. 앱용은 npm run images 로 public/assets 에 만든다.
 이미지/
+배경음악/

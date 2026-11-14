@@ -7,11 +7,12 @@ import { useDocs } from '../data'
 import { auth, db } from '../firebase'
 import { tell } from '../popup'
 import Board from './Board'
-import Catch from './Catch'
+import Bgm from './Bgm'
 import Center from './Center'
 import Country from './Country'
 import Guestbook from './Guestbook'
 import Home from './Home'
+import Hunt from './Hunt'
 import Mail from './Mail'
 import Museum from './Museum'
 import Scene from './Scene'
@@ -27,6 +28,7 @@ const WALK = {
   forest: { x0: 14, x1: 86, y0: 34, y1: 90 },
 }
 const Wrap = ({ className, children }) => (className ? <main className={className}>{children}</main> : <div>{children}</div>)
+const PHASE_LABEL = { dawn: '새벽', day: '낮', dusk: '저녁', night: '밤' }
 const NAV = [['island', '내 섬'], ['plaza', '마을 광장'], ['sea', '바다 낚시'], ['forest', '숲 곤충'], ['museum', '박물관'], ['country', '섬나라']]
 // 안쪽 화면은 어느 탭에 속하는지
 const TAB_OF = { house: 'island', mail: 'island', visit: 'country', center: 'plaza', board: 'plaza', shop: 'plaza' }
@@ -94,7 +96,7 @@ function World({ me }) {
   useEffect(() => {
     syncClock()
     getWeather().then(setWx)
-    const t = setInterval(() => tick((n) => n + 1), 60000) // 시간대가 바뀌면 배경도 바뀐다
+    const t = setInterval(() => tick((n) => n + 1), 15000) // 시계를 갱신하고, 시간대가 바뀌면 배경도 바뀐다
     return () => clearInterval(t)
   }, [])
   useEffect(() => onSnapshot(doc(db, 'years', String(me.year)), (s) => setSettings(s.data() ?? {})), [me.year])
@@ -123,12 +125,12 @@ function World({ me }) {
       ...(me.teacher ? [] : [{ x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) }]),
     ],
     plaza: [
-      { x: 50, y: 62, w: 17, img: 'decor/decor_01', label: '', onClick: () => {} },
+      { x: 50, y: 62, w: 17, img: 'decor/decor_01' },
       { x: 50, y: 30, w: 19, img: 'buildings/museum', label: '박물관', onClick: () => setScene('museum') },
       { x: 84, y: 52, w: 16, img: 'buildings/center', label: '주민센터', onClick: () => setScene('center') },
       { x: 15, y: 56, w: 11, img: 'buildings/board', label: '게시판', onClick: () => setScene('board') },
       { x: 18, y: 36, w: 12, img: 'buildings/shop', label: '꾸미기 상점', onClick: () => setScene('shop') },
-      ...DECOR.filter((d) => bought[d.id]).map((d) => ({ x: d.x, y: d.y, w: d.w, img: `decor/${d.id}`, label: '', onClick: () => {} })),
+      ...DECOR.filter((d) => bought[d.id]).map((d) => ({ x: d.x, y: d.y, w: d.w, img: `decor/${d.id}` })),
     ],
   }[scene]
   const inScene = ['island', 'plaza', 'sea', 'forest', 'visit'].includes(scene)
@@ -139,6 +141,10 @@ function World({ me }) {
     <Wrap className={me.teacher ? undefined : 'page'}>
       <header className="bar">
         <h1>{settings.countryName || '우리 반 섬나라'}</h1>
+        <span className="wx clock" aria-label="현재 시각">
+          {PHASE_LABEL[phase] ?? ''} {String(t.h).padStart(2, '0')}:{String(t.min).padStart(2, '0')}
+        </span>
+        <Bgm hour={t.h} />
         <span className="wx" role="status">
           {w.label || (wx === undefined ? '날씨 불러오는 중' : '날씨 정보 없음')} {wx ? `${wx.temp}°C` : ''}
         </span>
@@ -172,20 +178,24 @@ function World({ me }) {
         }[scene]
       ) : (
         <>
-          <Scene
-            key={scene + (friend?.no ?? '')}
-            bg={scene === 'visit' ? 'island' : scene}
-            phase={phase}
-            kind={w.kind}
-            walk={WALK[scene === 'visit' ? 'island' : scene]}
-            others={others}
-            character={me.character}
-            bubble={`안녕! ${me.catchphrase ?? ''}`}
-            spots={spots}
-          />
+          {(() => {
+            const scn = {
+              key: scene + (friend?.no ?? ''),
+              bg: scene === 'visit' ? 'island' : scene,
+              phase,
+              kind: w.kind,
+              walk: WALK[scene === 'visit' ? 'island' : scene],
+              others,
+              character: me.character,
+              bubble: `안녕! ${me.catchphrase ?? ''}`,
+            }
+            const { key, ...rest } = scn
+            // 바다·숲에서는 물고기 그림자·곤충이 나타나는 채집 화면
+            if (!me.teacher && (scene === 'sea' || scene === 'forest'))
+              return <Hunt key={key} me={me} kind={scene === 'sea' ? 'fish' : 'bug'} cols={cols} left={left} limit={limit} scene={rest} />
+            return <Scene key={key} {...rest} spots={spots} />
+          })()}
           {scene === 'visit' && friend && <Guestbook me={me} friend={friend} settings={settings} />}
-          {!me.teacher && scene === 'sea' && <Catch me={me} kind="fish" cols={cols} left={left} limit={limit} />}
-          {!me.teacher && scene === 'forest' && <Catch me={me} kind="bug" cols={cols} left={left} limit={limit} />}
         </>
       )}
     </Wrap>
