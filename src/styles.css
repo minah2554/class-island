@@ -53,3 +53,26 @@ td button { padding: 4px 8px; margin: 0 2px; }
 /* 좁은 화면에서는 권리 문구를 빼고 한 줄만 보여 준다 */
 @media (max-width: 640px) { .f-long { display: none; } }
 @media print { .no-print { display: none; } }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.hint { font-size: 0.8rem; color: #7a8a78; }
+.warn { color: var(--danger); font-size: 0.8rem; }
+.check { display: inline-flex; gap: 4px; align-items: center; }
+
+/* 기존 종이 양식 느낌의 표 */
+.sheet th, .sheet td { padding: 2px 4px; font-size: 0.85rem; }
+.sheet .shade { background: #eee; }
+.sheet button.cell { background: none; border: 0; color: var(--ink); padding: 4px; min-width: 2.4em; min-height: 2em; border-radius: 0; max-width: 6em; overflow: hidden; text-overflow: ellipsis; }
+.sheet .num { width: 4.5em; padding: 4px; }
+.reading th { background: #d5f5c8; }
+.reading .no { background: #fbd0a0; }
+.reading .sum { background: #ddd; font-weight: 700; }
+.reading .sel { background: #fff6cf; }
+.reading .miss { background: #f9d2cb; }
+.reading .miss button { color: var(--danger); font-weight: 700; }
+
+.strip { display: grid; grid-template-columns: repeat(15, 12px); gap: 1px; }
+td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
+.strip span { height: 12px; border: 1px solid #999; background: #fff; }
+.strip span.shade { background: #eee; }
+.strip span.on { background: var(--accent); border-color: var(--accent); }

@@ -9,7 +9,13 @@ import {
 } from 'firebase/auth'
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import { TEACHER_EMAIL, auth, db, pad, schoolYear } from '../firebase'
+import { useStudents } from '../data'
+import Reading from './Reading'
 import Roster from './Roster'
+import Tardy from './Tardy'
+import Tickets from './Tickets'
+
+const TABS = { 명단: Roster, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading }
 
 const teacherDoc = () => doc(db, 'config', 'teacher')
 
@@ -99,6 +105,9 @@ function Dashboard() {
   const thisYear = schoolYear()
   const [year, setYear] = useState(thisYear)
   const [country, setCountry] = useState('')
+  const [tab, setTab] = useState('명단')
+  const students = useStudents(year)
+  const Tab = TABS[tab]
   const years = Array.from({ length: Math.max(thisYear + 1, 2026) - 2025 }, (_, i) => 2026 + i)
 
   useEffect(
@@ -131,7 +140,14 @@ function Dashboard() {
           로그아웃
         </button>
       </header>
-      <Roster year={year} />
+      <nav className="tabs">
+        {Object.keys(TABS).map((name) => (
+          <button key={name} className={name === tab ? "" : "ghost"} aria-pressed={name === tab} onClick={() => setTab(name)}>
+            {name}
+          </button>
+        ))}
+      </nav>
+      <Tab year={year} students={students} />
     </main>
   )
 }
