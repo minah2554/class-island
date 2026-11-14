@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { applyTickets, owed, schoolMonths, weekdays } from './records.js'
+import { applyTickets, mismatched, owed, schoolMonths, weekdays } from './records.js'
 
 test('평일만, 쉬는 날 제외', () => {
   // 2026년 3월 1일은 일요일
@@ -27,4 +27,10 @@ test('지각 3회마다 벌칙 1건', () => {
   assert.equal(owed(3, 0), 1)
   assert.equal(owed(7, 1), 1)
   assert.equal(owed(2, 1), 0)
+})
+
+test('면제권 불일치는 두 장부가 모두 있을 때만', () => {
+  assert.equal(mismatched({ m: { got: 2, used: 0 } }), false)
+  assert.equal(mismatched({ m: { got: 2, used: 0 }, t: { got: 2, used: 0 } }), false)
+  assert.equal(mismatched({ m: { got: 2, used: 1 }, t: { got: 2, used: 0 } }), true)
 })

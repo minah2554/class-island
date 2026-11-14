@@ -6,15 +6,106 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/config/teacher).data.uid == request.auth.uid;
     }
 
+    // 학생 계정 이메일: y{학년도}-s{학번}-r{리셋 횟수}@chongchong.example
+    function myNo() {
+      return request.auth.token.email.split('@')[0].split('-')[1].replace('s', '');
+    }
+    function mine(year) {
+      return get(/databases/$(database)/documents/years/$(year)/students/$(myNo())).data;
+    }
+    // 그 학년도 명단에 등록을 마친 학생 (비밀번호 리셋되면 uid가 지워져 자동으로 빠진다)
+    function isMember(year) {
+      return request.auth != null
+        && request.auth.token.email.matches('y' + year + '-s[0-9]{4}-r[0-9]+@chongchong[.]example')
+        && mine(year).get('uid', '') == request.auth.uid;
+    }
+    function hasRole(year, role) {
+      return isMember(year) && role in mine(year).get('roles', []);
+    }
+    function isManager(year) {
+      return isMember(year) && mine(year).get('roles', []).size() > 0;
+    }
+
     // 교사 계정 등록: 아직 없을 때 딱 한 번만 만들 수 있고, 이후에는 아무도 바꿀 수 없다.
     match /config/teacher {
       allow get: if true;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
     }
 
-    // 지금은 교사만. 학생·담당자 권한은 해당 화면을 만들 때 추가한다.
-    match /years/{document=**} {
-      allow read, write: if isTeacher();
+    // 로그인 전에 필요한 정보: 학번 → 리셋 횟수 (이름은 없다)
+    match /loginIndex/{year} {
+      allow get: if true;
+      allow write: if isTeacher();
+    }
+
+    match /years/{year} {
+      allow read: if isTeacher() || isMember(year);
+      allow write: if isTeacher();
+
+      match /students/{no} {
+        function ownAccount() {
+          return request.auth != null && request.auth.token.email
+            == 'y' + year + '-s' + no + '-r' + string(resource.data.get('resetCount', 0)) + '@chongchong.example';
+        }
+        allow read: if isTeacher() || isMember(year);
+        allow write: if isTeacher();
+        // 본인 문서는 등록 전에도 읽을 수 있다(이름 확인용)
+        allow get: if ownAccount();
+        // 섬 등록: 비어 있는 uid 칸에 자기 uid만 넣을 수 있다
+        allow update: if ownAccount()
+          && !('uid' in resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['uid'])
+          && request.resource.data.uid == request.auth.uid;
+      }
+
+      // 담당자실 비밀번호: 본인이 처음 한 번 정하고, 바꾸는 것은 선생님만
+      match /managerPins/{no} {
+        allow read, write: if isTeacher();
+        allow get, create: if isMember(year) && no == myNo();
+      }
+
+      // 담당자는 새 기록을 추가만 할 수 있다. 수정·삭제는 선생님만.
+      match /tardies/{id} {
+        allow read: if isTeacher() || isManager(year);
+        allow write: if isTeacher();
+        allow create: if hasRole(year, 'tardy') && request.resource.data.by == myNo();
+      }
+      match /penalties/{id} {
+        allow read: if isTeacher() || isManager(year);
+        allow write: if isTeacher();
+        allow create: if hasRole(year, 'tardy') && request.resource.data.by == myNo();
+      }
+
+      // 청소면제권: 담당자는 자기 장부(m)만 쓴다.
+      // shortcut: 한 문서에 m과 t가 같이 있어 담당자가 선생님 값(t)을 읽을 수는 있다(화면에는 안 보임).
+      // 완전히 숨겨야 하면 문서를 둘로 나눈다.
+      match /tickets/{no} {
+        allow read: if isTeacher() || isManager(year);
+        allow write: if isTeacher();
+        allow create: if hasRole(year, 'tickets') && request.resource.data.keys().hasOnly(['m']);
+        allow update: if hasRole(year, 'tickets')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['m']);
+      }
+      match /ticketLog/{id} {
+        allow read, write: if isTeacher();
+        allow create: if hasRole(year, 'tickets') && request.resource.data.by == myNo();
+      }
+
+      // 독서기록장: 담당자는 아직 저장되지 않은 날짜만 새로 저장할 수 있다.
+      match /reading/{month} {
+        allow read: if isTeacher() || isManager(year);
+        allow write: if isTeacher();
+        allow create: if hasRole(year, 'reading') && request.resource.data.keys().hasOnly(['days']);
+        allow update: if hasRole(year, 'reading')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['days'])
+          && request.resource.data.days.diff(resource.data.get('days', {})).affectedKeys()
+             == request.resource.data.days.diff(resource.data.get('days', {})).addedKeys();
+      }
+
+      match /corrections/{id} {
+        allow read, write: if isTeacher();
+        allow create: if isManager(year) && request.resource.data.by == myNo();
+      }
     }
   }
 }

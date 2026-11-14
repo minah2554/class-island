@@ -14,3 +14,6 @@ export const pad = (pw) => pw + '#chongchong'
 
 // 학년도: 1~2월은 전년도에 속한다.
 export const schoolYear = (d = new Date()) => (d.getMonth() < 2 ? d.getFullYear() - 1 : d.getFullYear())
+
+// 학년도 선택지: 2026년부터 내년까지
+export const yearOptions = () => Array.from({ length: Math.max(schoolYear() + 1, 2026) - 2025 }, (_, i) => 2026 + i)

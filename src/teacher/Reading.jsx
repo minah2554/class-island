@@ -5,28 +5,48 @@ import { yearCol } from '../data'
 import { pad2, schoolMonths, weekdays } from '../records'
 
 // 칸 값: 'o' 제출 / 'x' 안 냄 / 그 밖의 글자 = 기타 사유 / 없음 = 아직 기록 안 함
-export default function Reading({ year, students }) {
+// me가 있으면 담당 학생 화면: 고른 날짜를 임시로 체크한 뒤 [저장]하고, 저장한 날짜는 못 고친다.
+export default function Reading({ year, students, me }) {
   const months = schoolMonths(year)
   const now = new Date()
   const [month, setMonth] = useState(() => months.find((x) => x.m === now.getMonth() + 1 && x.y === now.getFullYear()) ?? months[0])
   const [data, setData] = useState({})
   const [day, setDay] = useState(now.getDate())
+  const [draft, setDraft] = useState({})
   const table = useRef()
 
   const ref = doc(yearCol(year, 'reading'), month.id)
   useEffect(() => onSnapshot(ref, (s) => setData(s.data() ?? {})), [year, month.id])
+  useEffect(() => setDraft({}), [day, month.id])
 
   const days = weekdays(month.y, month.m, data.off)
-  const value = (d, no) => data.days?.[pad2(d)]?.[no]
+  const savedDay = (d) => data.days?.[pad2(d)]
+  const locked = !!me && !!savedDay(day) // 담당자는 이미 저장된 날짜를 못 고친다
+  const drafting = !!me && !locked
+  const value = (d, no) => (drafting && d === day ? draft[no] : savedDay(d)?.[no])
   const put = (d, entries) => setDoc(ref, { days: { [pad2(d)]: entries } }, { merge: true })
 
   function cycle(d, s) {
     const v = value(d, s.no)
+    if (me) {
+      if (d !== day || locked) return
+      const next = v === 'o' ? 'x' : v === 'x' ? prompt(`${s.name} ${month.m}/${d} 기타 사유`)?.trim() || 'o' : 'o'
+      return setDraft({ ...draft, [s.no]: next })
+    }
     let next = 'o'
     if (v === 'o') next = 'x'
     else if (v === 'x') next = prompt(`${s.name} ${month.m}/${d} 기타 사유 (비우면 기록 지움)`)?.trim() || deleteField()
     else if (v) next = deleteField()
     put(d, { [s.no]: next })
+  }
+
+  const everyone = () => Object.fromEntries(students.map((s) => [s.no, 'o']))
+
+  function saveDraft() {
+    // 체크하지 않은 학생은 안 낸 것으로 저장한다
+    const entries = Object.fromEntries(students.map((s) => [s.no, draft[s.no] ?? 'x']))
+    const done = Object.values(entries).filter((v) => v === 'o').length
+    if (confirm(`${month.m}/${day} — 제출 ${done}명, 그 밖 ${students.length - done}명.\n저장한 뒤에는 고칠 수 없습니다. 저장할까요?`)) put(day, entries)
   }
 
   const count = (s) => days.filter((d) => value(d, s.no) === 'o').length
@@ -41,6 +61,8 @@ export default function Reading({ year, students }) {
     setDoc(ref, { off }, { merge: true })
   }
 
+  const picked = days.includes(day)
+
   return (
     <section>
       <h2>{year}학년도 일일 독서기록장</h2>
@@ -54,7 +76,7 @@ export default function Reading({ year, students }) {
       <div className="row">
         <label>
           날짜
-          <select value={days.includes(day) ? day : ''} onChange={(e) => setDay(Number(e.target.value))}>
+          <select value={picked ? day : ''} onChange={(e) => setDay(Number(e.target.value))}>
             <option value="" disabled>
               선택
             </option>
@@ -65,19 +87,31 @@ export default function Reading({ year, students }) {
             ))}
           </select>
         </label>
-        <button disabled={!days.includes(day)} onClick={() => put(day, Object.fromEntries(students.map((s) => [s.no, 'o'])))}>
+        <button disabled={!picked || locked} onClick={() => (me ? setDraft(everyone()) : put(day, everyone()))}>
           모두 제출
         </button>
-        <label>
-          쉬는 날 (일, 쉼표로 구분)
-          <input key={month.id + (data.off ?? '')} defaultValue={(data.off ?? []).join(', ')} placeholder="예: 1, 15" onBlur={(e) => saveOff(e.target.value)} />
-        </label>
+        {me && (
+          <button disabled={!picked || locked || !Object.keys(draft).length} onClick={saveDraft}>
+            저장
+          </button>
+        )}
+        {!me && (
+          <label>
+            쉬는 날 (일, 쉼표로 구분)
+            <input key={month.id + (data.off ?? '')} defaultValue={(data.off ?? []).join(', ')} placeholder="예: 1, 15" onBlur={(e) => saveOff(e.target.value)} />
+          </label>
+        )}
         <button className="ghost" onClick={() => writeFile(utils.table_to_book(table.current, { raw: true }), `총총섬_독서기록장_${month.id}.xlsx`)}>
           엑셀 다운로드
         </button>
       </div>
       <p className="hint">
-        [모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 칸을 누를 때마다 ○ → ✕ → 기타 사유 → 빈칸 순서로 바뀝니다. 이 달 반 평균 제출률 {average}%
+        {me
+          ? locked
+            ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 선생님께 알려 주세요.'
+            : '날짜를 고르고 [모두 제출] → 안 낸 친구 칸을 눌러 ✕로 바꾸기 → [저장]. 칸은 ○ → ✕ → 기타 사유 순서로 바뀝니다.'
+          : '[모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 칸을 누를 때마다 ○ → ✕ → 기타 사유 → 빈칸 순서로 바뀝니다.'}{' '}
+        이 달 반 평균 제출률 {average}%
       </p>
       <div className="scroll">
         <table ref={table} className="sheet reading">

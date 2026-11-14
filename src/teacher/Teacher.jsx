@@ -8,14 +8,16 @@ import {
   signOut,
 } from 'firebase/auth'
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore'
-import { TEACHER_EMAIL, auth, db, pad, schoolYear } from '../firebase'
-import { useStudents } from '../data'
+import { TEACHER_EMAIL, auth, db, pad, schoolYear, yearOptions } from '../firebase'
+import { useDocs, useStudents } from '../data'
+import { mismatched } from '../records'
+import Corrections from './Corrections'
 import Reading from './Reading'
 import Roster from './Roster'
 import Tardy from './Tardy'
 import Tickets from './Tickets'
 
-const TABS = { 명단: Roster, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading }
+const TABS = { 명단: Roster, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, '정정 요청': Corrections }
 
 const teacherDoc = () => doc(db, 'config', 'teacher')
 
@@ -102,13 +104,16 @@ export default function Teacher() {
 }
 
 function Dashboard() {
-  const thisYear = schoolYear()
-  const [year, setYear] = useState(thisYear)
+  const [year, setYear] = useState(schoolYear)
   const [country, setCountry] = useState('')
   const [tab, setTab] = useState('명단')
   const students = useStudents(year)
   const Tab = TABS[tab]
-  const years = Array.from({ length: Math.max(thisYear + 1, 2026) - 2025 }, (_, i) => 2026 + i)
+  // 탭 이름 옆에 확인할 건수를 보여 준다
+  const alerts = {
+    청소면제권: useDocs(year, 'tickets').filter(mismatched).length,
+    '정정 요청': useDocs(year, 'corrections').length,
+  }
 
   useEffect(
     () => onSnapshot(doc(db, 'years', String(year)), (snap) => setCountry(snap.data()?.countryName ?? '')),
@@ -122,7 +127,7 @@ function Dashboard() {
         <label>
           학년도
           <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
-            {years.map((y) => (
+            {yearOptions().map((y) => (
               <option key={y}>{y}</option>
             ))}
           </select>
@@ -140,10 +145,22 @@ function Dashboard() {
           로그아웃
         </button>
       </header>
+      {alerts.청소면제권 > 0 && (
+        <p className="card alert" role="alert">
+          청소면제권 기록이 담당 학생과 다른 학생이 {alerts.청소면제권}명 있습니다.{' '}
+          <button onClick={() => setTab('청소면제권')}>확인하기</button>
+        </p>
+      )}
+      {alerts['정정 요청'] > 0 && (
+        <p className="card alert" role="alert">
+          담당 학생의 정정 요청이 {alerts['정정 요청']}건 있습니다. <button onClick={() => setTab('정정 요청')}>확인하기</button>
+        </p>
+      )}
       <nav className="tabs">
         {Object.keys(TABS).map((name) => (
           <button key={name} className={name === tab ? "" : "ghost"} aria-pressed={name === tab} onClick={() => setTab(name)}>
             {name}
+            {alerts[name] > 0 && ` (${alerts[name]})`}
           </button>
         ))}
       </nav>
