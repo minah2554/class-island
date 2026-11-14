@@ -18,6 +18,7 @@ import {
 import { read, utils, writeFile } from 'xlsx'
 import { db } from '../firebase'
 import { yearCol } from '../data'
+import { ask, askText, tell } from '../popup'
 import { ROLES } from '../roles'
 import { parseRoster } from '../roster'
 
@@ -75,8 +76,8 @@ export default function Roster({ year }) {
   const ref = (s) => doc(db, ...path, s.no)
   const rename = (s, name) => name.trim() && name.trim() !== s.name && updateDoc(ref(s), { name: name.trim() })
   // 비밀번호 리셋: 학생이 다음 접속 때 새 비밀번호를 만든다.
-  function resetPw(s) {
-    if (!confirm(`${s.no} ${s.name}의 비밀번호를 리셋할까요?`)) return
+  async function resetPw(s) {
+    if (!(await ask(`${s.no} ${s.name}의 비밀번호를 리셋할까요?\n학생이 다음에 들어올 때 새 비밀번호를 정합니다.`))) return
     const batch = writeBatch(db)
     batch.update(ref(s), { resetCount: increment(1), uid: deleteField() })
     batch.set(index, { [s.no]: increment(1) }, { merge: true })
@@ -84,20 +85,20 @@ export default function Roster({ year }) {
   }
   const setRole = (s, role, on) => updateDoc(ref(s), { roles: on ? arrayUnion(role) : arrayRemove(role) })
   // 담당자실 비밀번호: 새 값을 넣으면 수정, 비우면 리셋(학생이 다시 정함)
-  function managerPin(s) {
-    const pin = prompt(`${s.name}의 담당자 비밀번호를 새로 정합니다(숫자 4자리).
+  async function managerPin(s) {
+    const pin = await askText(`${s.name}의 담당자 비밀번호를 새로 정합니다(숫자 4자리).
 비워 두면 리셋되어 학생이 다시 정합니다.`)
     if (pin === null) return
     const pinRef = doc(yearCol(year, 'managerPins'), s.no)
     if (pin === '') return deleteDoc(pinRef)
-    if (!/^\d{4}$/.test(pin)) return alert('숫자 4자리로 입력해 주세요.')
+    if (!/^\d{4}$/.test(pin)) return tell('숫자 4자리로 입력해 주세요.')
     return setDoc(pinRef, { pin })
   }
   // 학생과 그 학생의 지각·벌칙·면제권 기록을 함께 지운다.
   // shortcut: 독서기록장 칸은 달 문서 안에 남는다(명단에 없으면 화면에 안 보임), 년도 삭제 때 함께 지워진다.
   async function remove(s) {
-    if (!confirm(`${s.no} ${s.name}을(를) 명단에서 삭제할까요?
-이 학생의 지각·청소면제권 기록도 함께 삭제됩니다.`)) return
+    if (!(await ask(`${s.no} ${s.name}을(를) 명단에서 삭제할까요?
+이 학생의 지각·청소면제권 기록도 함께 삭제됩니다.`))) return
     const batch = writeBatch(db)
     for (const name of ['tardies', 'penalties', 'ticketLog'])
       (await getDocs(query(yearCol(year, name), where('no', '==', s.no)))).forEach((d) => batch.delete(d.ref))

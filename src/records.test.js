@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { applyTickets, mismatched, owed, schoolMonths, weekdays } from './records.js'
+import { applyTickets, dateOf, short, mismatched, owed, schoolMonths, weekdays } from './records.js'
 
 test('평일만, 쉬는 날 제외', () => {
   // 2026년 3월 1일은 일요일
@@ -33,4 +33,12 @@ test('면제권 불일치는 두 장부가 모두 있을 때만', () => {
   assert.equal(mismatched({ m: { got: 2, used: 0 } }), false)
   assert.equal(mismatched({ m: { got: 2, used: 0 }, t: { got: 2, used: 0 } }), false)
   assert.equal(mismatched({ m: { got: 2, used: 1 }, t: { got: 2, used: 0 } }), true)
+})
+
+test('기록 날짜는 고른 날짜가 우선, 없으면 저장 시각', () => {
+  assert.equal(dateOf({ date: '2026-03-05', at: { seconds: 0 } }), '2026-03-05')
+  assert.equal(dateOf({ at: { seconds: new Date(2026, 2, 9, 12).getTime() / 1000 } }), '2026-03-09')
+  assert.equal(dateOf({}), '')
+  assert.equal(short('2026-03-05'), '3/5')
+  assert.equal(short(''), '이전')
 })

@@ -112,7 +112,7 @@ function Dashboard() {
   // 탭 이름 옆에 확인할 건수를 보여 준다
   const alerts = {
     청소면제권: useDocs(year, 'tickets').filter(mismatched).length,
-    '정정 요청': useDocs(year, 'corrections').length,
+    '정정 요청': useDocs(year, 'corrections').filter((c) => !c.done).length,
   }
 
   useEffect(

@@ -30,3 +30,8 @@ export const owed = (tardyCount, penaltyCount) => Math.max(0, Math.floor(tardyCo
 
 // 담당자 장부(m)와 선생님 장부(t)가 둘 다 있는데 값이 다른 면제권 문서
 export const mismatched = (t) => !!t.m && !!t.t && (t.m.got !== t.t.got || t.m.used !== t.t.used)
+
+export const ymd = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+// 기록의 날짜: 직접 고른 날짜가 없으면 저장된 시각으로 대신한다. 'YYYY-MM-DD' 또는 ''
+export const dateOf = (x) => x.date || (x.at ? ymd(new Date(x.at.seconds * 1000)) : '')
+export const short = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8))}` : '이전')

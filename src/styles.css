@@ -81,3 +81,27 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .alert { border-color: var(--danger); background: #fdeeea; }
 .sheet tr.bad td { background: #fdeeea; }
 .bar > span { align-self: center; }
+
+/* 앱 자체 알림창 */
+.popup { border: 2px solid var(--line); border-radius: 18px; padding: 20px; max-width: min(90vw, 380px); background: var(--card); color: var(--ink); }
+.popup::backdrop { background: rgba(40, 60, 40, 0.35); }
+.popup p { margin: 0 0 14px; white-space: pre-line; font-weight: 600; text-align: center; }
+.popup input { width: 100%; margin-bottom: 14px; }
+.popup .row { justify-content: center; }
+
+/* 청소면제권 현황 막대 */
+.status { min-width: 180px; text-align: left; }
+.meter { display: flex; height: 14px; border-radius: 7px; background: #e6eee0; overflow: hidden; margin-bottom: 2px; }
+.meter .used { background: #e79a86; }
+.meter .left { background: var(--accent); }
+.big { font-size: 1.25rem; }
+.sheet.wrap td.chips { white-space: normal; text-align: left; min-width: 150px; }
+.chip { display: inline-block; margin: 1px 3px 1px 0; padding: 1px 7px; border-radius: 10px; background: #eef5e7; font-size: 0.78rem; white-space: nowrap; }
+
+.sheet td.paid { background: #f4a79a; }
+.sheet td.paid button { font-weight: 700; }
+.left-text { text-align: left; }
+.modes { display: flex; flex-wrap: wrap; gap: 6px 18px; border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; padding: 6px 12px; }
+.modes legend { font-size: 0.8rem; padding: 0 6px; }
+.memo { margin: 6px 0 0; white-space: pre-wrap; font-size: 0.9rem; }
+.done { opacity: 0.65; }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { signOut } from 'firebase/auth'
-import { addDoc, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore'
+import { addDoc, doc, onSnapshot, query, serverTimestamp, setDoc, where } from 'firebase/firestore'
 import StudentGate from '../StudentGate'
 import { useStudents, yearCol } from '../data'
 import { auth } from '../firebase'
@@ -101,6 +101,15 @@ function Room({ me }) {
 // 저장한 기록은 담당자가 고칠 수 없으므로 선생님께 메모를 보낸다.
 function Correction({ me, role }) {
   const [sent, setSent] = useState(false)
+  const [mine, setMine] = useState([])
+  // 내가 보낸 요청과 선생님의 처리 결과
+  useEffect(
+    () =>
+      onSnapshot(query(yearCol(me.year, 'corrections'), where('by', '==', me.no)), (s) =>
+        setMine(s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b.at?.seconds ?? 0) - (a.at?.seconds ?? 0))),
+      ),
+    [me.year, me.no],
+  )
   async function send(e) {
     e.preventDefault()
     const text = new FormData(e.target).get('text').trim()
@@ -118,6 +127,12 @@ function Correction({ me, role }) {
       </label>
       <button>보내기</button>
       {sent && <span className="hint" role="status"> 선생님께 보냈어요.</span>}
+      {mine.map((c) => (
+        <p key={c.id} className={`memo ${c.done ? 'done' : ''}`}>
+          <strong>{c.done ? '처리 완료' : '선생님 확인 중'}</strong> · {c.text}
+          {c.reply && ` → 선생님: ${c.reply}`}
+        </p>
+      ))}
     </form>
   )
 }

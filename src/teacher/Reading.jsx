@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { deleteField, doc, onSnapshot, setDoc } from 'firebase/firestore'
 import { utils, writeFile } from 'xlsx'
 import { yearCol } from '../data'
+import { ask, tell } from '../popup'
 import { pad2, schoolMonths, weekdays } from '../records'
 
 // 칸 값: 'o' 제출 / 'x' 안 냄 / 그 밖의 글자 = 기타 사유 / 없음 = 아직 기록 안 함
@@ -13,6 +14,8 @@ export default function Reading({ year, students, me }) {
   const [data, setData] = useState({})
   const [day, setDay] = useState(now.getDate())
   const [draft, setDraft] = useState({})
+  const [mode, setMode] = useState('toggle') // 칸을 누르면: toggle(○↔✕) | reason(기타 사유 넣기) | clear(지우기)
+  const [reason, setReason] = useState('')
   const table = useRef()
 
   const ref = doc(yearCol(year, 'reading'), month.id)
@@ -26,27 +29,23 @@ export default function Reading({ year, students, me }) {
   const value = (d, no) => (drafting && d === day ? draft[no] : savedDay(d)?.[no])
   const put = (d, entries) => setDoc(ref, { days: { [pad2(d)]: entries } }, { merge: true })
 
-  function cycle(d, s) {
-    const v = value(d, s.no)
-    if (me) {
-      if (d !== day || locked) return
-      const next = v === 'o' ? 'x' : v === 'x' ? prompt(`${s.name} ${month.m}/${d} 기타 사유`)?.trim() || 'o' : 'o'
-      return setDraft({ ...draft, [s.no]: next })
-    }
-    let next = 'o'
-    if (v === 'o') next = 'x'
-    else if (v === 'x') next = prompt(`${s.name} ${month.m}/${d} 기타 사유 (비우면 기록 지움)`)?.trim() || deleteField()
-    else if (v) next = deleteField()
-    put(d, { [s.no]: next })
+  // 칸을 누르면 고른 방식대로 값을 넣는다. ○와 ✕는 누를 때마다 서로 바뀐다.
+  function press(d, s) {
+    if (me && (d !== day || locked)) return
+    if (mode === 'reason' && !reason.trim()) return tell('기타 사유를 먼저 적어 주세요.')
+    const next = mode === 'toggle' ? (value(d, s.no) === 'o' ? 'x' : 'o') : mode === 'reason' ? reason.trim() : undefined
+    if (!me) return put(d, { [s.no]: next ?? deleteField() })
+    const { [s.no]: _, ...rest } = draft
+    setDraft(next ? { ...rest, [s.no]: next } : rest)
   }
 
   const everyone = () => Object.fromEntries(students.map((s) => [s.no, 'o']))
 
-  function saveDraft() {
+  async function saveDraft() {
     // 체크하지 않은 학생은 안 낸 것으로 저장한다
     const entries = Object.fromEntries(students.map((s) => [s.no, draft[s.no] ?? 'x']))
     const done = Object.values(entries).filter((v) => v === 'o').length
-    if (confirm(`${month.m}/${day} — 제출 ${done}명, 그 밖 ${students.length - done}명.\n저장한 뒤에는 고칠 수 없습니다. 저장할까요?`)) put(day, entries)
+    if (await ask(`${month.m}/${day} — 제출 ${done}명, 그 밖 ${students.length - done}명.\n저장한 뒤에는 고칠 수 없습니다. 저장할까요?`)) put(day, entries)
   }
 
   const count = (s) => days.filter((d) => value(d, s.no) === 'o').length
@@ -105,12 +104,27 @@ export default function Reading({ year, students, me }) {
           엑셀 다운로드
         </button>
       </div>
+      <fieldset className="modes">
+        <legend>칸을 누르면</legend>
+        <label className="check">
+          <input type="radio" name="mode" checked={mode === 'toggle'} onChange={() => setMode('toggle')} />○ ↔ ✕ 바꾸기
+        </label>
+        <label className="check">
+          <input type="radio" name="mode" checked={mode === 'reason'} onChange={() => setMode('reason')} />
+          기타 사유 넣기
+          <input value={reason} onChange={(e) => setReason(e.target.value)} onFocus={() => setMode('reason')} placeholder="예: 병결" aria-label="기타 사유" size="8" />
+        </label>
+        <label className="check">
+          <input type="radio" name="mode" checked={mode === 'clear'} onChange={() => setMode('clear')} />
+          빈칸으로 지우기
+        </label>
+      </fieldset>
       <p className="hint">
         {me
           ? locked
             ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 선생님께 알려 주세요.'
-            : '날짜를 고르고 [모두 제출] → 안 낸 친구 칸을 눌러 ✕로 바꾸기 → [저장]. 칸은 ○ → ✕ → 기타 사유 순서로 바뀝니다.'
-          : '[모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 칸을 누를 때마다 ○ → ✕ → 기타 사유 → 빈칸 순서로 바뀝니다.'}{' '}
+            : '날짜를 고르고 [모두 제출] → 안 낸 친구 칸을 눌러 ✕로 바꾸기 → [저장].'
+          : '[모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 한 번 더 누르면 다시 ○가 됩니다.'}{' '}
         이 달 반 평균 제출률 {average}%
       </p>
       <div className="scroll">
@@ -136,7 +150,7 @@ export default function Reading({ year, students, me }) {
                   const v = value(d, s.no)
                   return (
                     <td key={d} className={v === 'x' ? 'miss' : d === day ? 'sel' : ''}>
-                      <button className="cell" onClick={() => cycle(d, s)} aria-label={`${s.name} ${month.m}월 ${d}일`}>
+                      <button className="cell" onClick={() => press(d, s)} aria-label={`${s.name} ${month.m}월 ${d}일`}>
                         {v === 'o' ? '○' : v === 'x' ? '✕' : v || ' '}
                       </button>
                     </td>
