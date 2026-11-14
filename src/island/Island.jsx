@@ -59,9 +59,9 @@ function Passport({ me }) {
         {me.no} {me.name}
       </p>
       <div className="picker" role="radiogroup" aria-label="캐릭터 고르기">
-        {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => (
+        {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
           <button type="button" key={n} role="radio" aria-checked={pick === n} className={pick === n ? 'on' : ''} onClick={() => setPick(n)}>
-            <img src={`assets/characters/char_0${n}.webp`} alt={`캐릭터 ${n}`} />
+            <img src={`assets/characters/char_${String(n).padStart(2, '0')}.webp`} alt={`캐릭터 ${n}`} />
           </button>
         ))}
       </div>

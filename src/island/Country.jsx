@@ -40,7 +40,7 @@ export default function Country({ me, cols, settings, bought, onVisit, onBoard, 
             onClick={() => onVisit(s)}
             title={s.character ? `${s.name} · 도감 ${kinds(s.no)}종` : `${s.name} · 아직 여권을 만들지 않았어요`}
           >
-            {s.character && <img src={`assets/characters/char_0${s.character}.webp`} alt="" draggable="false" />}
+            {s.character && <img src={`assets/characters/char_${String(s.character).padStart(2, '0')}.webp`} alt="" draggable="false" />}
             <span>{s.character ? s.islandName || s.name : s.name}</span>
           </button>
         ))}

@@ -51,7 +51,8 @@ function Weather({ kind }) {
 
 // 혼자 돌아다니는 캐릭터. target이 생기면 그곳으로 걸어가고 도착하면 onArrive를 부른다.
 function Walker({ walk, character, bubble, name, start, target, onArrive, hold }) {
-  const [pos, setPos] = useState({ ...start, flip: false, moving: false, dur: 0 })
+  const [pos, setPos] = useState({ ...start, flip: false, view: '', moving: false, dur: 0 })
+  const [missingViews, setMissingViews] = useState({})
   const [talk, setTalk] = useState(false)
   const at = useRef(start) // 지금 향하는 곳
   const timers = useRef([])
@@ -62,8 +63,11 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
     const [nx, ny] = limit(walk, x, y)
     const p = at.current
     const dur = Math.min(3.5, Math.max(0.2, Math.hypot((nx - p.x) * 1.5, ny - p.y) * 0.06))
+    const dx = nx - p.x
+    const dy = ny - p.y
+    const view = Math.abs(dx * 1.5) >= Math.abs(dy) && dx !== 0 ? 'side' : dy < 0 ? 'back' : ''
     at.current = { x: nx, y: ny }
-    setPos((q) => ({ x: nx, y: ny, flip: Math.abs(nx - p.x) < 0.5 ? q.flip : nx < p.x, moving: true, dur }))
+    setPos((q) => ({ x: nx, y: ny, flip: view === 'side' ? dx < 0 : Math.abs(dx) < 0.5 ? q.flip : dx < 0, view, moving: true, dur }))
     later(() => setPos((q) => ({ ...q, moving: false })), dur * 1000)
     return dur
   }
@@ -86,6 +90,10 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
     return clear
   }, [target, hold])
 
+  const front = `assets/characters/char_${String(character).padStart(2, '0')}`
+  const variant = pos.moving && pos.view ? `${front}_${pos.view}` : null
+  const sprite = variant && !missingViews[variant] ? variant : front
+
   return (
     <button
       className={`me ${pos.moving ? 'walking' : ''}`}
@@ -94,7 +102,7 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
       aria-label={name || '내 캐릭터'}
     >
       {talk && bubble && <span className="bubble">{bubble}</span>}
-      <img src={`assets/characters/char_0${character}.webp`} alt="" draggable="false" style={{ transform: pos.flip ? 'scaleX(-1)' : undefined }} />
+      <img src={`${sprite}.webp`} alt="" draggable="false" onError={() => { if (sprite !== front) setMissingViews((views) => ({ ...views, [sprite]: true })) }} style={{ transform: (sprite === front ? pos.flip : pos.view === 'side' && pos.flip) ? 'scaleX(-1)' : undefined }} />
       {name && <span className="tag">{name}</span>}
     </button>
   )
@@ -103,7 +111,8 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
 // 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], hold, lights = 0, children }) {
+export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], hold, lights = 0, indoor, children }) {
+  if (indoor) { phase = "day"; kind = "clear" }
   const [target, setTarget] = useState(null)
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
   const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])

@@ -20,7 +20,10 @@ const jobs = [
   ['박물관 전시실', 'scenes/museum', 1536],
   ['잡화점 실내', 'scenes/shop', 1536],
   ['원룸 실내', 'scenes/house', 1536],
-  ...Array.from({ length: 8 }, (_, i) => [`섬 주민 아이 ${pad(i + 1)}`, `characters/char_${pad(i + 1)}`, 512]),
+  ...Array.from({ length: 16 }, (_, i) => [`섬 주민 아이 ${pad(i + 1)}`, `characters/char_${pad(i + 1)}`, 512]),
+  ...Array.from({ length: 16 }, (_, i) => ['side', 'back'].map((view) => [
+    `섬 주민 아이 ${pad(i + 1)}_${view}`, `characters/char_${pad(i + 1)}_${view}`, 512,
+  ])).flat(),
   ['토끼 촌장 기본', 'npc/rabbit', 512],
   ['토끼 촌장 말하기', 'npc/rabbit_talk', 512],
   ['빨간 지붕 목조 집', 'buildings/house', 512],
@@ -45,7 +48,9 @@ const jobs = [
 ]
 
 let ok = 0
+const selected = process.argv.slice(2)
 for (const [name, dest, width] of jobs) {
+  if (selected.length && !selected.includes(dest)) continue
   const from = join(SRC, `${name}.png`)
   if (!existsSync(from)) {
     console.warn('없음:', from)

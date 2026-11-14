@@ -38,13 +38,12 @@ function Detail({ id, who, me, onClose }) {
 }
 
 // 반 공동 도감. cols: years/{year}/collections 문서들 (학번이 id)
-// 전시장 바닥에서 종마다 정해진 자리(%). 물고기 50은 위쪽 5줄, 곤충 50은 아래쪽 5줄.
-const place = (id) => {
-  const n = Number(id.slice(-2)) - 1
-  const row = Math.floor(n / 10) + (id[0] === 'b' ? 5 : 0)
-  const j = (k) => ((n * 37 + k * 11) % 10) / 10 - 0.5
-  return { x: 11 + (n % 10) * 8.6 + j(1) * 3, y: 40 + row * 5.6 + j(2) * 2, d: 3.5 + ((n * 7) % 5) * 0.8, a: 0.6 + ((n * 3) % 4) * 0.25 }
-}
+// 전시 칸(%): 앞쪽 진열장 7개와 벽 액자 5개. 그림 속 진열장·액자 자리에 맞춘 좌표다.
+const SLOTS = [
+  { x: 32, y: 21, w: 7 }, { x: 50, y: 21, w: 8 }, { x: 68, y: 21, w: 7 },
+  { x: 14, y: 41, w: 6 }, { x: 7, y: 58, w: 6 }, { x: 87, y: 38, w: 6 }, { x: 94, y: 57, w: 6 },
+  { x: 32, y: 9, w: 6 }, { x: 50, y: 8, w: 8 }, { x: 68, y: 9, w: 6 }, { x: 5, y: 26, w: 5 }, { x: 92, y: 22, w: 6 },
+]
 
 export default function Museum({ me, cols, settings, scene }) {
   const [dex, setDex] = useState(false)
@@ -60,6 +59,10 @@ export default function Museum({ me, cols, settings, scene }) {
   }, [cols])
 
   const count = (kind) => Object.keys(KINDS[kind].names).filter((i) => by[`${kind}_${String(Number(i) + 1).padStart(2, '0')}`].length).length
+  // 전시 칸에는 잡은 것 중 희귀한 친구부터 놓인다(100종을 다 놓을 수는 없다)
+  const shown = ALL.filter((id) => by[id].length)
+    .sort((x, y) => tierOf(Number(y.slice(-2))) - tierOf(Number(x.slice(-2))) || Number(y.slice(-2)) - Number(x.slice(-2)))
+    .slice(0, SLOTS.length)
   const found = ALL.filter((id) => by[id].length).length
   const rank = cols
     .map((c) => ({ no: c.id, name: c.name, kinds: Object.keys(c.items ?? {}).length, total: Object.values(c.items ?? {}).reduce((s, v) => s + v.n, 0) }))
@@ -72,7 +75,7 @@ export default function Museum({ me, cols, settings, scene }) {
         <div>
           <h2>반 도감 박물관</h2>
           <p>
-            <small>우리 반이 잡은 물고기와 곤충이 살아 움직이는 모습으로 전시돼요. 누르면 누가 처음 잡았는지 알 수 있어요.</small>
+            <small>우리 반이 잡은 물고기와 곤충이 진열장과 액자에 전시돼요. 많이 잡을수록 박물관이 채워지고, 희귀한 친구부터 놓여요. 누르면 누가 처음 잡았는지 알 수 있어요.</small>
           </p>
           <p>
             전체 <b>{found}</b>/100 · 물고기 {count('fish')}/50 · 곤충 {count('bug')}/50
@@ -88,15 +91,13 @@ export default function Museum({ me, cols, settings, scene }) {
         </p>
       )}
       {scene && (
-        <Scene {...scene} spots={[]}>
-          {ALL.filter((id) => by[id].length).map((id) => {
-            const p = place(id)
-            return (
-              <button key={id} className={`exhibit ${id[0] === 'f' ? 'fish' : 'bug'}`} style={{ left: `${p.x}%`, top: `${p.y}%`, zIndex: Math.round(p.y), '--d': `${p.d}s`, '--a': p.a }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
-                <img src={imageOf(id)} alt="" draggable="false" />
-              </button>
-            )
-          })}
+        <Scene {...scene} indoor spots={[]}>
+          {shown.map((id, i) => (
+            <button key={id} className="exhibit" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, zIndex: Math.round(SLOTS[i].y) }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
+              <img src={imageOf(id)} alt="" draggable="false" />
+            </button>
+          ))}
+          <p className="slot-note">전시 {shown.length}/{SLOTS.length}칸</p>
           {!found && <p className="empty-note">아직 전시된 친구가 없어요. 바다와 숲에서 잡아 보세요!</p>}
         </Scene>
       )}

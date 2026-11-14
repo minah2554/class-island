@@ -65,7 +65,7 @@ export default function Shop({ me, cols, bought = {}, scene }) {
         <b>이곳은 반 친구들이 함께 마을 광장을 꾸미는 가게예요.</b>
         <br />① 바다·숲에서 물고기와 곤충을 잡아 조개를 모아요. ② 내 조개를 아래에서 반 기금에 보태요. ③ 기금이 모이면 가게 안 물건을 눌러 사요. 산 물건은 마을 광장에 바로 놓여요.
       </p>
-      {scene && <Scene {...scene} spots={spots} />}
+      {scene && <Scene {...scene} indoor spots={spots} />}
       <div className="card shopbar">
         <span>
           <img src="assets/ui/shell.webp" alt="" className="mini" /> 내 조개 <b>{have}</b>개 · 반 기금 <b>{pool}</b>개
