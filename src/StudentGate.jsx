@@ -39,7 +39,7 @@ const HELLO = [
   '학번과 이름, 비밀번호를 넣고 들어와 줘!',
 ]
 
-// 토끼 이장님이 머리 위 말풍선으로 반겨 준다(몇 초마다 다음 말)
+// 토끼 섬주인이 머리 위 말풍선으로 반겨 준다(몇 초마다 다음 말)
 function MayorHello() {
   const [n, setN] = useState(0)
   useEffect(() => {
@@ -48,7 +48,7 @@ function MayorHello() {
   }, [n])
   return (
     <p className="bubble landing-say" role="status" key={n}>
-      <b className="who">이장님</b>
+      <b className="who">섬주인</b>
       {HELLO[n]}
     </p>
   )
@@ -91,6 +91,7 @@ function Login({ title, landing }) {
           {/* 바람: 같은 그림을 나무·토끼·잔디 부분만 가장자리를 흐려 겹쳐 두고 살짝 흔든다 */}
           <div className="landing-bg">
             <img src="assets/title/bg.webp" alt="" />
+            <img className="sway sea" src="assets/title/bg.webp" alt="" />
             <img className="sway grass" src="assets/title/bg.webp" alt="" />
             <img className="sway palm" src="assets/title/bg.webp" alt="" />
             <img className="sway rabbit" src="assets/title/bg.webp" alt="" />

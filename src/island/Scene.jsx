@@ -196,7 +196,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
             key={key}
             className={`spot ${s.cls ?? ''} ${target?.key === key ? 'going' : ''}`}
             style={{ ...style, ...s.style }}
-            aria-label={s.label || s.name}
+            aria-label={s.label || s.name || s.aria}
             onClick={() => {
               if (s.guard && !s.guard()) return
               // 캐릭터가 그 앞(stand)까지 걸어간 뒤에 onClick이 불린다

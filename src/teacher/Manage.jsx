@@ -66,7 +66,7 @@ export default function Manage({ year, students }) {
       </div>
       <div className="card">
         <label>
-          이장님 말씀 (한 줄에 하나) — 학생마다 자기 섬 우편함에 "새 소식"으로 뜨고, 주민센터 이장님도 이 말을 차례로 합니다
+          섬주인 말씀 (한 줄에 하나) — 학생마다 자기 섬 우편함에 "새 소식"으로 뜨고, 주민센터 섬주인도 이 말을 차례로 합니다
           <textarea
             key={(cfg.mayorLines ?? []).join('|')}
             rows="5"
@@ -76,7 +76,7 @@ export default function Manage({ year, students }) {
             onBlur={(e) => save({ mayorLines: e.target.value.split('\n').map((w) => w.trim()).filter(Boolean).slice(0, 20) })}
           />
         </label>
-        <small>고치면 모든 학생의 우편함에 새 소식 표시가 다시 뜹니다. 비워 두면 이장님은 기본 말을 합니다.</small>
+        <small>고치면 모든 학생의 우편함에 새 소식 표시가 다시 뜹니다. 비워 두면 섬주인은 기본 말을 합니다.</small>
       </div>
       <h2>백업과 삭제</h2>
       <div className="card">

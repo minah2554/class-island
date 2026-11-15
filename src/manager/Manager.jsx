@@ -100,11 +100,11 @@ function Room({ me }) {
   )
 }
 
-// 저장한 기록은 담당자가 고칠 수 없으므로 선생님께 메모를 보낸다.
+// 저장한 기록은 담당자가 고칠 수 없으므로 섬주인께 메모를 보낸다.
 function Correction({ me, role }) {
   const [sent, setSent] = useState(false)
   const [mine, setMine] = useState([])
-  // 내가 보낸 요청과 선생님의 처리 결과
+  // 내가 보낸 요청과 섬주인의 처리 결과
   useEffect(
     () =>
       onSnapshot(query(yearCol(me.year, 'corrections'), where('by', '==', me.no)), (s) =>
@@ -122,17 +122,17 @@ function Correction({ me, role }) {
   }
   return (
     <form className="card" onSubmit={send}>
-      <h3>잘못 입력했나요? 선생님께 정정 요청</h3>
+      <h3>잘못 입력했나요? 섬주인께 정정 요청</h3>
       <label>
         누구의 어떤 기록을 어떻게 고쳐야 하는지 적어 주세요
         <textarea name="text" rows="2" required placeholder="예: 3월 12일 5번 지각 아님, 잘못 눌렀어요" onChange={() => setSent(false)} />
       </label>
       <button>보내기</button>
-      {sent && <span className="hint" role="status"> 선생님께 보냈어요.</span>}
+      {sent && <span className="hint" role="status"> 섬주인께 보냈어요.</span>}
       {mine.map((c) => (
         <p key={c.id} className={`memo ${c.done ? 'done' : ''}`}>
-          <strong>{c.done ? '처리 완료' : '선생님 확인 중'}</strong> · {c.text}
-          {c.reply && ` → 선생님: ${c.reply}`}
+          <strong>{c.done ? '처리 완료' : '섬주인 확인 중'}</strong> · {c.text}
+          {c.reply && ` → 섬주인: ${c.reply}`}
         </p>
       ))}
     </form>

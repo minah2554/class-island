@@ -20,7 +20,7 @@ export default function Home({ me, settings = {}, scene }) {
   const dates = tardies.map((t) => t.date).filter(Boolean).sort()
   const paid = penalties.filter((p) => p.kind === 'ticket').length
   const clean5 = penalties.filter((p) => p.kind === 'clean5').length
-  const v = ticket?.t ?? ticket?.m ?? { got: 0, used: 0 } // 선생님 확인 값이 있으면 그것을 보여 준다
+  const v = ticket?.t ?? ticket?.m ?? { got: 0, used: 0 } // 섬주인 확인 값이 있으면 그것을 보여 준다
   const got = v.got ?? 0
   const used = (v.used ?? 0) + paid
   const left = Math.max(0, got - used)
@@ -98,7 +98,7 @@ export default function Home({ me, settings = {}, scene }) {
           <span className="chip">한 달 독서 모두 제출 {gp.perfect}</span>
           <span className="chip">월말 기록장 제출 {gp.book}</span>
           <span className="chip">청소면제권 5장마다 {gp.tickets}</span>
-          <span className="chip">선생님 선물 {gp.bonus}</span>
+          <span className="chip">섬주인 선물 {gp.bonus}</span>
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export default function Home({ me, settings = {}, scene }) {
             ))}
           {!given.length && !paid && <small>아직 내역이 없어요.</small>}
         </p>
-        {ticket && !ticket.t && ticket.m && <small>선생님 확인 전의 숫자예요.</small>}
+        {ticket && !ticket.t && ticket.m && <small>섬주인 확인 전의 숫자예요.</small>}
       </div>
 
       <div className="card">

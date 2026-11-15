@@ -4,7 +4,7 @@ import { tell } from '../popup'
 import { badWord } from './banned'
 import { when } from './hooks'
 
-// 친구 섬 방명록(반 모두가 읽을 수 있다). 지우는 것은 선생님만 할 수 있다.
+// 친구 섬 방명록(반 모두가 읽을 수 있다). 지우는 것은 섬주인만 할 수 있다.
 export default function Guestbook({ me, friend, settings }) {
   const notes = useDocs(me.year, 'guestbook')
     .filter((n) => n.to === friend.no)

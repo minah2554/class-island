@@ -102,7 +102,7 @@ export default function Teacher() {
   if (state === 'ok') return <Dashboard />
   return (
     <form className="card center narrow" onSubmit={submit}>
-      <h1 className="title">선생님 방</h1>
+      <h1 className="title">섬주인 방</h1>
       {state === 'setup' && <p>처음 한 번, 교사 비밀번호를 정합니다.</p>}
       <label>
         비밀번호
@@ -146,8 +146,9 @@ function Dashboard() {
   return (
     <main className="page">
       <header className="bar">
-        <h1 className="title">선생님 방</h1>
-        <label>
+        <h1 className="title">섬주인 방</h1>
+        <div className="bar-tools">
+        <label className="inline">
           학년도
           <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
             {years.map((y) => (
@@ -172,8 +173,9 @@ function Dashboard() {
         <button className="ghost" onClick={() => signOut(auth)}>
           로그아웃
         </button>
+        </div>
       </header>
-      <nav className="menu" aria-label="선생님 메뉴">
+      <nav className="menu" aria-label="섬주인 메뉴">
         {GROUPS.map(([group, tabs]) => (
           <div key={group} className="menu-group">
             <small>{group}</small>

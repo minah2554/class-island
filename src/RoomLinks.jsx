@@ -1,5 +1,5 @@
-// 세 화면(섬·담당 친구·선생님)을 오가는 버튼. 지금 있는 화면은 빼고 보여 준다. show로 보일 화면을 줄일 수 있다.
-const ROOMS = [['#/', '섬으로'], ['#/manager', '담당 친구'], ['#/teacher', '선생님']]
+// 세 화면(섬·담당 친구·섬주인)을 오가는 버튼. 지금 있는 화면은 빼고 보여 준다. show로 보일 화면을 줄일 수 있다.
+const ROOMS = [['#/', '섬으로'], ['#/manager', '담당 친구'], ['#/teacher', '섬주인']]
 
 export default function RoomLinks({ show }) {
   const here = location.hash.startsWith('#/teacher') ? '#/teacher' : location.hash.startsWith('#/manager') ? '#/manager' : '#/'

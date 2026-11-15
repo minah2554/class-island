@@ -8,7 +8,7 @@ const studentRef = (year, no) => doc(db, 'years', String(year), 'students', no)
 // 학생 입장. 'ok' 또는 'new'(처음이라 비밀번호 확인 뒤 register 필요)를 돌려주고, 실패하면 Error를 던진다.
 export async function enter(year, no, name, pin) {
   const index = (await getDoc(doc(db, 'loginIndex', String(year)))).data() ?? {}
-  if (!(no in index)) throw new Error('명단에 없는 학번입니다. 선생님께 문의하세요.')
+  if (!(no in index)) throw new Error('명단에 없는 학번입니다. 섬주인께 문의하세요.')
   const email = studentEmail(year, no, index[no])
   let created = false
   try {
@@ -29,7 +29,7 @@ export async function enter(year, no, name, pin) {
   if (!me.uid) return 'new'
   if (me.uid !== auth.currentUser.uid) {
     await signOut(auth)
-    throw new Error('계정이 맞지 않습니다. 선생님께 비밀번호 리셋을 요청하세요.')
+    throw new Error('계정이 맞지 않습니다. 섬주인께 비밀번호 리셋을 요청하세요.')
   }
   return 'ok'
 }

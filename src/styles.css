@@ -401,18 +401,18 @@ details.card summary { cursor: pointer; font-weight: 700; }
 details.card[open] summary { margin-bottom: 10px; }
 @media (max-width: 520px) { .room-status li { padding: 3px 8px; font-size: 0.72rem; } .room-status b { font-size: 0.9rem; } .room-status small { font-size: 0.6rem; } }
 
-/* 선생님 메뉴: 묶음 이름 + 버튼 */
+/* 섬주인 메뉴: 묶음 이름 + 버튼 */
 .menu { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0; padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
 .menu-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .menu-group small { font-size: 0.75rem; margin-right: 2px; }
 .menu button { padding: 6px 12px; }
 .menu .count { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 0 5px; border-radius: 10px; background: var(--danger); color: #fff; font-size: 0.75rem; }
-/* 우편함: 선생님 말씀, 새 소식 표시 */
+/* 우편함: 섬주인 말씀, 새 소식 표시 */
 .teacher-note { background: #fff8e1; border-color: #f2d48a; }
 .teacher-note p { margin: 4px 0; }
 .spot.alert::after { content: '!'; position: absolute; right: 8%; top: 4%; width: 1.5em; height: 1.5em; line-height: 1.5em; border-radius: 50%; background: var(--danger); color: #fff; font-weight: 700; font-size: 0.85rem; animation: flutter 0.6s ease-in-out infinite alternate; }
 
-/* 주민센터: 이장님 옆 말풍선(누르면 다음 말) */
+/* 주민센터: 섬주인 옆 말풍선(누르면 다음 말) */
 .mayor-say { left: 57%; top: 30%; bottom: auto; transform: none; cursor: pointer; z-index: 97; max-width: 40%; }
 .mayor-say::after { display: none; }
 .mayor-say small { display: block; margin-top: 6px; color: #b08a5a; font-size: 0.75rem; text-align: right; }
@@ -425,6 +425,25 @@ details.card[open] summary { margin-bottom: 10px; }
 @keyframes sway-palm { from { rotate: -1deg; } to { rotate: 1.2deg; } }
 @keyframes sway-rabbit { from { rotate: -0.7deg; scale: 1 1; } to { rotate: 0.7deg; scale: 1.004 0.99; } }
 @keyframes sway-grass { from { transform: skewX(-1.2deg); } to { transform: skewX(1.2deg); } }
-/* 첫 화면 이장님 말풍선: 토끼 머리 위 */
+/* 첫 화면 섬주인 말풍선: 토끼 머리 위 */
 .say-box { pointer-events: none; z-index: 3; }
 .landing-say { left: 43%; bottom: 40%; width: 15em; max-width: 78%; text-align: left; margin: 0; }
+
+/* 위쪽 줄: 섬 이름(왼쪽) + 도구들(오른쪽). 도구는 모두 같은 높이·글자 크기 */
+.bar-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-left: auto; }
+.bar-tools > *, .bar-tools .rooms > * { height: 38px; box-sizing: border-box; }
+.bar-tools .chip, .bar-tools button, .bar-tools select, .bar-tools .inline { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 19px; font-size: 0.92rem; line-height: 1; white-space: nowrap; }
+.bar-tools .chip { background: #eef6e6; border: 1px solid var(--line); }
+.bar-tools .clock { background: #fff6cf; border-color: #f0e2a0; }
+.bar-tools .sound { width: 38px; padding: 0; justify-content: center; }
+.bar-tools .rooms { display: contents; }
+.bar-tools .rooms button { font-size: 0.92rem; padding: 0 14px; border-radius: 19px; }
+.bar-tools .inline { padding: 0; border: 0; background: none; color: var(--ink); }
+.bar-tools .inline select { height: 38px; padding: 0 10px; border-radius: 19px; }
+.who-chip small { color: #7a8a6a; }
+.who-chip small::before { content: '·'; margin-right: 6px; }
+.spot.wide img { transform: scaleX(1.14); transform-origin: 50% 100%; }
+@media (max-width: 560px) { .bar-tools { justify-content: flex-start; margin-left: 0; width: 100%; } .bar-tools .chip, .bar-tools button { padding: 0 10px; font-size: 0.85rem; } }
+/* 첫 화면 바다: 섬을 뺀 물 부분만 같은 그림을 겹쳐 살랑이게 한다 */
+.sway.sea { transform-origin: 50% 80%; -webkit-mask-image: radial-gradient(ellipse 49% 17% at 50% 80%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 72%, #000 75%); mask-image: radial-gradient(ellipse 49% 17% at 50% 80%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 72%, #000 75%); -webkit-mask-composite: xor; mask-composite: exclude; -webkit-mask-size: 100% 100%, 100% 100%; mask-size: 100% 100%; -webkit-mask-position: 0 0, 0 0; mask-position: 0 0, 0 0; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; animation: sway-sea 4.5s ease-in-out infinite alternate; }
+@keyframes sway-sea { from { translate: -0.4% 0.25%; } to { translate: 0.4% -0.25%; } }

@@ -13,7 +13,7 @@ export default function Mail({ me, settings, to: first }) {
   const inbox = useWhere(me.year, 'letters', 'to', me.no)
   const sent = useWhere(me.year, 'letters', 'from', me.no)
   const notice = settings.mayorLines ?? []
-  // 우편함을 열면 선생님 말씀을 읽은 것으로 표시한다(내 섬 우편함의 새 소식 표시가 꺼진다)
+  // 우편함을 열면 섬주인 말씀을 읽은 것으로 표시한다(내 섬 우편함의 새 소식 표시가 꺼진다)
   useEffect(() => {
     try {
       localStorage.setItem(`island-notice-${me.year}-${me.no}`, notice.join('\n'))
@@ -41,7 +41,7 @@ export default function Mail({ me, settings, to: first }) {
       <h2>우편함</h2>
       {notice.length > 0 && (
         <div className="card teacher-note">
-          <h3>이장님 말씀</h3>
+          <h3>섬주인 말씀</h3>
           {notice.map((line, i) => (
             <p key={i}>{line}</p>
           ))}
@@ -74,7 +74,7 @@ export default function Mail({ me, settings, to: first }) {
             <textarea name="text" maxLength="300" rows="5" required />
           </label>
           <button>보내기</button>
-          <small>선생님도 편지를 볼 수 있어요. 따뜻한 말만 써요.</small>
+          <small>섬주인도 편지를 볼 수 있어요. 따뜻한 말만 써요.</small>
         </form>
       ) : (
         <div className="stack">

@@ -82,7 +82,7 @@ function Passport({ me }) {
 
 // 교사실의 '섬마을' 탭: 학생 로그인 없이 섬 구경만 한다(캐릭터·채집·편지·민원·기부는 없다)
 export function Village({ year }) {
-  return <World me={{ year, no: '', name: '선생님', teacher: true }} />
+  return <World me={{ year, no: '', name: '섬주인', teacher: true }} />
 }
 
 function World({ me }) {
@@ -128,7 +128,7 @@ function World({ me }) {
   const earned = giftCount(gifts.find((g) => g.id === owner))
   const items = [...DAY_ITEMS.slice(0, earned), ...(phase === 'night' ? LIGHTS.slice(0, earned).map((l, i) => ({ ...l, key: `light${i}`, cls: 'lit' })) : [])]
   const lights = Math.min(earned, LIGHTS.length)
-  // 이장님(선생님) 말씀이 바뀌었는데 아직 우편함을 열지 않았으면 새 소식 표시
+  // 섬주인(섬주인) 말씀이 바뀌었는데 아직 우편함을 열지 않았으면 새 소식 표시
   let noticeNew = false
   try {
     noticeNew = !!settings.mayorLines?.length && localStorage.getItem(`island-notice-${me.year}-${me.no}`) !== settings.mayorLines.join('\n')
@@ -138,12 +138,12 @@ function World({ me }) {
   const spots = {
     island: [
       ...items,
-      { x: 50, y: 33, w: 20, img: 'buildings/house', label: '내 집', onClick: () => setScene('house') },
+      { x: 50, y: 33, w: 20, img: 'buildings/house', aria: '내 집', cls: 'wide', onClick: () => setScene('house') },
       { x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: noticeNew ? '우편함 · 새 소식' : '우편함', cls: noticeNew ? 'alert' : '', onClick: () => (setMailTo(''), setScene('mail')) },
     ],
     visit: [
       ...items,
-      { x: 50, y: 33, w: 20, img: 'buildings/house', label: `${friend?.islandName || friend?.name}의 집`, onClick: () => tell(`${friend?.name}의 집이에요. 문이 닫혀 있어요, 총총!`) },
+      { x: 50, y: 33, w: 20, img: 'buildings/house', aria: `${friend?.islandName || friend?.name}의 집`, cls: 'wide', onClick: () => tell(`${friend?.name}의 집이에요. 문이 닫혀 있어요, 총총!`) },
       ...(me.teacher ? [] : [{ x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) }]),
     ],
     plaza: [
@@ -158,27 +158,31 @@ function World({ me }) {
   const inScene = ['island', 'plaza', 'sea', 'forest', 'visit', 'shop', 'museum', 'house', 'center'].includes(scene)
   const others = scene === 'visit' && friend ? [{ id: friend.no, x: 40, y: 62, character: friend.character, name: friend.name, bubble: friend.greeting || `어서 와! ${friend.catchphrase ?? ''}` }] : []
   const tab = TAB_OF[scene] ?? scene
+  const country = settings.countryName || '우리 반 섬나라'
 
   return (
     <Wrap className={me.teacher ? undefined : 'page'}>
       <header className="bar">
-        <h1>{settings.countryName || '우리 반 섬나라'}</h1>
-        <span className="wx clock" aria-label="현재 시각">
-          {PHASE_LABEL[phase] ?? ''} {String(t.h).padStart(2, '0')}:{String(t.min).padStart(2, '0')}
-        </span>
-        <Bgm hour={t.h} />
-        <span className="wx" role="status">
-          {w.label || (wx === undefined ? '날씨 불러오는 중' : '날씨 정보 없음')} {wx ? `${wx.temp}°C` : ''}
-        </span>
-        <span>
-          {me.islandName ? `${me.islandName} · ` : ''}
-          {me.name}
-        </span>
-        {!me.teacher && (
-          <button className="ghost" onClick={() => signOut(auth)}>
-            로그아웃
-          </button>
-        )}
+        {/* 왼쪽 위: 내가 정한 섬 이름(친구 섬에서는 친구의 섬 이름). 나라 이름은 오른쪽 내 이름 옆에 둔다 */}
+        <h1>{scene === 'visit' && friend ? friend.islandName || `${friend.name}의 섬` : me.teacher ? country : me.islandName || `${me.name}의 섬`}</h1>
+        <div className="bar-tools">
+          <span className="chip clock" aria-label="현재 시각">
+            {PHASE_LABEL[phase] ?? ''} {String(t.h).padStart(2, '0')}:{String(t.min).padStart(2, '0')}
+          </span>
+          <span className="chip" role="status">
+            {w.label || (wx === undefined ? '날씨 불러오는 중' : '날씨 정보 없음')} {wx ? `${wx.temp}°C` : ''}
+          </span>
+          <Bgm hour={t.h} />
+          <span className="chip who-chip">
+            <b>{me.name}</b>
+            {!me.teacher && <small>{country}</small>}
+          </span>
+          {!me.teacher && (
+            <button className="ghost" onClick={() => signOut(auth)}>
+              로그아웃
+            </button>
+          )}
+        </div>
       </header>
       <nav className="tabs main">
         {NAV.filter(([k]) => !(me.teacher && k === 'island')).map(([k, label]) => (

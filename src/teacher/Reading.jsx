@@ -69,7 +69,7 @@ export default function Reading({ year, students, me }) {
     if (await ask(`${month.m}/${day} — 제출 ${done}명, 그 밖 ${students.length - done}명.\n저장한 뒤에는 고칠 수 없습니다. 저장할까요?`)) put(day, entries)
   }
 
-  // 월말 독서기록장 제출 체크(선생님만). 체크하면 섬 선물이 하나 더 생긴다.
+  // 월말 독서기록장 제출 체크(섬주인만). 체크하면 섬 선물이 하나 더 생긴다.
   function setBook(s, on) {
     setDoc(ref, { book: { [s.no]: on } }, { merge: true })
     setDoc(doc(yearCol(year, 'gifts'), s.no), { months: { [month.id]: { book: on } } }, { merge: true })
@@ -150,7 +150,7 @@ export default function Reading({ year, students, me }) {
       <p className="hint">
         {me
           ? locked
-            ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 선생님께 알려 주세요.'
+            ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 섬주인께 알려 주세요.'
             : '날짜를 고르고 [모두 제출] → 안 낸 친구 칸을 눌러 ✕로 바꾸기 → [저장].'
           : '[모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 한 번 더 누르면 다시 ○가 됩니다.'}{' '}
         이 달 반 평균 제출률 {average}% · 달의 마지막 날까지 ✕ 없이 낸 학생은 이름이 노란색이 됩니다.

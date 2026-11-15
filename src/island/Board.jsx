@@ -1,7 +1,7 @@
 import { useDocs } from '../data'
 import { when } from './hooks'
 
-// 게시판: 선생님이 올린 공지
+// 게시판: 섬주인이 올린 공지
 const MEDAL = ['🥇', '🥈', '🥉']
 
 export default function Board({ me, settings = {} }) {
