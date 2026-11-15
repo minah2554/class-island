@@ -63,8 +63,9 @@ export default function Report({ year, students }) {
   }
   const ranks = JSON.stringify(board)
   useEffect(() => {
-    if (!rows.length || !(tardies.length + tickets.length + months.length)) return
-    const t = setTimeout(() => setDoc(doc(db, 'years', String(year)), { ranks: JSON.parse(ranks) }, { merge: true }), 1500)
+    // 기록이 없으면(테스트 기록을 지운 뒤 등) 예전 랭킹을 비워 학생 게시판에서 없앤다
+    const empty = !rows.length || !(tardies.length + tickets.length + months.length)
+    const t = setTimeout(() => setDoc(doc(db, 'years', String(year)), { ranks: empty ? {} : JSON.parse(ranks) }, { merge: true }), 1500)
     return () => clearTimeout(t)
   }, [ranks, year])
   const sum = (k) => rows.reduce((a, r) => a + r[k], 0)

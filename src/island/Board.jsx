@@ -14,7 +14,7 @@ export default function Board({ me, settings = {} }) {
   return (
     <section>
       <h2>게시판</h2>
-      {ranks && (
+      {ranks?.tickets && (
         <div className="corkboard ranks">
           {tops.map(([title, list = [], unit], i) => (
             <article key={title} className={`note n${(i + 1) % 4}`} style={{ rotate: `${tilt(i + 1)}deg` }}>
