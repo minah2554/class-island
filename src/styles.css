@@ -414,6 +414,6 @@ details.card[open] summary { margin-bottom: 10px; }
 .spot.alert::after { content: '!'; position: absolute; right: 8%; top: 4%; width: 1.5em; height: 1.5em; line-height: 1.5em; border-radius: 50%; background: var(--danger); color: #fff; font-weight: 700; font-size: 0.85rem; animation: flutter 0.6s ease-in-out infinite alternate; }
 
 /* 주민센터: 이장님 옆 말풍선(누르면 다음 말) */
-.mayor-say { left: 53%; top: 30%; bottom: auto; transform: none; cursor: pointer; z-index: 97; max-width: 40%; }
+.mayor-say { left: 57%; top: 30%; bottom: auto; transform: none; cursor: pointer; z-index: 97; max-width: 40%; }
 .mayor-say::after { display: none; }
 .mayor-say small { display: block; margin-top: 6px; color: #b08a5a; font-size: 0.75rem; text-align: right; }

@@ -62,7 +62,7 @@ export default function Center({ me, settings, left, scene }) {
     <section>
       <h2>주민센터</h2>
       {scene && (
-        <Scene {...scene} indoor scale={1.5} spots={[{ x: 42, y: 62, w: 25, img: 'npc/rabbit_talk', label: '이장님', onClick: next }]}>
+        <Scene {...scene} indoor scale={1.5} spots={[{ x: 50, y: 64, w: 24, img: 'npc/rabbit_talk', label: '이장님', cls: 'npc', onClick: next }]}>
           <button className="bubble mayor-say" onClick={next} aria-label="이장님의 다음 말 듣기">
             <b className="who">이장님</b>
             {lines[n]}
