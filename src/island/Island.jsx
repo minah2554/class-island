@@ -45,14 +45,17 @@ export default function Island() {
 // 여권: 캐릭터와 섬 이름, 말버릇을 정한다
 function Passport({ me }) {
   const [pick, setPick] = useState(1)
+  const [busy, setBusy] = useState(false)
   async function save(e) {
     e.preventDefault()
     const f = new FormData(e.target)
+    setBusy(true)
     await updateDoc(doc(db, 'years', String(me.year), 'students', me.no), {
       character: pick,
       islandName: f.get('island').trim(),
       catchphrase: f.get('phrase').trim(),
     }).catch(() => tell('여권을 저장하지 못했어요. 잠시 뒤에 다시 눌러 주세요.'))
+    setBusy(false)
   }
   return (
     <form className="card center narrow" onSubmit={save}>
@@ -75,7 +78,7 @@ function Passport({ me }) {
         내 말버릇 (말 끝에 붙는 한마디)
         <input name="phrase" maxLength="8" placeholder="예: 총총!" />
       </label>
-      <button>섬으로 출발!</button>
+      <button disabled={busy}>{busy ? '출발하는 중…' : '섬으로 출발!'}</button>
     </form>
   )
 }

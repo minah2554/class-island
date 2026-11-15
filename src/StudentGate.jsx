@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { parseEmail } from './account'
@@ -15,14 +15,19 @@ export default function StudentGate({ title, landing, children }) {
 
   useEffect(() => onAuthStateChanged(auth, setUser), [])
   const id = parseEmail(user?.email)
+  const registered = useRef(false) // 서버에서 uid가 확인된 뒤에는 내가 방금 고친 값(여권 등)도 바로 화면에 반영한다
   useEffect(() => {
     setMe(null)
+    registered.current = false
     if (!id) return
     return onSnapshot(
       doc(db, 'years', String(id.year), 'students', id.no),
       { includeMetadataChanges: true }, // 서버 반영이 끝났다는 알림도 받는다
       // 등록 직후에는 서버에 반영되기 전의 값이 먼저 온다. 그때 들여보내면 다음 화면의 읽기가 거부된다.
-      (s) => s.metadata.hasPendingWrites || setMe(s.data() ?? null),
+      (s) => {
+        if (!s.metadata.hasPendingWrites && s.data()?.uid) registered.current = true
+        if (!s.metadata.hasPendingWrites || registered.current) setMe(s.data() ?? null)
+      },
       () => setMe(null),
     )
   }, [user])
