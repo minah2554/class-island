@@ -52,7 +52,7 @@ function Passport({ me }) {
       character: pick,
       islandName: f.get('island').trim(),
       catchphrase: f.get('phrase').trim(),
-    })
+    }).catch(() => tell('여권을 저장하지 못했어요. 잠시 뒤에 다시 눌러 주세요.'))
   }
   return (
     <form className="card center narrow" onSubmit={save}>

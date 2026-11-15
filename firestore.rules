@@ -60,7 +60,7 @@ service cloud.firestore {
         // 여권: 본인이 캐릭터·섬 이름·말버릇만 바꿀 수 있다
         allow update: if isMember(year) && no == myNo()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['character', 'islandName', 'catchphrase', 'greeting'])
-          && request.resource.data.get('character', 1) in [1, 2, 3, 4, 5, 6, 7, 8]
+          && request.resource.data.get('character', 1) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
           && request.resource.data.get('islandName', '').size() <= 12
           && request.resource.data.get('catchphrase', '').size() <= 8
           && request.resource.data.get('greeting', '').size() <= 30;
