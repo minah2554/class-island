@@ -19,7 +19,7 @@ export default function Report({ year, students }) {
   const rows = students.map((s) => {
     const paid = penalties.filter((p) => p.no === s.no && p.kind === 'ticket').length
     const t = tickets.find((x) => x.id === s.no)
-    const v = t?.t ?? t?.m ?? {} // 섬주인 장부가 있으면 그것을 쓴다
+    const v = t?.t ?? t?.m ?? {} // 섬 관리자 장부가 있으면 그것을 쓴다
     const got = v.got ?? 0
     const used = (v.used ?? 0) + paid
     let submitted = 0
@@ -108,7 +108,7 @@ export default function Report({ year, students }) {
         </p>
         <small>이 화면을 열 때마다 학생 게시판의 랭킹이 최신 기록으로 바뀝니다.</small>
       </div>
-      <p className="hint">섬 선물 1개마다 학생의 섬에 낮에는 나무나 꽃이, 밤에는 가로등이 하나씩 늘어납니다: 한 달 독서 모두 제출 · 월말 기록장 제출 체크 · 청소면제권 받은 5장마다 · 섬주인 선물(1인 1역을 잘한 학생 등).</p>
+      <p className="hint">섬 선물 1개마다 학생의 섬에 낮에는 나무나 꽃이, 밤에는 가로등이 하나씩 늘어납니다: 한 달 독서 모두 제출 · 월말 기록장 제출 체크 · 청소면제권 받은 5장마다 · 섬 관리자 선물(1인 1역을 잘한 학생 등).</p>
       <button className="ghost" onClick={() => writeFile(utils.table_to_book(table.current, { raw: true }), `섬마을_통계_${year}.xlsx`)}>
         엑셀 다운로드
       </button>
@@ -128,7 +128,7 @@ export default function Report({ year, students }) {
               <th>도감 종류</th>
               <th>잡은 횟수</th>
               <th>섬 선물(합계)</th>
-              <th>섬주인 선물</th>
+              <th>섬 관리자 선물</th>
             </tr>
           </thead>
           <tbody>
@@ -153,7 +153,7 @@ export default function Report({ year, students }) {
                     min="0"
                     className="num"
                     defaultValue={r.gift?.bonus ?? 0}
-                    aria-label={`${r.name} 섬주인 선물 개수`}
+                    aria-label={`${r.name} 섬 관리자 선물 개수`}
                     onBlur={(e) => setDoc(doc(yearCol(year, 'gifts'), r.id), { bonus: Math.max(0, Math.floor(Number(e.target.value)) || 0) }, { merge: true })}
                   />
                 </td>

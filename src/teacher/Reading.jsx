@@ -8,7 +8,7 @@ import { ask, tell } from '../popup'
 import { pad2, schoolMonths, weekdays } from '../records'
 
 // 칸 값: 'o' 제출 / 'x' 안 냄 / 그 밖의 글자 = 기타 사유 / 없음 = 아직 기록 안 함
-// me가 있으면 담당 학생 화면: 고른 날짜를 임시로 체크한 뒤 [저장]하고, 저장한 날짜는 못 고친다.
+// me가 있으면 섬 관리인 화면: 고른 날짜를 임시로 체크한 뒤 [저장]하고, 저장한 날짜는 못 고친다.
 export default function Reading({ year, students, me }) {
   const months = schoolMonths(year)
   const now = new Date()
@@ -27,7 +27,7 @@ export default function Reading({ year, students, me }) {
 
   const days = weekdays(month.y, month.m, data.off)
   const savedDay = (d) => data.days?.[pad2(d)]
-  const locked = !!me && !!savedDay(day) // 담당자는 이미 저장된 날짜를 못 고친다
+  const locked = !!me && !!savedDay(day) // 섬 관리인은 이미 저장된 날짜를 못 고친다
   const drafting = !!me && !locked
   const value = (d, no) => (drafting && d === day ? draft[no] : savedDay(d)?.[no])
   // 날짜마다 "반 전원 제출" 표시를 함께 남긴다(학생 채집 보너스용)
@@ -69,7 +69,7 @@ export default function Reading({ year, students, me }) {
     if (await ask(`${month.m}/${day} — 제출 ${done}명, 그 밖 ${students.length - done}명.\n저장한 뒤에는 고칠 수 없습니다. 저장할까요?`)) put(day, entries)
   }
 
-  // 월말 독서기록장 제출 체크(섬주인만). 체크하면 섬 선물이 하나 더 생긴다.
+  // 월말 독서기록장 제출 체크(섬 관리자만). 체크하면 섬 선물이 하나 더 생긴다.
   function setBook(s, on) {
     setDoc(ref, { book: { [s.no]: on } }, { merge: true })
     setDoc(doc(yearCol(year, 'gifts'), s.no), { months: { [month.id]: { book: on } } }, { merge: true })
@@ -150,7 +150,7 @@ export default function Reading({ year, students, me }) {
       <p className="hint">
         {me
           ? locked
-            ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 섬주인께 알려 주세요.'
+            ? '이 날짜는 이미 저장했어요. 고칠 것이 있으면 아래 정정 요청으로 섬 관리자께 알려 주세요.'
             : '날짜를 고르고 [모두 제출] → 안 낸 친구 칸을 눌러 ✕로 바꾸기 → [저장].'
           : '[모두 제출]을 누른 뒤 안 낸 학생 칸을 눌러 ✕로 바꿉니다. 한 번 더 누르면 다시 ○가 됩니다.'}{' '}
         이 달 반 평균 제출률 {average}% · 달의 마지막 날까지 ✕ 없이 낸 학생은 이름이 노란색이 됩니다.

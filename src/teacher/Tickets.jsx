@@ -24,7 +24,7 @@ function Meter({ got, used, max }) {
   )
 }
 
-// 장부는 두 개: 담당 학생(m)과 섬주인(t). me가 있으면 담당 학생 화면이라 m에만 쓰고, 저장한 뒤에는 못 고친다.
+// 장부는 두 개: 섬 관리인(m)과 섬 관리자(t). me가 있으면 섬 관리인 화면이라 m에만 쓰고, 저장한 뒤에는 못 고친다.
 export default function Tickets({ year, students, me }) {
   const tickets = useDocs(year, 'tickets')
   const penalties = useDocs(year, 'penalties')
@@ -96,7 +96,7 @@ export default function Tickets({ year, students, me }) {
     setPicked(new Set())
   }
 
-  // 숫자 직접 수정 (섬주인만)
+  // 숫자 직접 수정 (섬 관리자만)
   function edit(s, field, input) {
     const value = Number(input.value)
     const cur = view(s.no)
@@ -111,7 +111,7 @@ export default function Tickets({ year, students, me }) {
   // 불일치 확정: 고른 값으로 두 장부를 맞춘다.
   async function settle(s, k) {
     const v = view(s.no, k)
-    if (await ask(`${s.name}의 청소면제권을 ${k === 'm' ? '담당자' : '섬주인'} 값(받음 ${v.got} · 사용 ${v.used})으로 확정할까요?`))
+    if (await ask(`${s.name}의 청소면제권을 ${k === 'm' ? '섬 관리인' : '섬 관리자'} 값(받음 ${v.got} · 사용 ${v.used})으로 확정할까요?`))
       write([{ no: s.no, next: v }], { type: 'confirm', got: v.got, used: v.used }, ['m', 't'])
   }
 
@@ -123,7 +123,7 @@ export default function Tickets({ year, students, me }) {
       return [num(s), s.no, s.name, t.got, t.used, t.got - t.used, h.filter(isGot).map((l) => text(l, 'got')).join(', '), h.filter(isUsed).map((l) => text(l, 'used')).join(', ')]
     })
     const detail = students.flatMap((s) =>
-      history(s.no).map((l) => [l.date, num(s), s.no, s.name, KIND[l.type], l.n ?? '', l.reason ?? '', l.by === 'teacher' ? '섬주인' : l.by]),
+      history(s.no).map((l) => [l.date, num(s), s.no, s.name, KIND[l.type], l.n ?? '', l.reason ?? '', l.by === 'teacher' ? '섬 관리자' : l.by]),
     )
     const book = utils.book_new()
     utils.book_append_sheet(book, utils.aoa_to_sheet([['번호', '학번', '이름', '받음', '사용', '남음', '배부 내역', '사용 내역'], ...summary]), '현황')
@@ -162,7 +162,7 @@ export default function Tickets({ year, students, me }) {
           엑셀 다운로드
         </button>
       </div>
-      {me && <p className="hint">저장한 기록은 고칠 수 없으니 잘못 입력했으면 아래 정정 요청으로 섬주인께 알려 주세요.</p>}
+      {me && <p className="hint">저장한 기록은 고칠 수 없으니 잘못 입력했으면 아래 정정 요청으로 섬 관리자께 알려 주세요.</p>}
       <div className="scroll">
         <table className="sheet tickets">
           <thead>
@@ -178,7 +178,7 @@ export default function Tickets({ year, students, me }) {
               <th>현황</th>
               {!me && <th>받음</th>}
               {!me && <th>사용</th>}
-              {!me && <th>담당자 기록</th>}
+              {!me && <th>섬 관리인 기록</th>}
               {!me && <th>이중 체크</th>}
               <th>날짜별 내역</th>
             </tr>
@@ -219,13 +219,13 @@ export default function Tickets({ year, students, me }) {
                       {mismatched(r) ? (
                         <>
                           <span className="warn">불일치 </span>
-                          <button onClick={() => settle(s, 'm')}>담당자 값으로</button>
-                          <button onClick={() => settle(s, 't')}>섬주인 값으로</button>
+                          <button onClick={() => settle(s, 'm')}>섬 관리인 값으로</button>
+                          <button onClick={() => settle(s, 't')}>섬 관리자 값으로</button>
                         </>
                       ) : r.m && r.t ? (
                         '일치'
                       ) : r.m ? (
-                        '담당자만 입력'
+                        '섬 관리인만 입력'
                       ) : (
                         '-'
                       )}

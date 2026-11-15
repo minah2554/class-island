@@ -43,7 +43,7 @@ export default function Shop({ me, cols, bought = {}, scene }) {
     e.target.reset()
   }
   async function buy(d) {
-    if (me.teacher) return tell('섬주인은 구경만 할 수 있어요.')
+    if (me.teacher) return tell('섬 관리자는 구경만 할 수 있어요.')
     if (pool < d.cost) return tell(`기금이 모자라요. ${d.cost - pool}개 더 모여야 해요.`)
     if (!(await ask(`${d.name}을(를) ${d.cost}개로 살까요? 광장에 바로 놓여요.`))) return
     // 사는 순간의 최신 장부를 다시 읽어서, 다른 친구가 먼저 샀다면 기금을 다시 계산한다

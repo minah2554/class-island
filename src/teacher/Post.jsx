@@ -6,7 +6,7 @@ import { short, dateOf } from '../records'
 const newest = (a, b) => (b.at?.seconds ?? 9e9) - (a.at?.seconds ?? 9e9)
 const when = (x) => (x.at ? short(dateOf(x)) : '방금')
 
-// 학생들의 편지·방명록·민원. 섬주인은 이름과 함께 모두 보고 지울 수 있다.
+// 학생들의 편지·방명록·민원. 섬 관리자는 이름과 함께 모두 보고 지울 수 있다.
 export default function Post({ year, only }) {
   const letters = useDocs(year, 'letters').sort(newest)
   const notes = useDocs(year, 'guestbook').sort(newest)
@@ -19,7 +19,7 @@ export default function Post({ year, only }) {
       {only !== 'letters' && (
         <>
       <h2>상담·건의 ({complaints.filter((c) => !c.reply && !c.seen).length}건 확인 전)</h2>
-      <p className="hint">학생은 섬주인이 [확인]을 누르거나 답변하기 전까지만 글을 고치거나 취소할 수 있습니다.</p>
+      <p className="hint">학생은 섬 관리자가 [확인]을 누르거나 답변하기 전까지만 글을 고치거나 취소할 수 있습니다.</p>
       {complaints.map((c) => (
         <article key={c.id} className="card">
           <small>

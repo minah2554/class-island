@@ -82,7 +82,7 @@ function Passport({ me }) {
 
 // 교사실의 '섬마을' 탭: 학생 로그인 없이 섬 구경만 한다(캐릭터·채집·편지·민원·기부는 없다)
 export function Village({ year }) {
-  return <World me={{ year, no: '', name: '섬주인', teacher: true }} />
+  return <World me={{ year, no: '', name: '섬 관리자', teacher: true }} />
 }
 
 function World({ me }) {
@@ -128,7 +128,7 @@ function World({ me }) {
   const earned = giftCount(gifts.find((g) => g.id === owner))
   const items = [...DAY_ITEMS.slice(0, earned), ...(phase === 'night' ? LIGHTS.slice(0, earned).map((l, i) => ({ ...l, key: `light${i}`, cls: 'lit' })) : [])]
   const lights = Math.min(earned, LIGHTS.length)
-  // 섬주인(섬주인) 말씀이 바뀌었는데 아직 우편함을 열지 않았으면 새 소식 표시
+  // 섬 관리자(섬 관리자) 말씀이 바뀌었는데 아직 우편함을 열지 않았으면 새 소식 표시
   let noticeNew = false
   try {
     noticeNew = !!settings.mayorLines?.length && localStorage.getItem(`island-notice-${me.year}-${me.no}`) !== settings.mayorLines.join('\n')

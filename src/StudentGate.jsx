@@ -39,7 +39,7 @@ const HELLO = [
   '학번과 이름, 비밀번호를 넣고 들어와 줘!',
 ]
 
-// 토끼 섬주인이 머리 위 말풍선으로 반겨 준다(몇 초마다 다음 말)
+// 토끼 섬 관리자가 머리 위 말풍선으로 반겨 준다(몇 초마다 다음 말)
 function MayorHello() {
   const [n, setN] = useState(0)
   useEffect(() => {
@@ -48,7 +48,7 @@ function MayorHello() {
   }, [n])
   return (
     <p className="bubble landing-say" role="status" key={n}>
-      <b className="who">섬주인</b>
+      <b className="who">섬 관리자</b>
       {HELLO[n]}
     </p>
   )
@@ -101,7 +101,7 @@ function Login({ title, landing }) {
           <img className="cloud" src="assets/title/cloud3.webp" alt="" style={{ top: '20%', animationDuration: '120s', animationDelay: '-95s' }} />
           <img className="plane" src="assets/title/plane.webp" alt="" />
         </div>
-        <h1 className="title">놀러와요. 총총섬</h1>
+        <h1 className="title">놀러와요 총총섬</h1>
         <div className="landing-bg say-box">
           <MayorHello />
         </div>

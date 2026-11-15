@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { catchBlock, giftCount, giftParts, perfectMonth, readingStreak, topRanks } from './gifts.js'
 
 test('아무 기록이 없으면 0', () => assert.equal(giftCount(undefined), 0))
-test('잘한 달·제출·면제권 5장·섬주인 선물을 더한다', () => {
+test('잘한 달·제출·면제권 5장·섬 관리자 선물을 더한다', () => {
   const g = { months: { '2026-03': { perfect: true, book: true }, '2026-04': { book: true }, '2026-05': {} }, got: 11, bonus: 1 }
   assert.deepEqual(giftParts(g), { perfect: 1, book: 2, tickets: 2, bonus: 1 })
   assert.equal(giftCount(g), 6)

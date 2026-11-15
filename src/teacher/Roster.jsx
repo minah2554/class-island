@@ -84,9 +84,9 @@ export default function Roster({ year }) {
     return batch.commit()
   }
   const setRole = (s, role, on) => updateDoc(ref(s), { roles: on ? arrayUnion(role) : arrayRemove(role) })
-  // 담당자실 비밀번호: 새 값을 넣으면 수정, 비우면 리셋(학생이 다시 정함)
+  // 섬 관리인실 비밀번호: 새 값을 넣으면 수정, 비우면 리셋(학생이 다시 정함)
   async function managerPin(s) {
-    const pin = await askText(`${s.name}의 담당자 비밀번호를 새로 정합니다(숫자 4자리).
+    const pin = await askText(`${s.name}의 섬 관리인 비밀번호를 새로 정합니다(숫자 4자리).
 비워 두면 리셋되어 학생이 다시 정합니다.`)
     if (pin === null) return
     const pinRef = doc(yearCol(year, 'managerPins'), s.no)
@@ -162,7 +162,7 @@ export default function Roster({ year }) {
       )}
 
       <div className="scroll">
-        <table>
+        <table className="roster-table">
           <thead>
             <tr>
               <th>번호</th>
@@ -170,7 +170,7 @@ export default function Roster({ year }) {
               <th>이름</th>
               <th>섬 등록</th>
               {Object.values(ROLES).map((name) => (
-                <th key={name}>{name} 담당</th>
+                <th key={name}>{name}<small>담당</small></th>
               ))}
               <th>관리</th>
             </tr>
@@ -199,13 +199,13 @@ export default function Roster({ year }) {
                     />
                   </td>
                 ))}
-                <td>
+                <td className="acts">
                   <button className="ghost" onClick={() => resetPw(s)}>
                     비번 리셋
                   </button>
                   {s.roles?.length > 0 && (
                     <button className="ghost" onClick={() => managerPin(s)}>
-                      담당 비번
+                      관리인 비번
                     </button>
                   )}
                   <button className="ghost danger" onClick={() => remove(s)}>

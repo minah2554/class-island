@@ -28,7 +28,7 @@ export function applyTickets(cur, type, n) {
 // 아직 처리하지 않은 지각 벌칙 수 (3회마다 1건)
 export const owed = (tardyCount, penaltyCount) => Math.max(0, Math.floor(tardyCount / 3) - penaltyCount)
 
-// 담당자 장부(m)와 섬주인 장부(t)가 둘 다 있는데 값이 다른 면제권 문서
+// 섬 관리인 장부(m)와 섬 관리자 장부(t)가 둘 다 있는데 값이 다른 면제권 문서
 export const mismatched = (t) => !!t.m && !!t.t && (t.m.got !== t.t.got || t.m.used !== t.t.used)
 
 export const ymd = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`

@@ -5,7 +5,7 @@ import { useDocs, yearCol } from '../data'
 import { ask, tell } from '../popup'
 import { owed, short, ymd } from '../records'
 
-// me가 있으면 담당 학생 화면: 추가만 할 수 있고 삭제는 못 한다.
+// me가 있으면 섬 관리인 화면: 추가만 할 수 있고 삭제는 못 한다.
 export default function Tardy({ year, students, me }) {
   const tardies = useDocs(year, 'tardies')
   const penalties = useDocs(year, 'penalties')
@@ -56,7 +56,7 @@ export default function Tardy({ year, students, me }) {
       </div>
       <p className="hint">
         [+ 지각]을 누르면 위 날짜로 기록됩니다. 3회마다 청소면제권 1장 제출이고, 제출 처리한 3·6·9번째 칸은 빨갛게 바뀝니다.
-        {me ? ' 저장한 기록은 고칠 수 없으니 아래 정정 요청으로 섬주인께 알려 주세요.' : ' 기록된 칸을 누르면 삭제할 수 있습니다.'}
+        {me ? ' 저장한 기록은 고칠 수 없으니 아래 정정 요청으로 섬 관리자께 알려 주세요.' : ' 기록된 칸을 누르면 삭제할 수 있습니다.'}
       </p>
       <div className="scroll">
         <table ref={table} className="sheet">

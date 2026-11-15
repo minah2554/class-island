@@ -5,7 +5,7 @@ import { ROLES } from '../roles'
 
 const when = (t) => (t ? new Date(t.seconds * 1000).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' }) : '')
 
-// 담당 학생이 보낸 정정 요청. 해당 탭에서 직접 고친 뒤 [처리 완료]를 누르면 담당 학생 화면에도 완료로 보인다.
+// 섬 관리인이 보낸 정정 요청. 해당 탭에서 직접 고친 뒤 [처리 완료]를 누르면 섬 관리인 화면에도 완료로 보인다.
 export default function Corrections({ year }) {
   const list = useDocs(year, 'corrections').sort((a, b) => !!a.done - !!b.done || (a.at?.seconds ?? 0) - (b.at?.seconds ?? 0))
   const ref = (c) => doc(yearCol(year, 'corrections'), c.id)
@@ -18,7 +18,7 @@ export default function Corrections({ year }) {
   return (
     <section>
       <h2>{year}학년도 정정 요청함</h2>
-      <p className="hint">요청을 읽고 해당 탭(지각·청소면제권·독서기록장)에서 직접 고친 다음 [처리 완료]를 누릅니다. 담당 학생 화면에도 완료로 표시됩니다.</p>
+      <p className="hint">요청을 읽고 해당 탭(지각·청소면제권·독서기록장)에서 직접 고친 다음 [처리 완료]를 누릅니다. 섬 관리인 화면에도 완료로 표시됩니다.</p>
       {list.length === 0 && <p className="card">들어온 정정 요청이 없습니다.</p>}
       {list.map((c) => (
         <div key={c.id} className={`card row ${c.done ? 'done' : ''}`}>

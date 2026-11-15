@@ -399,18 +399,18 @@ details.card summary { cursor: pointer; font-weight: 700; }
 details.card[open] summary { margin-bottom: 10px; }
 @media (max-width: 520px) { .room-status li { padding: 3px 8px; font-size: 0.72rem; } .room-status b { font-size: 0.9rem; } .room-status small { font-size: 0.6rem; } }
 
-/* 섬주인 메뉴: 묶음 이름 + 버튼 */
+/* 섬 관리자 메뉴: 묶음 이름 + 버튼 */
 .menu { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0; padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
 .menu-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .menu-group small { font-size: 0.75rem; margin-right: 2px; }
 .menu button { padding: 6px 12px; }
 .menu .count { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 0 5px; border-radius: 10px; background: var(--danger); color: #fff; font-size: 0.75rem; }
-/* 우편함: 섬주인 말씀, 새 소식 표시 */
+/* 우편함: 섬 관리자 말씀, 새 소식 표시 */
 .teacher-note { background: #fff8e1; border-color: #f2d48a; }
 .teacher-note p { margin: 4px 0; }
 .spot.alert::after { content: '!'; position: absolute; right: 8%; top: 4%; width: 1.5em; height: 1.5em; line-height: 1.5em; border-radius: 50%; background: var(--danger); color: #fff; font-weight: 700; font-size: 0.85rem; animation: flutter 0.6s ease-in-out infinite alternate; }
 
-/* 주민센터: 섬주인 옆 말풍선(누르면 다음 말) */
+/* 주민센터: 섬 관리자 옆 말풍선(누르면 다음 말) */
 .mayor-say { left: 57%; top: 30%; bottom: auto; transform: none; cursor: pointer; z-index: 97; max-width: 40%; }
 .mayor-say::after { display: none; }
 .mayor-say small { display: block; margin-top: 6px; color: #b08a5a; font-size: 0.75rem; text-align: right; }
@@ -423,7 +423,7 @@ details.card[open] summary { margin-bottom: 10px; }
 @keyframes sway-palm { from { rotate: -1deg; } to { rotate: 1.2deg; } }
 @keyframes sway-rabbit { from { rotate: -0.7deg; scale: 1 1; } to { rotate: 0.7deg; scale: 1.004 0.99; } }
 @keyframes sway-grass { from { transform: skewX(-1.2deg); } to { transform: skewX(1.2deg); } }
-/* 첫 화면 섬주인 말풍선: 토끼 머리 위 */
+/* 첫 화면 섬 관리자 말풍선: 토끼 머리 위 */
 .say-box { pointer-events: none; z-index: 3; }
 .landing-say { left: 43%; bottom: 40%; width: 15em; max-width: 78%; text-align: left; margin: 0; }
 
@@ -446,3 +446,16 @@ details.card[open] summary { margin-bottom: 10px; }
 .sway.sea { transform-origin: 50% 80%; -webkit-mask-image: radial-gradient(ellipse 49% 17% at 50% 80%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 72%, #000 75%); mask-image: radial-gradient(ellipse 49% 17% at 50% 80%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 72%, #000 75%); -webkit-mask-composite: xor; mask-composite: exclude; -webkit-mask-size: 100% 100%, 100% 100%; mask-size: 100% 100%; -webkit-mask-position: 0 0, 0 0; mask-position: 0 0, 0 0; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; animation: sway-sea 4.5s ease-in-out infinite alternate; }
 @keyframes sway-sea { from { translate: -0.4% 0.25%; } to { translate: 0.4% -0.25%; } }
 .landing { margin-top: clamp(14px, 3.5svh, 32px); }
+
+/* 명단 표: 가로 스크롤 없이 칸 안에서 줄바꿈 */
+.roster-table { table-layout: auto; }
+.roster-table th, .roster-table td { white-space: normal; padding: 6px 4px; font-size: 0.92rem; }
+.roster-table th small { display: block; font-weight: normal; color: #6b7d62; font-size: 0.75rem; }
+.roster-table td input:not([type]) { width: 100%; min-width: 5em; max-width: 9em; padding: 6px 4px; }
+.roster-table td.acts { text-align: center; }
+.roster-table td.acts button { margin: 2px; padding: 4px 8px; font-size: 0.85rem; white-space: nowrap; }
+/* 첫 화면 글씨: 단어 중간에서 끊지 않고, 화면 폭에 맞춰 글자 크기가 따라간다 */
+.landing { container-type: inline-size; }
+.landing .title { white-space: nowrap; font-size: clamp(1.5rem, 9.5cqw, 2.8rem); word-break: keep-all; }
+.landing-say, .landing-cta, .landing .bubble { word-break: keep-all; overflow-wrap: normal; text-wrap: pretty; }
+@media (min-aspect-ratio: 1/1) { .landing .title { font-size: clamp(2rem, 6cqw, 3.6rem); } }

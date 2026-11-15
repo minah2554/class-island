@@ -102,7 +102,7 @@ export default function Teacher() {
   if (state === 'ok') return <Dashboard />
   return (
     <form className="card center narrow" onSubmit={submit}>
-      <h1 className="title">섬주인 방</h1>
+      <h1 className="title">섬 관리실</h1>
       {state === 'setup' && <p>처음 한 번, 교사 비밀번호를 정합니다.</p>}
       <label>
         비밀번호
@@ -146,7 +146,7 @@ function Dashboard() {
   return (
     <main className="page">
       <header className="bar">
-        <h1 className="title">섬주인 방</h1>
+        <h1 className="title">섬 관리실</h1>
         <div className="bar-tools">
         <label className="inline">
           학년도
@@ -175,7 +175,7 @@ function Dashboard() {
         </button>
         </div>
       </header>
-      <nav className="menu" aria-label="섬주인 메뉴">
+      <nav className="menu" aria-label="섬 관리자 메뉴">
         {GROUPS.map(([group, tabs]) => (
           <div key={group} className="menu-group">
             <small>{group}</small>
@@ -190,13 +190,13 @@ function Dashboard() {
       </nav>
       {alerts.청소면제권 > 0 && (
         <p className="card alert" role="alert">
-          청소면제권 기록이 담당 학생과 다른 학생이 {alerts.청소면제권}명 있습니다.{' '}
+          청소면제권 기록이 섬 관리인과 다른 학생이 {alerts.청소면제권}명 있습니다.{' '}
           <button onClick={() => setTab('청소면제권')}>확인하기</button>
         </p>
       )}
       {alerts.정정요청 > 0 && (
         <p className="card alert" role="alert">
-          담당 학생의 정정 요청이 {alerts.정정요청}건 있습니다. <button onClick={() => setTab('정정요청')}>확인하기</button>
+          섬 관리인의 정정 요청이 {alerts.정정요청}건 있습니다. <button onClick={() => setTab('정정요청')}>확인하기</button>
         </p>
       )}
       <Tab year={year} students={students} cfg={cfg} />

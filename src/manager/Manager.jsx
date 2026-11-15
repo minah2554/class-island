@@ -13,12 +13,12 @@ import Tickets from '../teacher/Tickets'
 const TABS = { tardy: Tardy, tickets: Tickets, reading: Reading }
 
 export default function Manager() {
-  return <StudentGate title="담당 친구 입구">{(me) => <Room me={me} />}</StudentGate>
+  return <StudentGate title="섬 관리인 입구">{(me) => <Room me={me} />}</StudentGate>
 }
 
 function Room({ me }) {
   const roles = Object.keys(ROLES).filter((r) => me.roles?.includes(r))
-  const [saved, setSaved] = useState(undefined) // 저장된 담당자 비밀번호 문서
+  const [saved, setSaved] = useState(undefined) // 저장된 섬 관리인 비밀번호 문서
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [role, setRole] = useState(roles[0])
@@ -36,7 +36,7 @@ function Room({ me }) {
   if (!roles.length)
     return (
       <main className="card center narrow">
-        <h1 className="title">담당 친구 방</h1>
+        <h1 className="title">섬 관리인 방</h1>
         <p>{me.name} 님은 맡은 1인 1역이 없어요.</p>
         {out}
       </main>
@@ -46,7 +46,7 @@ function Room({ me }) {
     e.preventDefault()
     setError('')
     const f = new FormData(e.target)
-    if (saved) return f.get('pin') === saved.pin ? setOpen(true) : setError('담당자 비밀번호가 틀렸습니다.')
+    if (saved) return f.get('pin') === saved.pin ? setOpen(true) : setError('섬 관리인 비밀번호가 틀렸습니다.')
     if (f.get('pin') !== f.get('pin2')) return setError('두 비밀번호가 서로 다릅니다.')
     await setDoc(pinRef, { pin: f.get('pin') })
     setOpen(true)
@@ -56,12 +56,12 @@ function Room({ me }) {
   if (!open)
     return (
       <form className="card center narrow" onSubmit={unlock}>
-        <h1 className="title">담당 친구 방</h1>
+        <h1 className="title">섬 관리인 방</h1>
         <p>
           {me.name} · {roles.map((r) => ROLES[r]).join(', ')} 담당
         </p>
         <label>
-          {saved ? '담당자 비밀번호' : '담당자 비밀번호 정하기 (숫자 4자리)'}
+          {saved ? '섬 관리인 비밀번호' : '섬 관리인 비밀번호 정하기 (숫자 4자리)'}
           <input name="pin" type="password" required inputMode="numeric" pattern="\d{4}" maxLength="4" autoFocus autoComplete="off" />
         </label>
         {!saved && (
@@ -80,7 +80,7 @@ function Room({ me }) {
   return (
     <main className="page">
       <header className="bar">
-        <h1 className="title">담당 친구 방</h1>
+        <h1 className="title">섬 관리인 방</h1>
         <span>
           {me.name} · {me.year}학년도
         </span>
@@ -100,11 +100,11 @@ function Room({ me }) {
   )
 }
 
-// 저장한 기록은 담당자가 고칠 수 없으므로 섬주인께 메모를 보낸다.
+// 저장한 기록은 섬 관리인이 고칠 수 없으므로 섬 관리자께 메모를 보낸다.
 function Correction({ me, role }) {
   const [sent, setSent] = useState(false)
   const [mine, setMine] = useState([])
-  // 내가 보낸 요청과 섬주인의 처리 결과
+  // 내가 보낸 요청과 섬 관리자의 처리 결과
   useEffect(
     () =>
       onSnapshot(query(yearCol(me.year, 'corrections'), where('by', '==', me.no)), (s) =>
@@ -122,17 +122,17 @@ function Correction({ me, role }) {
   }
   return (
     <form className="card" onSubmit={send}>
-      <h3>잘못 입력했나요? 섬주인께 정정 요청</h3>
+      <h3>잘못 입력했나요? 섬 관리자께 정정 요청</h3>
       <label>
         누구의 어떤 기록을 어떻게 고쳐야 하는지 적어 주세요
         <textarea name="text" rows="2" required placeholder="예: 3월 12일 5번 지각 아님, 잘못 눌렀어요" onChange={() => setSent(false)} />
       </label>
       <button>보내기</button>
-      {sent && <span className="hint" role="status"> 섬주인께 보냈어요.</span>}
+      {sent && <span className="hint" role="status"> 섬 관리자께 보냈어요.</span>}
       {mine.map((c) => (
         <p key={c.id} className={`memo ${c.done ? 'done' : ''}`}>
-          <strong>{c.done ? '처리 완료' : '섬주인 확인 중'}</strong> · {c.text}
-          {c.reply && ` → 섬주인: ${c.reply}`}
+          <strong>{c.done ? '처리 완료' : '섬 관리자 확인 중'}</strong> · {c.text}
+          {c.reply && ` → 섬 관리자: ${c.reply}`}
         </p>
       ))}
     </form>

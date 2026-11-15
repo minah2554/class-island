@@ -17,7 +17,7 @@ const LINES = [
 
 const KINDS = ['상담 신청', '고민', '바라는 점', '불편한 점']
 
-// 주민센터: 토끼 섬주인과 이야기하고, 섬주인께 상담·고민·건의를 보낸다. 보낸 글은 섬주인과 나만 볼 수 있다.
+// 주민센터: 토끼 섬 관리자와 이야기하고, 섬 관리자께 상담·고민·건의를 보낸다. 보낸 글은 섬 관리자와 나만 볼 수 있다.
 export default function Center({ me, settings, left, scene }) {
   const [line, setLine] = useState(0)
   const [editing, setEditing] = useState(null) // 고치는 중인 글의 id
@@ -32,7 +32,7 @@ export default function Center({ me, settings, left, scene }) {
     if (!text || !clean(text)) return
     await addDoc(yearCol(me.year, 'complaints'), { from: me.no, fromName: me.name, kind: f.get('kind'), text, at: serverTimestamp() })
     e.target.reset()
-    tell('섬주인께 보냈어요. 다른 친구들에게는 보이지 않아요.')
+    tell('섬 관리자께 보냈어요. 다른 친구들에게는 보이지 않아요.')
   }
   async function fix(e, id) {
     e.preventDefault()
@@ -42,12 +42,12 @@ export default function Center({ me, settings, left, scene }) {
       await updateDoc(ref(id), { text })
       setEditing(null)
     } catch {
-      tell('섬주인이 이미 확인해서 고칠 수 없어요.')
+      tell('섬 관리자가 이미 확인해서 고칠 수 없어요.')
     }
   }
-  const cancel = async (id) => (await ask('보낸 글을 취소할까요? 섬주인께 보이지 않게 지워져요.')) && deleteDoc(ref(id)).catch(() => tell('섬주인이 이미 확인해서 취소할 수 없어요.'))
+  const cancel = async (id) => (await ask('보낸 글을 취소할까요? 섬 관리자께 보이지 않게 지워져요.')) && deleteDoc(ref(id)).catch(() => tell('섬 관리자가 이미 확인해서 취소할 수 없어요.'))
 
-  // 섬주인이 설정에서 쓴 말이 있으면 그것을, 없으면 기본 말을 한다
+  // 섬 관리자가 설정에서 쓴 말이 있으면 그것을, 없으면 기본 말을 한다
   const mine = settings.mayorLines?.length ? settings.mayorLines : null
   const lines = mine ?? [...LINES.slice(0, 1), `오늘 채집 기회가 ${left}번 남았어, 총총!`, ...LINES.slice(1)]
   const n = line % lines.length
@@ -62,9 +62,9 @@ export default function Center({ me, settings, left, scene }) {
     <section>
       <h2>주민센터</h2>
       {scene && (
-        <Scene {...scene} indoor scale={1.5} spots={[{ x: 50, y: 64, w: 24, img: 'npc/rabbit_talk', label: '섬주인', cls: 'npc', onClick: next }]}>
-          <button className="bubble mayor-say" onClick={next} aria-label="섬주인의 다음 말 듣기">
-            <b className="who">섬주인</b>
+        <Scene {...scene} indoor scale={1.5} spots={[{ x: 50, y: 64, w: 24, img: 'npc/rabbit_talk', label: '섬 관리자', cls: 'npc', onClick: next }]}>
+          <button className="bubble mayor-say" onClick={next} aria-label="섬 관리자의 다음 말 듣기">
+            <b className="who">섬 관리자</b>
             {lines[n]}
             <small>
               {n + 1}/{lines.length} · 눌러서 다음 말 ▶
@@ -74,9 +74,9 @@ export default function Center({ me, settings, left, scene }) {
       )}
       {!me.teacher && (
         <form className="card" onSubmit={send}>
-          <h3>섬주인께 보내기</h3>
+          <h3>섬 관리자께 보내기</h3>
           <p>
-            <small>상담 신청, 고민, 바라는 점, 불편한 점을 보낼 수 있어요. 다른 친구들에게는 보이지 않고 섬주인만 봐요.</small>
+            <small>상담 신청, 고민, 바라는 점, 불편한 점을 보낼 수 있어요. 다른 친구들에게는 보이지 않고 섬 관리자만 봐요.</small>
           </p>
           <label>
             어떤 이야기인가요?
@@ -86,16 +86,16 @@ export default function Center({ me, settings, left, scene }) {
               ))}
             </select>
           </label>
-          <textarea name="text" maxLength="300" rows="4" required placeholder="예: 섬주인, 이번 주에 상담하고 싶어요." aria-label="보낼 내용" />
+          <textarea name="text" maxLength="300" rows="4" required placeholder="예: 섬 관리자, 이번 주에 상담하고 싶어요." aria-label="보낼 내용" />
           <button>보내기</button>
         </form>
       )}
       {sent.map((c) => {
-        const open = !c.seen && !c.reply // 섬주인이 확인하기 전에는 고치거나 취소할 수 있다
+        const open = !c.seen && !c.reply // 섬 관리자가 확인하기 전에는 고치거나 취소할 수 있다
         return (
           <article key={c.id} className="card">
             <small>
-              {when(c)} · <span className="chip">{c.kind ?? '건의'}</span> {c.reply ? '답변이 왔어요' : c.seen ? '섬주인이 확인했어요' : '섬주인 확인 전'}
+              {when(c)} · <span className="chip">{c.kind ?? '건의'}</span> {c.reply ? '답변이 왔어요' : c.seen ? '섬 관리자가 확인했어요' : '섬 관리자 확인 전'}
             </small>
             {editing === c.id ? (
               <form onSubmit={(e) => fix(e, c.id)}>

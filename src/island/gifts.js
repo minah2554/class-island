@@ -1,9 +1,9 @@
 // 섬 선물: 기록이 좋으면 내 섬에 낮 아이템 1개 + 밤 조명 1개가 한 쌍으로 생긴다.
-// g = years/{year}/gifts/{학번} 문서: { months: { 'YYYY-MM': { perfect, book } }, got(받은 청소면제권), bonus(섬주인이 직접 준 것) }
+// g = years/{year}/gifts/{학번} 문서: { months: { 'YYYY-MM': { perfect, book } }, got(받은 청소면제권), bonus(섬 관리자가 직접 준 것) }
 //  - 한 달 독서기록을 모두 낸 달마다 1쌍 (perfect)
 //  - 월말 독서기록장 제출 체크마다 1쌍 (book)
 //  - 받은 청소면제권 5장마다 1쌍
-//  - 섬주인이 따로 준 선물(1인 1역 등)마다 1쌍
+//  - 섬 관리자가 따로 준 선물(1인 1역 등)마다 1쌍
 export function giftParts(g = {}) {
   const months = Object.values(g.months ?? {})
   return {
