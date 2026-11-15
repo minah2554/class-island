@@ -56,7 +56,6 @@ function Weather({ kind }) {
 function Walker({ walk, blocks = [], scale = 1, character, bubble, name, who, start, target, onArrive, hold }) {
   const [pos, setPos] = useState({ ...start, flip: false, view: '', moving: false, dur: 0 })
   const [missingViews, setMissingViews] = useState({})
-  const [talk, setTalk] = useState(false)
   const [step, setStep] = useState(0) // 걷는 동안 두 칸을 번갈아 보여 준다
   useEffect(() => {
     if (!pos.moving) return
@@ -127,10 +126,9 @@ function Walker({ walk, blocks = [], scale = 1, character, bubble, name, who, st
     <button
       className={`me ${pos.moving ? 'walking' : ''} ${stepping ? 'stepping' : ''}`}
       style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y) * scale}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s`, '--lean': pos.flip ? -1 : 1 }}
-      onClick={() => setTalk(!talk)}
       aria-label={name || '내 캐릭터'}
     >
-      {talk && bubble && (
+      {bubble && (
         <span className="bubble">
           {(who || name) && <b className="who">{who || name}</b>}
           {bubble}

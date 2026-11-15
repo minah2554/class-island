@@ -32,6 +32,28 @@ export default function StudentGate({ title, landing, children }) {
   return <Login title={title} landing={landing} />
 }
 
+const HELLO = [
+  '어서 와! 우리 반 섬나라에 온 걸 환영해, 총총!',
+  '오늘도 지각 없이 씩씩하게 시작해 보자!',
+  '독서기록장을 내면 채집 기회가 생겨, 총총!',
+  '학번과 이름, 비밀번호를 넣고 들어와 줘!',
+]
+
+// 토끼 이장님이 머리 위 말풍선으로 반겨 준다(몇 초마다 다음 말)
+function MayorHello() {
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    const t = setTimeout(() => setN((x) => (x + 1) % HELLO.length), 5000)
+    return () => clearTimeout(t)
+  }, [n])
+  return (
+    <p className="bubble landing-say" role="status" key={n}>
+      <b className="who">이장님</b>
+      {HELLO[n]}
+    </p>
+  )
+}
+
 function Login({ title, landing }) {
   const years = useYears()
   const [started, setStarted] = useState(!landing) // 첫 화면은 그림과 [로그인하기]만 보여 준다
@@ -66,13 +88,22 @@ function Login({ title, landing }) {
       <div className="landing">
         <Bgm track="morning" float />
         <div className="landing-art" aria-hidden="true">
-          <img className="landing-bg" src="assets/title/bg.webp" alt="" />
+          {/* 바람: 같은 그림을 나무·토끼·잔디 부분만 가장자리를 흐려 겹쳐 두고 살짝 흔든다 */}
+          <div className="landing-bg">
+            <img src="assets/title/bg.webp" alt="" />
+            <img className="sway grass" src="assets/title/bg.webp" alt="" />
+            <img className="sway palm" src="assets/title/bg.webp" alt="" />
+            <img className="sway rabbit" src="assets/title/bg.webp" alt="" />
+          </div>
           <img className="cloud" src="assets/title/cloud1.webp" alt="" style={{ top: '13%', animationDuration: '70s', animationDelay: '-20s' }} />
           <img className="cloud small" src="assets/title/cloud2.webp" alt="" style={{ top: '27%', animationDuration: '95s', animationDelay: '-60s' }} />
           <img className="cloud" src="assets/title/cloud3.webp" alt="" style={{ top: '20%', animationDuration: '120s', animationDelay: '-95s' }} />
           <img className="plane" src="assets/title/plane.webp" alt="" />
         </div>
         <h1 className="title">우리 반 섬나라</h1>
+        <div className="landing-bg say-box">
+          <MayorHello />
+        </div>
         <div className="landing-cta">
           <button onClick={() => setStarted(true)}>로그인하기</button>
           <RoomLinks />
