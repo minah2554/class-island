@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { blockedAt, clearWay, route } from './path'
+import feet from './feet.json'
 
 // 멀리(위쪽) 있을수록 작게 보이게 해서 깊이감을 준다
 // 캐릭터는 건물의 절반쯤 크기(멀리 5% ~ 가까이 9%)
@@ -173,7 +174,9 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
       )}
 
       {spots.map((s) => {
-        const style = { left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, zIndex: Math.round(s.y) }
+        // 그림마다 아래·옆 여백이 달라서, 잰 값(feet.json)으로 발밑과 그림자를 맞춘다
+        const f = feet[s.img] ?? {}
+        const style = { left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, zIndex: Math.round(s.y), '--b': f.b, '--l': f.l, '--r': f.r }
         const key = s.key ?? s.img
         const img = s.node ?? <img src={`assets/${s.img}.webp`} alt="" draggable="false" />
         // onClick이 없는 것은 장식이라 누를 수 없다

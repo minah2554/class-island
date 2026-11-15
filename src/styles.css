@@ -138,7 +138,7 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 @keyframes flash { 0%, 92%, 96%, 100% { opacity: 0; } 93% { opacity: 0.65; } 95% { opacity: 0.3; } }
 @media (prefers-reduced-motion: reduce) { .scene * { animation: none !important; transition: none !important; } }
 
-.me, .spot { position: absolute; background: none; border: 0; padding: 0; color: var(--ink); cursor: pointer; transform: translate(-50%, -88%); }
+.me, .spot { position: absolute; background: none; border: 0; padding: 0; color: var(--ink); cursor: pointer; transform: translate(-50%, calc(var(--b, 0.9) * -100% + 2%)); }
 .me { width: 11%; transition-property: left, top, width; transition-timing-function: linear; }
 .me.other { cursor: default; pointer-events: none; }
 .me.other img { animation: idle 3s ease-in-out infinite; }
@@ -152,7 +152,7 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 @keyframes idle { 50% { scale: 1 0.97; } }
 .me:not(.walking):not(.other) img { animation: idle 3s ease-in-out infinite; }
 .bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 4px 10px; white-space: nowrap; font-size: 0.85rem; }
-.spot span { position: absolute; left: 50%; bottom: -2%; transform: translateX(-50%); background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); border-radius: 10px; padding: 1px 8px; font-size: 0.78rem; white-space: nowrap; }
+.spot span { position: absolute; left: 50%; bottom: calc((1 - var(--b, 0.9)) * 100% - 12%); transform: translateX(-50%); background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); border-radius: 10px; padding: 1px 8px; font-size: 0.78rem; white-space: nowrap; }
 .wx { background: #e8f4fb; border-radius: 12px; padding: 4px 10px; font-size: 0.85rem; }
 
 .picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -302,7 +302,7 @@ form.card { position: relative; }
 .scene .clouds { position: absolute; inset: 0; z-index: 96; pointer-events: none; }
 .scene .fireflies { position: absolute; inset: 0; z-index: 97; pointer-events: none; }
 /* 발밑 그림자: 건물과 캐릭터가 땅에 붙어 보이게 */
-.me::before, .spot:not(.critter)::before { content: ''; position: absolute; left: 8%; right: 8%; bottom: 3%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(20, 40, 20, 0.38), transparent); z-index: -1; pointer-events: none; }
+.me::before, .spot:not(.critter)::before { content: ''; position: absolute; left: calc(var(--l, 0.1) * 100% - 2%); right: calc((1 - var(--r, 0.9)) * 100% - 2%); bottom: calc((1 - var(--b, 0.9)) * 100% - 7%); height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(20, 40, 20, 0.38), transparent); z-index: -1; pointer-events: none; }
 .me img { filter: none; }
 .scene[data-phase='night'] .me::before, .scene[data-phase='night'] .spot:not(.critter)::before { background: radial-gradient(closest-side, rgba(0, 0, 20, 0.5), transparent); }
 /* 밤에는 건물에서 따뜻한 불빛이 살짝 번진다 */
@@ -367,7 +367,7 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
 .note.n0 { background: #fff8c9; } .note.n1 { background: #ffe0e6; } .note.n2 { background: #dff3ff; } .note.n3 { background: #e3f6d3; }
 
 /* 상점 물건 이름표: 이름과 값을 두 줄로 */
-.spot.item span { white-space: pre; text-align: center; line-height: 1.25; bottom: -14%; }
+.spot.item span { white-space: pre; text-align: center; line-height: 1.25; bottom: calc((1 - var(--b, 0.9)) * 100% - 24%); }
 /* 게시판 랭킹 */
 .corkboard.ranks { margin-bottom: 18px; }
 .note h3 { font-size: 1.15rem; margin: 0 0 6px; font-weight: normal; }
