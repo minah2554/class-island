@@ -33,7 +33,7 @@ export default function StudentGate({ title, landing, children }) {
 }
 
 const HELLO = [
-  '어서 와! 총총섬에 온 걸 환영해, 총총!',
+  '어서 와! 우리 반 섬나라에 온 걸 환영해, 총총!',
   '오늘도 지각 없이 씩씩하게 시작해 보자!',
   '독서기록장을 내면 채집 기회가 생겨, 총총!',
   '학번과 이름, 비밀번호를 넣고 들어와 줘!',
