@@ -37,13 +37,14 @@ function Detail({ id, who, me, onClose }) {
   )
 }
 
-// 반 공동 도감. cols: years/{year}/collections 문서들 (학번이 id)
-// 전시 칸(%): 앞쪽 진열장 7개와 벽 액자 5개. 그림 속 진열장·액자 자리에 맞춘 좌표다.
+// 곤충 전시 칸(%): 그림 속 유리 진열장 7개와 벽 액자 5개. 그림에 맞춘 좌표다.
 const SLOTS = [
-  { x: 32, y: 21, w: 7 }, { x: 50, y: 21, w: 8 }, { x: 68, y: 21, w: 7 },
-  { x: 14, y: 41, w: 6 }, { x: 7, y: 58, w: 6 }, { x: 87, y: 38, w: 6 }, { x: 94, y: 57, w: 6 },
+  { x: 32, y: 21, w: 7, glass: 1 }, { x: 50, y: 21, w: 8, glass: 1 }, { x: 68, y: 21, w: 7, glass: 1 },
+  { x: 14, y: 41, w: 6, glass: 1 }, { x: 7, y: 58, w: 6, glass: 1 }, { x: 87, y: 38, w: 6, glass: 1 }, { x: 94, y: 57, w: 6, glass: 1 },
   { x: 32, y: 9, w: 6 }, { x: 50, y: 8, w: 8 }, { x: 68, y: 9, w: 6 }, { x: 5, y: 26, w: 5 }, { x: 92, y: 22, w: 6 },
 ]
+// 수족관 안 물고기 자리(수족관 크기에 대한 %)
+const TANK = [[16, 28], [44, 20], [74, 30], [30, 55], [62, 52], [86, 58], [14, 72], [48, 78], [76, 76], [28, 86]]
 
 export default function Museum({ me, cols, settings, scene }) {
   const [dex, setDex] = useState(false)
@@ -60,9 +61,12 @@ export default function Museum({ me, cols, settings, scene }) {
 
   const count = (kind) => Object.keys(KINDS[kind].names).filter((i) => by[`${kind}_${String(Number(i) + 1).padStart(2, '0')}`].length).length
   // 전시 칸에는 잡은 것 중 희귀한 친구부터 놓인다(100종을 다 놓을 수는 없다)
-  const shown = ALL.filter((id) => by[id].length)
-    .sort((x, y) => tierOf(Number(y.slice(-2))) - tierOf(Number(x.slice(-2))) || Number(y.slice(-2)) - Number(x.slice(-2)))
-    .slice(0, SLOTS.length)
+  const rarest = (kind, n) =>
+    ALL.filter((id) => id.startsWith(kind) && by[id].length)
+      .sort((x, y) => tierOf(Number(y.slice(-2))) - tierOf(Number(x.slice(-2))) || Number(y.slice(-2)) - Number(x.slice(-2)))
+      .slice(0, n)
+  const bugs = rarest('bug', SLOTS.length)
+  const fish = rarest('fish', TANK.length)
   const found = ALL.filter((id) => by[id].length).length
   const rank = cols
     .map((c) => ({ no: c.id, name: c.name, kinds: Object.keys(c.items ?? {}).length, total: Object.values(c.items ?? {}).reduce((s, v) => s + v.n, 0) }))
@@ -75,14 +79,8 @@ export default function Museum({ me, cols, settings, scene }) {
         <div>
           <h2>반 도감 박물관</h2>
           <p>
-            <small>우리 반이 잡은 물고기와 곤충이 진열장과 액자에 전시돼요. 많이 잡을수록 박물관이 채워지고, 희귀한 친구부터 놓여요. 누르면 누가 처음 잡았는지 알 수 있어요.</small>
+            <small>우리 반이 잡은 곤충은 유리 진열장에, 물고기는 수족관에 전시돼요. 많이 잡을수록 박물관이 채워지고, 희귀한 친구부터 놓여요. 누르면 누가 처음 잡았는지 알 수 있어요.</small>
           </p>
-          <p>
-            전체 <b>{found}</b>/100 · 물고기 {count('fish')}/50 · 곤충 {count('bug')}/50
-          </p>
-          <div className="meter" role="img" aria-label={`도감 ${found}종 완성`}>
-            <span className="left" style={{ width: `${found}%` }} />
-          </div>
         </div>
       </div>
       {found === 100 && (
@@ -90,17 +88,50 @@ export default function Museum({ me, cols, settings, scene }) {
           도감 완성! 축하해요 🎉 {settings.reward && <b>{settings.reward}</b>}
         </p>
       )}
-      {scene && (
-        <Scene {...scene} indoor spots={[]}>
-          {shown.map((id, i) => (
-            <button key={id} className="exhibit" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, zIndex: Math.round(SLOTS[i].y) }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
-              <img src={imageOf(id)} alt="" draggable="false" />
-            </button>
-          ))}
-          <p className="slot-note">전시 {shown.length}/{SLOTS.length}칸</p>
-          {!found && <p className="empty-note">아직 전시된 친구가 없어요. 바다와 숲에서 잡아 보세요!</p>}
-        </Scene>
-      )}
+      <div className="museum-view">
+        {scene && (
+          <Scene {...scene} indoor spots={[]}>
+            {bugs.map((id, i) => (
+              <button key={id} className={`exhibit ${SLOTS[i].glass ? 'case' : ''}`} style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, zIndex: Math.round(SLOTS[i].y) }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
+                <img src={imageOf(id)} alt="" draggable="false" />
+              </button>
+            ))}
+            <div className="tank" aria-label="수족관">
+              <i className="sand" />
+              <i className="weed w1" />
+              <i className="weed w2" />
+              {fish.map((id, i) => (
+                <button key={id} className="fish-ex" style={{ left: `${TANK[i][0]}%`, top: `${TANK[i][1]}%` }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
+                  <img src={imageOf(id)} alt="" draggable="false" />
+                </button>
+              ))}
+            </div>
+            {!found && <p className="empty-note">아직 전시된 친구가 없어요. 바다와 숲에서 잡아 보세요!</p>}
+          </Scene>
+        )}
+        <aside className="card museum-side">
+          <h3>박물관 채우기</h3>
+          <p>
+            곤충 채집 완성도 <b>{count('bug')}</b>/50
+          </p>
+          <div className="meter" role="img" aria-label={`곤충 ${count('bug')}종`}>
+            <span className="left" style={{ width: `${count('bug') * 2}%` }} />
+          </div>
+          <p>
+            수족관 완성률 <b>{count('fish')}</b>/50
+          </p>
+          <div className="meter" role="img" aria-label={`물고기 ${count('fish')}종`}>
+            <span className="left" style={{ width: `${count('fish') * 2}%` }} />
+          </div>
+          <p>
+            전체 도감 <b>{found}</b>/100
+          </p>
+          <div className="meter" role="img" aria-label={`도감 ${found}종 완성`}>
+            <span className="left" style={{ width: `${found}%` }} />
+          </div>
+          <small>진열장 {bugs.length}/{SLOTS.length}칸 · 수족관 {fish.length}/{TANK.length}마리</small>
+        </aside>
+      </div>
       <p>
         <button className="ghost" aria-expanded={dex} onClick={() => setDex(!dex)}>
           {dex ? '도감 닫기' : '도감 보기'}

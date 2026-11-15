@@ -13,7 +13,8 @@ export default function Home({ me, settings = {} }) {
   const logs = useWhere(me.year, 'ticketLog', 'no', me.no)
   const ticket = useDoc(me.year, 'tickets', me.no)
   const stats = useDoc(me.year, 'stats', me.no)
-  const gp = giftParts(useDoc(me.year, 'gifts', me.no))
+  const gdoc = useDoc(me.year, 'gifts', me.no)
+  const gp = giftParts(gdoc)
 
   const dates = tardies.map((t) => t.date).filter(Boolean).sort()
   const paid = penalties.filter((p) => p.kind === 'ticket').length
@@ -55,10 +56,21 @@ export default function Home({ me, settings = {} }) {
           <small>내 캐릭터를 누르면 나오는 말이에요. 친구가 내 섬에 놀러 와도 보여요. (30자까지)</small>
         </p>
         <div className="row">
-          <input name="greeting" maxLength="30" defaultValue={me.greeting ?? ''} placeholder={`안녕! ${me.catchphrase ?? ''}`} aria-label="내 말풍선" style={{ flex: 1 }} />
+          <input name="greeting" maxLength="30" defaultValue={me.greeting ?? ''} placeholder="안녕! 총총" aria-label="내 말풍선" style={{ flex: 1 }} />
           <button>바꾸기</button>
         </div>
       </form>
+
+      <div className="card">
+        <h3>내 캐릭터 바꾸기</h3>
+        <div className="picker" role="radiogroup" aria-label="캐릭터 고르기">
+          {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
+            <button type="button" key={n} role="radio" aria-checked={me.character === n} className={me.character === n ? 'on' : ''} onClick={() => me.character !== n && updateDoc(doc(db, 'years', String(me.year), 'students', me.no), { character: n })}>
+              <img src={`assets/characters/char_${String(n).padStart(2, '0')}.webp`} alt={`캐릭터 ${n}`} />
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="card">
         <h3>내 섬 선물 {gp.perfect + gp.book + gp.tickets + gp.bonus}개</h3>
@@ -116,21 +128,43 @@ export default function Home({ me, settings = {} }) {
 
       <div className="card">
         <h3>독서기록장</h3>
-        {Object.keys(months)
-          .sort()
-          .map((m) => {
-            const list = months[m].sort()
-            const o = list.filter(([, x]) => x === 'o').length
-            const miss = list.filter(([, x]) => x === 'x').map(([d]) => short(d))
-            const other = list.filter(([, x]) => x !== 'o' && x !== 'x' && x)
-            return (
-              <p key={m}>
-                <b>{Number(m.slice(5))}월</b> 제출 {o}일
-                {miss.length > 0 && ` · 안 낸 날 ${miss.join(', ')}`}
-                {other.length > 0 && ` · ${other.map(([d, x]) => `${short(d)} ${x}`).join(', ')}`}
-              </p>
-            )
-          })}
+        {Object.keys(months).length > 0 && (
+          <div className="scroll">
+            <table className="sheet">
+              <thead>
+                <tr>
+                  <th>월</th>
+                  <th>제출</th>
+                  <th>안 낸 날</th>
+                  <th>기타</th>
+                  <th>잘한 달</th>
+                  <th>기록장</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(months)
+                  .sort()
+                  .map((m) => {
+                    const list = months[m].sort()
+                    const o = list.filter(([, x]) => x === 'o').length
+                    const miss = list.filter(([, x]) => x === 'x').map(([d]) => short(d))
+                    const other = list.filter(([, x]) => x !== 'o' && x !== 'x' && x)
+                    const g = gdoc?.months?.[m] ?? {}
+                    return (
+                      <tr key={m}>
+                        <td>{Number(m.slice(5))}월</td>
+                        <td>{o}/{list.length}일</td>
+                        <td className="wrap">{miss.join(', ') || '-'}</td>
+                        <td className="wrap">{other.map(([d, x]) => `${short(d)} ${x}`).join(', ') || '-'}</td>
+                        <td>{g.perfect ? '⭐' : ''}</td>
+                        <td>{g.book ? '✓ 제출' : ''}</td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
+          </div>
+        )}
         {!Object.keys(months).length && <small>아직 기록이 없어요.</small>}
       </div>
     </section>

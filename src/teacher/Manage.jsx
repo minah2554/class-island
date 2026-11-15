@@ -63,6 +63,20 @@ export default function Manage({ year, students }) {
           />
         </label>
       </div>
+      <div className="card">
+        <label>
+          주민센터 이장님이 하는 말 (한 줄에 하나, 학생이 이장님을 누를 때마다 차례로 나옵니다)
+          <textarea
+            key={(cfg.mayorLines ?? []).join('|')}
+            rows="5"
+            maxLength="600"
+            defaultValue={(cfg.mayorLines ?? []).join('\n')}
+            placeholder={'예:\n이번 주 목표는 지각 없는 한 주, 총총!\n독서기록장 꼭 챙기기!'}
+            onBlur={(e) => save({ mayorLines: e.target.value.split('\n').map((w) => w.trim()).filter(Boolean).slice(0, 20) })}
+          />
+        </label>
+        <small>비워 두면 기본 말을 합니다.</small>
+      </div>
       <h2>백업과 삭제</h2>
       <div className="card">
         <p>{year}학년도의 명단·지각·면제권·독서기록·편지·민원 등 모든 기록을 파일 하나로 내려받습니다.</p>

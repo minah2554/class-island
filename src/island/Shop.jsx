@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { doc, increment, setDoc } from 'firebase/firestore'
+import { doc, increment, runTransaction, setDoc } from 'firebase/firestore'
+import { db } from '../firebase'
 import { yearCol } from '../data'
 import { ask, tell } from '../popup'
 import Scene from './Scene'
@@ -44,8 +45,21 @@ export default function Shop({ me, cols, bought = {}, scene }) {
   async function buy(d) {
     if (me.teacher) return tell('선생님은 구경만 할 수 있어요.')
     if (pool < d.cost) return tell(`기금이 모자라요. ${d.cost - pool}개 더 모여야 해요.`)
-    if (await ask(`${d.name}을(를) ${d.cost}개로 살까요? 광장에 바로 놓여요.`))
-      await setDoc(doc(yearCol(me.year, 'plaza'), 'decor'), { bought: { [d.id]: true } }, { merge: true })
+    if (!(await ask(`${d.name}을(를) ${d.cost}개로 살까요? 광장에 바로 놓여요.`))) return
+    // 사는 순간의 최신 장부를 다시 읽어서, 다른 친구가 먼저 샀다면 기금을 다시 계산한다
+    const ref = doc(yearCol(me.year, 'plaza'), 'decor')
+    const donated = cols.reduce((s, c) => s + (c.donated ?? 0), 0)
+    try {
+      await runTransaction(db, async (tx) => {
+        const b = (await tx.get(ref)).data()?.bought ?? {}
+        if (b[d.id]) throw new Error('already')
+        const spent = DECOR.filter((x) => b[x.id]).reduce((s, x) => s + x.cost, 0)
+        if (donated - spent < d.cost) throw new Error('short')
+        tx.set(ref, { bought: { [d.id]: true } }, { merge: true })
+      })
+    } catch (err) {
+      tell(err.message === 'already' ? `${d.name}은(는) 방금 다른 친구가 샀어요.` : err.message === 'short' ? '방금 다른 친구가 먼저 사서 기금이 모자라요.' : '사지 못했어요. 잠시 뒤에 다시 해 주세요.')
+    }
   }
 
   const spots = DECOR.map((d, i) => ({

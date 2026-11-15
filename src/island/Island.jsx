@@ -32,7 +32,7 @@ const WALK = {
 }
 const Wrap = ({ className, children }) => (className ? <main className={className}>{children}</main> : <div>{children}</div>)
 const PHASE_LABEL = { dawn: '새벽', day: '낮', dusk: '저녁', night: '밤' }
-const NAV = [['island', '내 섬'], ['plaza', '마을 광장'], ['sea', '바다 낚시'], ['forest', '숲 곤충'], ['museum', '박물관'], ['country', '섬나라']]
+const NAV = [['island', '내 섬'], ['plaza', '마을 광장'], ['sea', '바다 낚시'], ['forest', '숲'], ['museum', '박물관'], ['country', '섬나라']]
 // 안쪽 화면은 어느 탭에 속하는지
 const TAB_OF = { house: 'island', mail: 'island', visit: 'country', center: 'plaza', board: 'plaza', shop: 'plaza' }
 
@@ -99,9 +99,11 @@ function World({ me }) {
 
   useEffect(() => {
     syncClock()
-    getWeather().then(setWx)
+    const load = () => getWeather().then(setWx)
+    load()
+    const w = setInterval(load, 60 * 1000) // 실패했거나 오래됐으면 다시 받는다(30분 안에는 저장값을 쓴다)
     const t = setInterval(() => tick((n) => n + 1), 15000) // 시계를 갱신하고, 시간대가 바뀌면 배경도 바뀐다
-    return () => clearInterval(t)
+    return () => (clearInterval(t), clearInterval(w))
   }, [])
   useEffect(() => onSnapshot(doc(db, 'years', String(me.year)), (s) => setSettings(s.data() ?? {})), [me.year])
   useEffect(() => onSnapshot(doc(db, 'years', String(me.year), 'plaza', 'decor'), (s) => setBought(s.data()?.bought ?? {})), [me.year])

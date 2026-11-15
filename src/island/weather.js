@@ -8,8 +8,9 @@ const TTL = 30 * 60 * 1000 // 30분 동안은 저장해 둔 값을 쓴다
 
 // 반환: { temp, code, sunrise: '06:41', sunset: '17:20' } 또는 실패 시 null
 export async function getWeather() {
+  let saved = null
   try {
-    const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null')
+    saved = JSON.parse(localStorage.getItem(KEY) ?? 'null')
     if (saved && Date.now() - saved.at < TTL) return saved.data
   } catch {
     /* 저장소를 못 쓰면 매번 새로 받는다 */
@@ -29,6 +30,7 @@ export async function getWeather() {
     }
     return data
   } catch {
-    return null
+    // 못 받았으면 6시간 안에 저장한 값이라도 보여 준다(맑음·흐림은 금방 바뀌지 않는다)
+    return saved && Date.now() - saved.at < 6 * 3600 * 1000 ? saved.data : null
   }
 }

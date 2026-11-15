@@ -10,7 +10,7 @@
   color: var(--ink);
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); }
+body { margin: 0; background: var(--bg); word-break: keep-all; overflow-wrap: break-word; }
 h1 { font-size: 1.5rem; margin: 0; }
 h2 { font-size: 1.25rem; }
 h1, h2 { font-family: 'MemomentKkukkuk', 'Pretendard Variable', Pretendard, sans-serif; font-weight: normal; letter-spacing: 0.02em; }
@@ -29,7 +29,7 @@ small { font-weight: normal; color: #7a8a78; }
 
 label { display: grid; gap: 4px; font-size: 0.85rem; text-align: left; }
 input, select, textarea, button { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
-textarea { width: 100%; resize: vertical; }
+textarea { width: 100%; resize: vertical; display: block; margin-bottom: 12px; }
 button { background: var(--accent); border-color: var(--accent); color: #fff; cursor: pointer; }
 button:disabled { opacity: 0.5; cursor: default; }
 button.ghost { background: #fff; color: var(--ink); border-color: var(--line); }
@@ -189,7 +189,7 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 .mini { width: 22px; height: 22px; vertical-align: middle; }
 .mayor { position: relative; display: block; margin: 40px auto 10px; background: none; border: 0; cursor: pointer; }
 .mayor img { width: 140px; display: block; }
-.mayor .bubble { bottom: 90%; left: 105%; transform: none; white-space: normal; width: 190px; }
+.mayor .bubble { color: var(--ink); bottom: 90%; left: 105%; transform: none; white-space: normal; width: 190px; }
 .stack { display: grid; gap: 8px; }
 .islands .dex-card button { margin-top: 4px; }
 textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-radius: 12px; padding: 8px; box-sizing: border-box; }
@@ -329,3 +329,33 @@ form.card { position: relative; }
 .exhibit:hover { scale: 1.2; }
 .slot-note { position: absolute; right: 2%; bottom: 2%; margin: 0; background: rgba(255, 253, 247, 0.9); border-radius: 10px; padding: 0 8px; font-size: 0.75rem; }
 .empty-note { position: absolute; left: 50%; top: 62%; translate: -50% 0; background: rgba(255, 253, 247, 0.9); border-radius: 12px; padding: 6px 12px; margin: 0; }
+
+/* 탭 글꼴, 표 안의 긴 글 */
+.tabs button { font-family: 'MemomentKkukkuk', 'Pretendard Variable', Pretendard, sans-serif; letter-spacing: 0.02em; }
+td.wrap { white-space: normal; max-width: 14em; text-align: left; }
+.picker button.on { outline: 3px solid var(--accent); }
+
+/* 박물관: 곤충은 유리 진열장, 물고기는 수족관, 오른쪽에 완성도 */
+.museum-view { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 12px; align-items: start; }
+.museum-view .scene { max-width: none; }
+.museum-side { margin: 0; }
+.museum-side p { margin: 10px 0 4px; }
+@media (max-width: 760px) { .museum-view { grid-template-columns: 1fr; } }
+.exhibit.case::after { content: ''; position: absolute; inset: -22% -30% -8%; border-radius: 12%; border: 1px solid rgba(255, 255, 255, 0.8); background: linear-gradient(120deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 42%, rgba(255, 255, 255, 0.28)); pointer-events: none; }
+.tank { position: absolute; left: 50%; top: 68%; width: 34%; aspect-ratio: 2.1; translate: -50% -50%; z-index: 68; border: 4px solid rgba(255, 255, 255, 0.9); border-radius: 12px; background: linear-gradient(180deg, #c9f0f8, #86cfe6 72%); box-shadow: 0 10px 0 -2px #c98f55, 0 14px 14px rgba(0, 0, 0, 0.2); overflow: hidden; }
+.tank::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255, 255, 255, 0.42), transparent 35%, rgba(255, 255, 255, 0.18) 70%, transparent); pointer-events: none; }
+.tank .sand { position: absolute; left: 0; right: 0; bottom: 0; height: 16%; background: #ecd9a6; }
+.tank .weed { position: absolute; bottom: 8%; width: 5%; height: 26%; border-radius: 50% 50% 0 0; background: #6bb87a; }
+.tank .w1 { left: 8%; } .tank .w2 { right: 10%; height: 20%; }
+.fish-ex { position: absolute; width: 17%; background: none; border: 0; padding: 0; cursor: pointer; translate: -50% -50%; z-index: 2; }
+.fish-ex img { width: 100%; display: block; }
+.fish-ex:hover { scale: 1.25; }
+
+/* 게시판: 코르크 판에 붙은 쪽지 */
+.corkboard { position: relative; display: flex; flex-wrap: wrap; gap: 22px 18px; padding: 34px 22px 26px; border: 12px solid #b9824c; border-radius: 18px; background: #d9a86c radial-gradient(rgba(120, 70, 20, 0.18) 1.5px, transparent 2px) 0 0 / 14px 14px; box-shadow: inset 0 0 18px rgba(90, 50, 10, 0.35), 0 6px 0 #9b6a3a; font-family: 'MemomentKkukkuk', 'Pretendard Variable', Pretendard, sans-serif; }
+.board-icon { position: absolute; right: 12px; top: -64px; width: 70px; }
+.note { position: relative; flex: 1 1 220px; max-width: 300px; margin: 0; padding: 24px 16px 16px; border-radius: 6px; box-shadow: 2px 4px 6px rgba(80, 50, 10, 0.3); color: #4a3a2a; }
+.note time { display: block; font-size: 0.95rem; color: #8a6a3a; margin-bottom: 6px; }
+.note p { margin: 0; font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap; }
+.note .pin { position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff9a8a, #d9483a); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35); }
+.note.n0 { background: #fff8c9; } .note.n1 { background: #ffe0e6; } .note.n2 { background: #dff3ff; } .note.n3 { background: #e3f6d3; }
