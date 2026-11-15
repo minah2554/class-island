@@ -44,7 +44,7 @@ export default function Manage({ year, students }) {
       <div className="card">
         <label>
           나라 이름 (학생 화면 맨 위에 나옵니다)
-          <input key={cfg.countryName} defaultValue={cfg.countryName ?? ''} placeholder="우리 반 섬나라" onBlur={(e) => save({ countryName: e.target.value.trim() })} />
+          <input key={cfg.countryName} defaultValue={cfg.countryName ?? ''} placeholder="총총섬" onBlur={(e) => save({ countryName: e.target.value.trim() })} />
         </label>
         <label>
           하루 채집 횟수

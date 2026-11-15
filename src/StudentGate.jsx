@@ -33,7 +33,7 @@ export default function StudentGate({ title, landing, children }) {
 }
 
 const HELLO = [
-  '어서 와! 우리 반 섬나라에 온 걸 환영해, 총총!',
+  '어서 와! 총총섬에 온 걸 환영해, 총총!',
   '오늘도 지각 없이 씩씩하게 시작해 보자!',
   '독서기록장을 내면 채집 기회가 생겨, 총총!',
   '학번과 이름, 비밀번호를 넣고 들어와 줘!',
@@ -101,7 +101,7 @@ function Login({ title, landing }) {
           <img className="cloud" src="assets/title/cloud3.webp" alt="" style={{ top: '20%', animationDuration: '120s', animationDelay: '-95s' }} />
           <img className="plane" src="assets/title/plane.webp" alt="" />
         </div>
-        <h1 className="title">우리 반 섬나라</h1>
+        <h1 className="title">놀러와요. 총총섬</h1>
         <div className="landing-bg say-box">
           <MayorHello />
         </div>

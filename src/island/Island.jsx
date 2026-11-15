@@ -158,7 +158,7 @@ function World({ me }) {
   const inScene = ['island', 'plaza', 'sea', 'forest', 'visit', 'shop', 'museum', 'house', 'center'].includes(scene)
   const others = scene === 'visit' && friend ? [{ id: friend.no, x: 40, y: 62, character: friend.character, name: friend.name, bubble: friend.greeting || `어서 와! ${friend.catchphrase ?? ''}` }] : []
   const tab = TAB_OF[scene] ?? scene
-  const country = settings.countryName || '우리 반 섬나라'
+  const country = settings.countryName || '총총섬'
 
   return (
     <Wrap className={me.teacher ? undefined : 'page'}>

@@ -29,7 +29,7 @@ export default function Country({ me, cols, settings, bought, onVisit, onBoard, 
           <i style={{ top: '55%', animationDuration: '110s', animationDelay: '-50s' }} />
         </div>
         <button className="isle plaza" style={{ left: '50%', top: '47%' }} onClick={onPlaza}>
-          <span>{settings.countryName || '우리 반 섬나라'} · 마을 광장</span>
+          <span>{settings.countryName || '총총섬'} · 마을 광장</span>
         </button>
         {students.slice(0, ISLES.length).map((s, i) => (
           <button
