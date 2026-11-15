@@ -90,13 +90,15 @@ export default function Museum({ me, cols, settings, scene }) {
       )}
       <div className="museum-view">
         {scene && (
-          <Scene {...scene} indoor spots={[]}>
+          <Scene {...scene} indoor spots={[]} blocks={[{ x: 50, y: 71, rx: 20, ry: 9 }]}>
             {bugs.map((id, i) => (
               <button key={id} className={`exhibit ${SLOTS[i].glass ? 'case' : ''}`} style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, zIndex: Math.round(SLOTS[i].y) }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
                 <img src={imageOf(id)} alt="" draggable="false" />
               </button>
             ))}
-            <div className="tank" aria-label="수족관">
+            <div className="aqua" aria-label="수족관">
+              <i className="lid" />
+              <div className="tank">
               <i className="sand" />
               <i className="weed w1" />
               <i className="weed w2" />
@@ -105,6 +107,8 @@ export default function Museum({ me, cols, settings, scene }) {
                   <img src={imageOf(id)} alt="" draggable="false" />
                 </button>
               ))}
+              </div>
+              <i className="stand" />
             </div>
             {!found && <p className="empty-note">아직 전시된 친구가 없어요. 바다와 숲에서 잡아 보세요!</p>}
           </Scene>

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { blockedAt, clearWay, route } from './path'
 
 // 멀리(위쪽) 있을수록 작게 보이게 해서 깊이감을 준다
 // 캐릭터는 건물의 절반쯤 크기(멀리 5% ~ 가까이 9%)
-const depth = (y) => 5 + y * 0.04
+const depth = (y) => 6.2 + y * 0.05
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
 
 // 걸어 다닐 수 있는 영역 안으로 목표 지점을 끌어온다. walk: 타원 {cx,cy,rx,ry} 또는 사각형 {x0,x1,y0,y1} (모두 %)
@@ -51,12 +52,24 @@ function Weather({ kind }) {
 }
 
 // 혼자 돌아다니는 캐릭터. target이 생기면 그곳으로 걸어가고 도착하면 onArrive를 부른다.
-function Walker({ walk, character, bubble, name, who, start, target, onArrive, hold }) {
+function Walker({ walk, blocks = [], character, bubble, name, who, start, target, onArrive, hold }) {
   const [pos, setPos] = useState({ ...start, flip: false, view: '', moving: false, dur: 0 })
   const [missingViews, setMissingViews] = useState({})
   const [talk, setTalk] = useState(false)
   const at = useRef(start) // 지금 향하는 곳
   const timers = useRef([])
+  const solid = useRef(blocks)
+  solid.current = blocks
+  const fit = (p) => {
+    const [x, y] = limit(walk, p.x, p.y)
+    return { x, y }
+  }
+  // 점들을 차례로 걷고, 다 걸으면 done을 부른다
+  const walkAlong = (points, done) => {
+    const [p, ...rest] = points
+    const dur = go(p.x, p.y)
+    later(() => (rest.length ? walkAlong(rest, done) : done?.()), dur * 1000 + (rest.length ? 0 : 150))
+  }
   const later = (f, ms) => timers.current.push(setTimeout(f, ms))
 
   // 걷는 속도는 늘 같게: 먼 곳은 오래, 가까운 곳은 짧게 (화면이 3:2라 가로를 1.5배로 계산). 걸리는 시간(초)을 돌려준다.
@@ -77,14 +90,20 @@ function Walker({ walk, character, bubble, name, who, start, target, onArrive, h
     const clear = () => (timers.current.forEach(clearTimeout), (timers.current = []))
     clear()
     if (target) {
-      later(onArrive, go(target.x, target.y) * 1000 + 150)
+      // 건물 앞까지: 막는 물건이 있으면 옆으로 돌아서 간다
+      walkAlong(route(solid.current, at.current, fit(target), fit), onArrive)
       return clear
     }
     if (hold) return clear // 낚시·채집 중에는 제자리에 있는다
     // 산책: 가까운 곳으로 조금 걷고, 잠깐 쉬었다가 다시 걷는다
     const stroll = () => {
       const p = at.current
-      const dur = go(p.x + (Math.random() - 0.5) * 50, p.y + (Math.random() - 0.5) * 34)
+      // 물건이 없는 곳, 가는 길이 뚫린 곳을 고른다(몇 번 해 봐도 없으면 이번에는 쉰다)
+      let dur = 0
+      for (let i = 0; i < 8 && !dur; i++) {
+        const d = fit({ x: p.x + (Math.random() - 0.5) * 50, y: p.y + (Math.random() - 0.5) * 34 })
+        if (!blockedAt(solid.current, d) && clearWay(solid.current, p, d)) dur = go(d.x, d.y)
+      }
       later(stroll, dur * 1000 + 500 + Math.random() * 1300)
     }
     later(stroll, 300 + Math.random() * 500)
@@ -117,12 +136,19 @@ function Walker({ walk, character, bubble, name, who, start, target, onArrive, h
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
 // 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, who, spots = [], others = [], hold, lights = 0, indoor, children }) {
+export default function Scene({ bg, phase, kind, walk, character, bubble, who, spots = [], others = [], hold, lights = 0, indoor, blocks = [], children }) {
   if (indoor) { phase = "day"; kind = "clear" }
   const [target, setTarget] = useState(null)
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
   const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])
+  // 발밑 타원: 건물·장식은 밟고 지나갈 수 없다(물고기 그림자·곤충은 뺀다)
+  const solid = [
+    ...spots.filter((s) => s.w && !(s.cls ?? '').includes('critter')).map((s) => ({ x: s.x, y: s.y - 0.5, rx: s.w * 0.42 + 1.5, ry: s.w * 0.26 + 1.5 })),
+    ...blocks,
+  ]
   const center = { x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6 }
+  // 처음 서는 곳이 물건 위라면 그 앞(아래쪽)으로 내려 선다
+  for (let i = 0; i < 20 && blockedAt(solid, center); i++) center.y += 2
 
   return (
     <div className="scene" data-phase={phase} data-wx={kind} style={{ '--lights': lights }}>
@@ -161,7 +187,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
             onClick={() => {
               if (s.guard && !s.guard()) return
               // 캐릭터가 그 앞(stand)까지 걸어간 뒤에 onClick이 불린다
-              character ? setTarget({ ...(s.stand ?? { x: s.x, y: s.y + 3 }), key, fn: s.onClick }) : s.onClick()
+              character ? setTarget({ ...(s.stand ?? { x: s.x, y: s.y + s.w * 0.26 + 3 }), key, fn: s.onClick }) : s.onClick()
             }}
           >
             {img}
@@ -173,6 +199,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
       {character && (
         <Walker
           walk={walk}
+          blocks={solid}
           character={character}
           bubble={bubble}
           who={who}
@@ -187,7 +214,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
         />
       )}
       {others.map((o) => (
-        <Walker key={o.id} walk={walk} character={o.character} bubble={o.bubble} name={o.name} start={{ x: o.x, y: o.y }} />
+        <Walker key={o.id} walk={walk} blocks={solid} character={o.character} bubble={o.bubble} name={o.name} start={{ x: o.x, y: o.y }} />
       ))}
 
       <Weather kind={kind} />

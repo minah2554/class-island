@@ -8,17 +8,17 @@ import Scene from './Scene'
 // 광장 꾸미기: 학생들이 조개를 모아 기부하면, 모인 돈으로 광장에 놓을 물건을 산다.
 // 위치(x, y, w)는 정해 둔 자리다. decor_01(분수)은 처음부터 있다.
 export const DECOR = [
-  { id: 'decor_02', name: '벤치', cost: 30, x: 64, y: 14, w: 9 },
-  { id: 'decor_03', name: '가로등', cost: 40, x: 62, y: 35, w: 8 },
-  { id: 'decor_04', name: '꽃밭', cost: 50, x: 28, y: 44, w: 11 },
-  { id: 'decor_05', name: '피크닉 테이블', cost: 60, x: 88, y: 69, w: 12 },
-  { id: 'decor_06', name: '이정표', cost: 30, x: 40, y: 91, w: 7 },
-  { id: 'decor_07', name: '작은 다리', cost: 80, x: 50, y: 10, w: 10 },
-  { id: 'decor_08', name: '그네', cost: 80, x: 24, y: 87, w: 12 },
-  { id: 'decor_09', name: '시계탑', cost: 120, x: 37, y: 35, w: 12 },
-  { id: 'decor_10', name: '풍선 아치', cost: 100, x: 53, y: 95, w: 14 },
-  { id: 'decor_11', name: '모닥불', cost: 60, x: 9, y: 45, w: 7 },
-  { id: 'decor_12', name: '토끼 동상', cost: 150, x: 46, y: 80, w: 8 },
+  { id: 'decor_02', name: '벤치', cost: 30, x: 67, y: 69, w: 10 },
+  { id: 'decor_03', name: '가로등', cost: 40, x: 64, y: 37, w: 10 },
+  { id: 'decor_04', name: '꽃밭', cost: 50, x: 33, y: 69, w: 10 },
+  { id: 'decor_05', name: '피크닉 테이블', cost: 60, x: 78, y: 70, w: 10 },
+  { id: 'decor_06', name: '이정표', cost: 30, x: 59, y: 91, w: 7 },
+  { id: 'decor_07', name: '작은 다리', cost: 80, x: 50, y: 97, w: 14 },
+  { id: 'decor_08', name: '그네', cost: 80, x: 27, y: 85, w: 11 },
+  { id: 'decor_09', name: '시계탑', cost: 120, x: 36, y: 37, w: 12 },
+  { id: 'decor_10', name: '풍선 아치', cost: 100, x: 50, y: 85, w: 14 },
+  { id: 'decor_11', name: '모닥불', cost: 60, x: 22, y: 71, w: 7 },
+  { id: 'decor_12', name: '토끼 동상', cost: 150, x: 66, y: 56, w: 13 },
 ]
 
 // 나의 조개 / 반 전체 기금 계산 (cols: collections 문서들, bought: 산 물건 { id: true })

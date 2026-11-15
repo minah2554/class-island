@@ -139,11 +139,11 @@ function World({ me }) {
       ...(me.teacher ? [] : [{ x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) }]),
     ],
     plaza: [
-      { x: 50, y: 58, w: 17, img: 'decor/decor_01' },
-      { x: 50, y: 30, w: 19, img: 'buildings/museum', label: '박물관', onClick: () => setScene('museum') },
-      { x: 85, y: 46, w: 19, img: 'buildings/center', label: '주민센터', onClick: () => setScene('center') },
-      { x: 15, y: 56, w: 11, img: 'buildings/board', label: '게시판', onClick: () => setScene('board') },
-      { x: 18, y: 37, w: 15, img: 'buildings/shop', label: '꾸미기 상점', onClick: () => setScene('shop') },
+      { x: 50, y: 53, w: 15, img: 'decor/decor_01' },
+      { x: 50, y: 29, w: 18, img: 'buildings/museum', label: '박물관', onClick: () => setScene('museum') },
+      { x: 89, y: 44, w: 17, img: 'buildings/center', label: '주민센터', onClick: () => setScene('center') },
+      { x: 10, y: 63, w: 10, img: 'buildings/board', label: '게시판', onClick: () => setScene('board') },
+      { x: 12, y: 39, w: 15, img: 'buildings/shop', label: '꾸미기 상점', onClick: () => setScene('shop') },
       ...DECOR.filter((d) => bought[d.id]).map((d) => ({ x: d.x, y: d.y, w: d.w, img: `decor/${d.id}` })),
     ],
   }[scene]
