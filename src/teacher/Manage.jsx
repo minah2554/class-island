@@ -66,7 +66,7 @@ export default function Manage({ year, students }) {
       </div>
       <div className="card">
         <label>
-          담임 선생님 말씀 (한 줄에 하나) — 학생마다 자기 섬 우편함에 "새 소식"으로 뜨고, 주민센터 이장님도 이 말을 차례로 합니다
+          이장님 말씀 (한 줄에 하나) — 학생마다 자기 섬 우편함에 "새 소식"으로 뜨고, 주민센터 이장님도 이 말을 차례로 합니다
           <textarea
             key={(cfg.mayorLines ?? []).join('|')}
             rows="5"

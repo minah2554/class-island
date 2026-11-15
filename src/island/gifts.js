@@ -19,18 +19,20 @@ export const giftCount = (g) => Object.values(giftParts(g)).reduce((a, b) => a +
 export const perfectMonth = (vals) => !!vals.length && typeof vals[vals.length - 1] === 'string' && !vals.includes('x')
 
 // 내 섬에 놓이는 자리(%). 낮에는 나무·꽃이, 밤에는 가로등이 받은 선물 수만큼 앞에서부터 놓인다.
-// 나무·꽃은 섬 배경 그림에서 오려 낸 것이라(scripts/nature.mjs) 배경과 같은 그림체다.
+// 나무·꽃은 이미지/섬 나무·꽃 01~05.png(scripts/nature.mjs)이고, 집·우편함·배경 나무를 가리지 않는 빈 잔디에 번갈아 놓인다.
 export const DAY_ITEMS = [
-  { img: 'nature/flower_a', x: 34, y: 60, w: 9.5 },
-  { img: 'nature/tree_apple', x: 26, y: 46, w: 15 },
-  { img: 'nature/flower_b', x: 62, y: 76, w: 11.5 },
-  { img: 'nature/tree_lemon', x: 71, y: 42, w: 14 },
-  { img: 'nature/flower_a', x: 19, y: 66, w: 9.5 },
-  { img: 'nature/tree_apple', x: 31, y: 74, w: 15 },
-  { img: 'nature/flower_b', x: 58, y: 54, w: 11.5 },
-  { img: 'nature/tree_lemon', x: 47, y: 74, w: 14 },
+  { img: 'nature/tree_1', x: 25, y: 44, w: 11 },
+  { img: 'nature/flower_1', x: 37, y: 52, w: 7.5 },
+  { img: 'nature/tree_2', x: 68, y: 31, w: 10.5 },
+  { img: 'nature/flower_2', x: 70, y: 71, w: 7.5 },
+  { img: 'nature/tree_3', x: 15, y: 63, w: 11 },
+  { img: 'nature/flower_3', x: 84, y: 43, w: 7.5 },
+  { img: 'nature/tree_4', x: 30, y: 73, w: 9 },
+  { img: 'nature/flower_4', x: 44, y: 62, w: 7.5 },
+  { img: 'nature/tree_5', x: 60, y: 58, w: 10 },
+  { img: 'nature/flower_5', x: 78, y: 35, w: 7.5 },
 ].map((d, i) => ({ ...d, key: `nature${i}`, cls: 'patch' }))
-export const LIGHTS = [[40, 46], [61, 40], [54, 66], [27, 60], [77, 54], [46, 84], [18, 48], [84, 46]].map(([x, y]) => ({ img: 'decor/decor_03', x, y, w: 6 }))
+export const LIGHTS = [[40, 46], [61, 40], [54, 66], [27, 60], [77, 54], [46, 84], [18, 48], [84, 46], [66, 68], [22, 56]].map(([x, y]) => ({ img: 'decor/decor_03', x, y, w: 6 }))
 
 // 오늘 채집을 할 수 있는가. 못 하면 이유(글)를, 할 수 있으면 null을 돌려준다.
 //  - 오늘 지각했으면 안 된다.

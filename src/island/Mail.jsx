@@ -41,7 +41,7 @@ export default function Mail({ me, settings, to: first }) {
       <h2>우편함</h2>
       {notice.length > 0 && (
         <div className="card teacher-note">
-          <h3>담임 선생님 말씀</h3>
+          <h3>이장님 말씀</h3>
           {notice.map((line, i) => (
             <p key={i}>{line}</p>
           ))}
