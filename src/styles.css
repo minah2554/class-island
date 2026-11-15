@@ -136,7 +136,6 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 @keyframes fogmove { to { transform: translateX(25%); } }
 .flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 7s infinite; }
 @keyframes flash { 0%, 92%, 96%, 100% { opacity: 0; } 93% { opacity: 0.65; } 95% { opacity: 0.3; } }
-@media (prefers-reduced-motion: reduce) { .scene * { animation: none !important; transition: none !important; } }
 
 .me, .spot { position: absolute; background: none; border: 0; padding: 0; color: var(--ink); cursor: pointer; transform: translate(-50%, calc(var(--b, 0.9) * -100% + 2%)); }
 .me { width: 11%; transition-property: left, top, width; transition-timing-function: linear; }
@@ -280,7 +279,6 @@ textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-rad
   .landing .plane { width: 15%; top: 30%; }
   .landing .title { top: 6%; font-size: clamp(2.2rem, 5vw, 3.4rem); }
 }
-@media (prefers-reduced-motion: reduce) { .landing * { animation: none !important; } .landing .cloud { left: 12%; } .landing .plane { left: 62%; } }
 
 /* 로그인 칸 위 그림: 섬 전체가 잘리지 않게 */
 .login-banner { display: block; width: 100%; aspect-ratio: 1.5; object-fit: cover; object-position: 50% 84%; border-radius: 14px; }
