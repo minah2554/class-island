@@ -79,22 +79,24 @@ async function box(img) {
   return { left: l, top: t, width: r - l + 1, height: b - t + 1 }
 }
 let walks = 0
-for (let i = 1; i <= 16; i++) {
-  const from = join(SRC, `섬 주민 아이 ${pad(i)}_side_walk.png`)
-  const side = join(OUT, `characters/char_${pad(i)}_side.webp`)
-  if (!existsSync(from) || !existsSync(side)) continue
-  const s = await box(sharp(side)) // 서 있는 옆모습이 512 안에서 차지하는 자리
-  const { width, height } = await sharp(from).metadata()
-  for (const half of [0, 1]) {
-    const cell = { left: half * Math.floor(width / 2), top: 0, width: Math.floor(width / 2), height }
-    const b = await box(sharp(from).extract(cell))
-    const w = Math.min(512, Math.round((b.width * s.height) / b.height))
-    const body = await sharp(from).extract({ left: cell.left + b.left, top: b.top, width: b.width, height: b.height }).resize({ width: w, height: s.height, fit: 'fill' }).toBuffer()
-    await sharp({ create: { width: 512, height: 512, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
-      .composite([{ input: body, left: Math.max(0, Math.min(512 - w, Math.round(s.left + s.width / 2 - w / 2))), top: s.top }])
-      .webp({ quality: 80 })
-      .toFile(join(OUT, `characters/char_${pad(i)}_side_walk${half + 1}.webp`))
+// 옆(_side_walk)·정면(_walk)·뒤(_back_walk) 걷기 그림 2칸을 잘라 서 있는 그림과 같은 자리·크기로 맞춘다
+for (const sfx of ['_side', '', '_back'])
+  for (let i = 1; i <= 16; i++) {
+    const from = join(SRC, `섬 주민 아이 ${pad(i)}${sfx}_walk.png`)
+    const stand = join(OUT, `characters/char_${pad(i)}${sfx}.webp`)
+    if (!existsSync(from) || !existsSync(stand)) continue
+    const s = await box(sharp(stand)) // 서 있는 그림이 512 안에서 차지하는 자리
+    const { width, height } = await sharp(from).metadata()
+    for (const half of [0, 1]) {
+      const cell = { left: half * Math.floor(width / 2), top: 0, width: Math.floor(width / 2), height }
+      const b = await box(sharp(from).extract(cell))
+      const w = Math.min(512, Math.round((b.width * s.height) / b.height))
+      const body = await sharp(from).extract({ left: cell.left + b.left, top: b.top, width: b.width, height: b.height }).resize({ width: w, height: s.height, fit: 'fill' }).toBuffer()
+      await sharp({ create: { width: 512, height: 512, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+        .composite([{ input: body, left: Math.max(0, Math.min(512 - w, Math.round(s.left + s.width / 2 - w / 2))), top: s.top }])
+        .webp({ quality: 80 })
+        .toFile(join(OUT, `characters/char_${pad(i)}${sfx}_walk${half + 1}.webp`))
+    }
+    walks++
   }
-  walks++
-}
-console.log(`걷기 그림 ${walks}명 변환`)
+console.log(`걷기 그림 ${walks}장 세트 변환`)

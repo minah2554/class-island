@@ -147,8 +147,9 @@ td:nth-child(5) .strip { grid-template-columns: repeat(5, 12px); }
 /* 그림자는 발밑 타원 하나로 통일한다(아래 .me::before) */
 .me img { transform-origin: 50% 100%; }
 /* 걸을 때: 가는 쪽으로 몸을 기울이며 통통 뛰고, 착지할 때 살짝 눌린다 */
-.me.walking img { animation: hop 0.44s ease-in-out infinite; }
-@keyframes hop { 0%, 100% { rotate: calc(var(--lean) * 4deg); translate: 0 0; scale: 1.05 0.93; } 50% { rotate: calc(var(--lean) * 7deg); translate: 0 -9%; scale: 0.96 1.05; } }
+.me.walking img { animation: waddle 0.7s ease-in-out infinite; }
+/* 걷기 그림이 없을 때: 뛰지 않고 몸을 좌우로 살짝 기울이며 낮게 오르내린다 */
+@keyframes waddle { 0%, 100% { rotate: -2.2deg; translate: 0 0; } 25%, 75% { translate: 0 -1.6%; } 50% { rotate: 2.2deg; translate: 0 0; } }
 @keyframes idle { 50% { scale: 1 0.97; } }
 .me:not(.walking):not(.other) img { animation: idle 3s ease-in-out infinite; }
 .bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 4px 10px; white-space: nowrap; font-size: 0.85rem; }

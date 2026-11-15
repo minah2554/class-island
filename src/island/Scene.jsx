@@ -119,7 +119,7 @@ function Walker({ walk, blocks = [], scale = 1, character, bubble, name, who, st
 
   const front = `assets/characters/char_${String(character).padStart(2, '0')}`
   const variant = pos.moving && pos.view ? `${front}_${pos.view}` : null
-  const stride = variant && pos.view === 'side' ? `${variant}_walk${step + 1}` : null // 걷기 그림이 있으면 그것을
+  const stride = pos.moving ? `${variant ?? front}_walk${step + 1}` : null // 걷기 그림(옆·정면·뒤)이 있으면 그것을
   const sprite = stride && !missingViews[stride] ? stride : variant && !missingViews[variant] ? variant : front
   const stepping = sprite === stride
 
