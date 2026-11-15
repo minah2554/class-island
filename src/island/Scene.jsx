@@ -50,7 +50,7 @@ function Weather({ kind }) {
 }
 
 // 혼자 돌아다니는 캐릭터. target이 생기면 그곳으로 걸어가고 도착하면 onArrive를 부른다.
-function Walker({ walk, character, bubble, name, start, target, onArrive, hold }) {
+function Walker({ walk, character, bubble, name, who, start, target, onArrive, hold }) {
   const [pos, setPos] = useState({ ...start, flip: false, view: '', moving: false, dur: 0 })
   const [missingViews, setMissingViews] = useState({})
   const [talk, setTalk] = useState(false)
@@ -101,7 +101,12 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
       onClick={() => setTalk(!talk)}
       aria-label={name || '내 캐릭터'}
     >
-      {talk && bubble && <span className="bubble">{bubble}</span>}
+      {talk && bubble && (
+        <span className="bubble">
+          {(who || name) && <b className="who">{who || name}</b>}
+          {bubble}
+        </span>
+      )}
       <img src={`${sprite}.webp`} alt="" draggable="false" onError={() => { if (sprite !== front) setMissingViews((views) => ({ ...views, [sprite]: true })) }} style={{ transform: (sprite === front ? pos.flip : pos.view === 'side' && pos.flip) ? 'scaleX(-1)' : undefined }} />
       {name && <span className="tag">{name}</span>}
     </button>
@@ -111,7 +116,7 @@ function Walker({ walk, character, bubble, name, start, target, onArrive, hold }
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
 // 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, spots = [], others = [], hold, lights = 0, indoor, children }) {
+export default function Scene({ bg, phase, kind, walk, character, bubble, who, spots = [], others = [], hold, lights = 0, indoor, children }) {
   if (indoor) { phase = "day"; kind = "clear" }
   const [target, setTarget] = useState(null)
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
@@ -169,6 +174,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, spots 
           walk={walk}
           character={character}
           bubble={bubble}
+          who={who}
           start={center}
           target={target}
           hold={hold}

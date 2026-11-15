@@ -378,3 +378,13 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
   .board-icon { display: none; }
   .card { padding: 12px; }
 }
+
+/* 말풍선: 크림색 둥근 풍선 + 이름표 + 아래 화살표 */
+.bubble { background: #fff8e1; border: 0; border-radius: 24px; padding: 14px 18px 12px; min-width: 7em; max-width: 16em; width: max-content; white-space: normal; text-align: left; font-family: 'MemomentKkukkuk', 'Pretendard Variable', Pretendard, sans-serif; font-size: 1rem; line-height: 1.4; color: #6b4a2b; box-shadow: 0 4px 0 rgba(107, 74, 43, 0.18), 0 6px 12px rgba(0, 0, 0, 0.18); margin-bottom: 12px; z-index: 5; animation: bubble-in 0.22s ease-out; }
+.bubble::after { content: ''; position: absolute; left: 50%; bottom: -7px; translate: -50% 0; border: 7px solid transparent; border-top-color: #f2a23a; border-bottom: 0; animation: bubble-arrow 0.8s ease-in-out infinite alternate; }
+.bubble .who { position: absolute; left: 12px; top: -12px; rotate: -5deg; background: #ff8fa6; color: #fff; border-radius: 12px; padding: 1px 10px; font-size: 0.8rem; font-weight: normal; white-space: nowrap; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12); }
+.mayor .bubble { color: #6b4a2b; width: 210px; }
+.mayor .bubble::after { display: none; }
+@keyframes bubble-in { from { scale: 0.6; opacity: 0; } }
+@keyframes bubble-arrow { to { translate: -50% 3px; } }
+@media (max-width: 520px) { .bubble { font-size: 0.85rem; padding: 12px 12px 9px; max-width: 12em; } }

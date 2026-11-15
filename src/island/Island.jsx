@@ -199,6 +199,7 @@ function World({ me }) {
               lights: scene === 'island' || scene === 'visit' ? lights : 0,
               others,
               character: me.character,
+              who: me.name,
               bubble: me.greeting || `안녕! ${me.catchphrase ?? ''}`,
             }
             const { key, ...rest } = scn

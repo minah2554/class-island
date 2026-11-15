@@ -44,7 +44,10 @@ export default function Center({ me, settings, left }) {
       </div>
       <button className="mayor" onClick={() => setLine(line + 1)} aria-label="이장님과 이야기하기">
         <img src="assets/npc/rabbit_talk.webp" alt="" />
-        <span className="bubble">{say}</span>
+        <span className="bubble">
+          <b className="who">이장님</b>
+          {say}
+        </span>
       </button>
       {!me.teacher && (
       <form className="card" onSubmit={send}>
