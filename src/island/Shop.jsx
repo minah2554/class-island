@@ -8,17 +8,17 @@ import Scene from './Scene'
 // 광장 꾸미기: 학생들이 조개를 모아 기부하면, 모인 돈으로 광장에 놓을 물건을 산다.
 // 위치(x, y, w)는 정해 둔 자리다. decor_01(분수)은 처음부터 있다.
 export const DECOR = [
-  { id: 'decor_02', name: '벤치', cost: 30, x: 30, y: 76, w: 10 },
-  { id: 'decor_03', name: '가로등', cost: 40, x: 70, y: 40, w: 6 },
-  { id: 'decor_04', name: '꽃밭', cost: 50, x: 68, y: 80, w: 12 },
-  { id: 'decor_05', name: '피크닉 테이블', cost: 60, x: 80, y: 72, w: 12 },
-  { id: 'decor_06', name: '이정표', cost: 30, x: 30, y: 48, w: 7 },
-  { id: 'decor_07', name: '작은 다리', cost: 80, x: 50, y: 88, w: 14 },
-  { id: 'decor_08', name: '그네', cost: 80, x: 13, y: 82, w: 12 },
-  { id: 'decor_09', name: '시계탑', cost: 120, x: 33, y: 33, w: 9 },
-  { id: 'decor_10', name: '풍선 아치', cost: 100, x: 62, y: 52, w: 13 },
-  { id: 'decor_11', name: '모닥불', cost: 60, x: 72, y: 64, w: 7 },
-  { id: 'decor_12', name: '토끼 동상', cost: 150, x: 44, y: 84, w: 8 },
+  { id: 'decor_02', name: '벤치', cost: 30, x: 64, y: 14, w: 9 },
+  { id: 'decor_03', name: '가로등', cost: 40, x: 62, y: 35, w: 8 },
+  { id: 'decor_04', name: '꽃밭', cost: 50, x: 28, y: 44, w: 11 },
+  { id: 'decor_05', name: '피크닉 테이블', cost: 60, x: 88, y: 69, w: 12 },
+  { id: 'decor_06', name: '이정표', cost: 30, x: 40, y: 91, w: 7 },
+  { id: 'decor_07', name: '작은 다리', cost: 80, x: 50, y: 10, w: 10 },
+  { id: 'decor_08', name: '그네', cost: 80, x: 24, y: 87, w: 12 },
+  { id: 'decor_09', name: '시계탑', cost: 120, x: 37, y: 35, w: 12 },
+  { id: 'decor_10', name: '풍선 아치', cost: 100, x: 53, y: 95, w: 14 },
+  { id: 'decor_11', name: '모닥불', cost: 60, x: 9, y: 45, w: 7 },
+  { id: 'decor_12', name: '토끼 동상', cost: 150, x: 46, y: 80, w: 8 },
 ]
 
 // 나의 조개 / 반 전체 기금 계산 (cols: collections 문서들, bought: 산 물건 { id: true })
@@ -26,8 +26,8 @@ export const shells = (c) => (c?.shells ?? 0) - (c?.donated ?? 0)
 export const fund = (cols, bought = {}) =>
   cols.reduce((s, c) => s + (c.donated ?? 0), 0) - DECOR.filter((d) => bought[d.id]).reduce((s, d) => s + d.cost, 0)
 
-// 상점 안에 물건이 놓이는 자리(%): 앞줄 6개, 뒷줄 5개
-const SLOT = [[20, 52], [32, 52], [44, 52], [56, 52], [68, 52], [80, 52], [26, 74], [38, 74], [50, 74], [62, 74], [74, 74]]
+// 상점 안에 물건이 놓이는 자리(%): 4개씩 3줄
+const SLOT = [[20, 50], [40, 50], [60, 50], [80, 50], [20, 68], [40, 68], [60, 68], [80, 68], [26, 86], [50, 86], [74, 86]]
 
 export default function Shop({ me, cols, bought = {}, scene }) {
   const [list, setList] = useState(false)
@@ -67,8 +67,8 @@ export default function Shop({ me, cols, bought = {}, scene }) {
     y: SLOT[i][1],
     w: 10,
     img: `decor/${d.id}`,
-    label: bought[d.id] ? `${d.name} · 광장에 있음` : `${d.name} ${d.cost}개`,
-    cls: bought[d.id] ? 'sold' : '',
+    label: bought[d.id] ? `${d.name}\n광장에 있음` : `${d.name}\n${d.cost}개`,
+    cls: bought[d.id] ? 'item sold' : 'item',
     onClick: () => (bought[d.id] ? tell(`${d.name}은(는) 이미 마을 광장에 놓여 있어요.`) : buy(d)),
   }))
 

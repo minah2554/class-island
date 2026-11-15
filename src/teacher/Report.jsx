@@ -1,8 +1,10 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { utils, writeFile } from 'xlsx'
 import { doc, setDoc } from 'firebase/firestore'
 import { useDocs, yearCol } from '../data'
 import { giftCount } from '../island/gifts'
+import { topRanks } from '../island/gifts'
+import { db } from '../firebase'
 
 // 통계 리포트: 학생별 지각·청소면제권·독서·도감을 한 표로 모아 보고 엑셀로 내려받는다.
 export default function Report({ year, students }) {
@@ -46,6 +48,13 @@ export default function Report({ year, students }) {
       caught: Object.values(c?.items ?? {}).reduce((sum, i) => sum + (i.n ?? 0), 0),
     }
   })
+  // 게시판 랭킹: 면제권 남은 장수, 독서 제출 일수는 많은 순, 지각은 적은 순(1~3위, 동점은 함께)
+  const ranks = JSON.stringify({ tickets: topRanks(rows, 'left'), reading: topRanks(rows, 'submitted'), tardy: topRanks(rows, 'tardy', true) })
+  useEffect(() => {
+    if (!rows.length || !(tardies.length + tickets.length + months.length)) return
+    const t = setTimeout(() => setDoc(doc(db, 'years', String(year)), { ranks: JSON.parse(ranks) }, { merge: true }), 1500)
+    return () => clearTimeout(t)
+  }, [ranks, year])
   const sum = (k) => rows.reduce((a, r) => a + r[k], 0)
   const rated = rows.filter((r) => r.rate !== null)
   const avg = rated.length ? Math.round(rated.reduce((a, r) => a + r.rate, 0) / rated.length) : 0
@@ -71,6 +80,7 @@ export default function Report({ year, students }) {
           <b>{sum('kinds')}종</b>
         </div>
       </div>
+      <p className="hint">이 화면을 열면 학생 게시판의 "우리 반 랭킹왕"(청소면제권·독서기록장·지각 1~3위)이 최신 기록으로 바뀝니다.</p>
       <p className="hint">섬 선물 1개마다 학생의 섬에 낮 아이템 1개와 밤 조명 1개가 생깁니다: 한 달 독서 모두 제출 · 월말 기록장 제출 체크 · 청소면제권 받은 5장마다 · 선생님 선물(1인 1역을 잘한 학생 등).</p>
       <button className="ghost" onClick={() => writeFile(utils.table_to_book(table.current, { raw: true }), `섬마을_통계_${year}.xlsx`)}>
         엑셀 다운로드

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { giftCount, giftParts, perfectMonth } from './gifts.js'
+import { giftCount, giftParts, perfectMonth, topRanks } from './gifts.js'
 
 test('아무 기록이 없으면 0', () => assert.equal(giftCount(undefined), 0))
 test('잘한 달·제출·면제권 5장·선생님 선물을 더한다', () => {
@@ -14,3 +14,12 @@ test('기타 사유는 괜찮다', () => assert.equal(perfectMonth(['o', '병결
 test('✕가 있으면 아니다', () => assert.equal(perfectMonth(['o', 'x', 'o']), false))
 test('마지막 날이 아직 기록되지 않았으면 아니다', () => assert.equal(perfectMonth(['o', 'o', undefined]), false))
 test('중간에 빈 날은 무시', () => assert.equal(perfectMonth(['o', undefined, 'o']), true))
+
+test('랭킹: 동점은 같은 등수, 다음 등수는 건너뛴다', () => {
+  const rows = [{ name: '가', v: 5 }, { name: '나', v: 5 }, { name: '다', v: 3 }, { name: '라', v: 1 }, { name: '마', v: 0 }]
+  assert.deepEqual(topRanks(rows, 'v'), [{ rank: 1, v: 5, names: '가, 나' }, { rank: 3, v: 3, names: '다' }])
+})
+test('랭킹: 작은 순은 0도 넣고, 많으면 줄인다', () => {
+  const rows = ['가', '나', '다', '라', '마'].map((name) => ({ name, v: 0 }))
+  assert.deepEqual(topRanks(rows, 'v', true), [{ rank: 1, v: 0, names: '가, 나, 다 외 2명' }])
+})

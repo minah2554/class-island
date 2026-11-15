@@ -359,3 +359,22 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
 .note p { margin: 0; font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap; }
 .note .pin { position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff9a8a, #d9483a); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35); }
 .note.n0 { background: #fff8c9; } .note.n1 { background: #ffe0e6; } .note.n2 { background: #dff3ff; } .note.n3 { background: #e3f6d3; }
+
+/* 상점 물건 이름표: 이름과 값을 두 줄로 */
+.spot.item span { white-space: pre; text-align: center; line-height: 1.25; bottom: -14%; }
+/* 게시판 랭킹 */
+.corkboard.ranks { margin-bottom: 18px; }
+.note h3 { font-size: 1.15rem; margin: 0 0 6px; font-weight: normal; }
+.note ol { list-style: none; margin: 0; padding: 0; font-size: 1.05rem; line-height: 1.7; }
+.note ol small { color: #8a6a3a; }
+/* 큰 메뉴: 휴대폰에서도 한 줄 */
+.tabs.main { flex-wrap: nowrap; overflow-x: auto; }
+.tabs.main button { white-space: nowrap; flex: 0 0 auto; }
+@media (max-width: 520px) {
+  .tabs.main { gap: 3px; }
+  .tabs.main button { flex: 1 1 auto; padding: 6px 5px; font-size: 0.8rem; letter-spacing: 0; }
+  .spot.item span { font-size: 0.55rem; padding: 0 3px; }
+  .corkboard { padding: 26px 12px 18px; border-width: 8px; }
+  .board-icon { display: none; }
+  .card { padding: 12px; }
+}

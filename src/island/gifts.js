@@ -39,3 +39,18 @@ export const LIGHTS = [
   { img: 'decor/decor_03', x: 18, y: 46, w: 5 },
   { img: 'decor/decor_03', x: 84, y: 44, w: 5 },
 ]
+
+// 게시판 랭킹: rows에서 key 값이 큰 순(asc면 작은 순)으로 1~3위. 동점은 같은 등수로 이름을 묶는다.
+// 큰 순 랭킹에서 0은 뺀다. 한 등수에 4명이 넘으면 "외 N명"으로 줄인다.
+export function topRanks(rows, key, asc = false) {
+  const vals = [...new Set(rows.map((r) => r[key]))].filter((v) => asc || v > 0).sort((a, b) => (asc ? a - b : b - a))
+  const out = []
+  let rank = 1
+  for (const v of vals) {
+    if (rank > 3) break
+    const who = rows.filter((r) => r[key] === v).map((r) => r.name)
+    out.push({ rank, v, names: who.length > 4 ? `${who.slice(0, 3).join(', ')} 외 ${who.length - 3}명` : who.join(', ') })
+    rank += who.length
+  }
+  return out
+}

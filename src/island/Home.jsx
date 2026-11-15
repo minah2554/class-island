@@ -5,9 +5,10 @@ import { tell } from '../popup'
 import { badWord } from './banned'
 import { short } from '../records'
 import { giftParts } from './gifts'
+import Scene from './Scene'
 
 // 내 집: 내 지각·청소면제권·독서기록장을 볼 수 있다(남의 기록은 규칙상 볼 수 없다)
-export default function Home({ me, settings = {} }) {
+export default function Home({ me, settings = {}, scene }) {
   const tardies = useWhere(me.year, 'tardies', 'no', me.no)
   const penalties = useWhere(me.year, 'penalties', 'no', me.no)
   const logs = useWhere(me.year, 'ticketLog', 'no', me.no)
@@ -40,15 +41,10 @@ export default function Home({ me, settings = {} }) {
 
   return (
     <section>
-      <div className="museum-head">
-        <img src="assets/scenes/house.webp" alt="" />
-        <div>
-          <h2>{me.islandName ? `${me.islandName}의 집` : '내 집'}</h2>
-          <p>
-            {me.no} {me.name}
-          </p>
-        </div>
-      </div>
+      <h2>
+        {me.islandName ? `${me.islandName}의 집` : '내 집'} <small>{me.no} {me.name}</small>
+      </h2>
+      {scene && <Scene {...scene} indoor spots={[]} />}
 
       <form className="card" onSubmit={saveGreeting}>
         <h3>내 말풍선</h3>

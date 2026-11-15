@@ -29,6 +29,7 @@ const WALK = {
   forest: { x0: 14, x1: 86, y0: 34, y1: 90 },
   shop: { x0: 12, x1: 88, y0: 36, y1: 90 },
   museum: { x0: 12, x1: 88, y0: 36, y1: 92 },
+  house: { x0: 16, x1: 84, y0: 46, y1: 90 },
 }
 const Wrap = ({ className, children }) => (className ? <main className={className}>{children}</main> : <div>{children}</div>)
 const PHASE_LABEL = { dawn: '새벽', day: '낮', dusk: '저녁', night: '밤' }
@@ -138,15 +139,15 @@ function World({ me }) {
       ...(me.teacher ? [] : [{ x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '편지 보내기', onClick: () => (setMailTo(friend.no), setScene('mail')) }]),
     ],
     plaza: [
-      { x: 50, y: 62, w: 17, img: 'decor/decor_01' },
+      { x: 50, y: 58, w: 17, img: 'decor/decor_01' },
       { x: 50, y: 30, w: 19, img: 'buildings/museum', label: '박물관', onClick: () => setScene('museum') },
-      { x: 84, y: 52, w: 16, img: 'buildings/center', label: '주민센터', onClick: () => setScene('center') },
+      { x: 85, y: 46, w: 19, img: 'buildings/center', label: '주민센터', onClick: () => setScene('center') },
       { x: 15, y: 56, w: 11, img: 'buildings/board', label: '게시판', onClick: () => setScene('board') },
-      { x: 18, y: 36, w: 12, img: 'buildings/shop', label: '꾸미기 상점', onClick: () => setScene('shop') },
+      { x: 18, y: 37, w: 15, img: 'buildings/shop', label: '꾸미기 상점', onClick: () => setScene('shop') },
       ...DECOR.filter((d) => bought[d.id]).map((d) => ({ x: d.x, y: d.y, w: d.w, img: `decor/${d.id}` })),
     ],
   }[scene]
-  const inScene = ['island', 'plaza', 'sea', 'forest', 'visit', 'shop', 'museum'].includes(scene)
+  const inScene = ['island', 'plaza', 'sea', 'forest', 'visit', 'shop', 'museum', 'house'].includes(scene)
   const others = scene === 'visit' && friend ? [{ id: friend.no, x: 40, y: 62, character: friend.character, name: friend.name, bubble: friend.greeting || `어서 와! ${friend.catchphrase ?? ''}` }] : []
   const tab = TAB_OF[scene] ?? scene
 
@@ -171,7 +172,7 @@ function World({ me }) {
           </button>
         )}
       </header>
-      <nav className="tabs">
+      <nav className="tabs main">
         {NAV.filter(([k]) => !(me.teacher && k === 'island')).map(([k, label]) => (
           <button key={k} className={tab === k ? '' : 'ghost'} aria-pressed={tab === k} onClick={() => setScene(k)}>
             {label}
@@ -182,10 +183,9 @@ function World({ me }) {
       {!inScene ? (
         {
           country: <Country me={me} cols={cols} settings={settings} bought={bought} onVisit={visit} onBoard={() => setScene('board')} onPlaza={() => setScene('plaza')} />,
-          house: <Home me={me} settings={settings} />,
           mail: <Mail me={me} settings={settings} to={mailTo} />,
           center: <Center me={me} settings={settings} left={left} />,
-          board: <Board me={me} />,
+          board: <Board me={me} settings={settings} />,
         }[scene]
       ) : (
         <>
@@ -205,6 +205,7 @@ function World({ me }) {
             // 바다·숲에서는 물고기 그림자·곤충이 나타나는 채집 화면
             if (!me.teacher && (scene === 'sea' || scene === 'forest'))
               return <Hunt key={key} me={me} kind={scene === 'sea' ? 'fish' : 'bug'} cols={cols} left={left} limit={limit} scene={rest} />
+            if (scene === 'house') return <Home key={key} me={me} settings={settings} scene={rest} />
             if (scene === 'shop') return <Shop key={key} me={me} cols={cols} bought={bought} scene={rest} />
             if (scene === 'museum') return <Museum key={key} me={me} cols={cols} settings={settings} scene={rest} />
             return <Scene key={key} {...rest} spots={spots} />
