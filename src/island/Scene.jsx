@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 // 멀리(위쪽) 있을수록 작게 보이게 해서 깊이감을 준다
-const depth = (y) => 7.5 + y * 0.06
+// 캐릭터는 건물의 절반쯤 크기(멀리 5% ~ 가까이 9%)
+const depth = (y) => 5 + y * 0.04
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
 
 // 걸어 다닐 수 있는 영역 안으로 목표 지점을 끌어온다. walk: 타원 {cx,cy,rx,ry} 또는 사각형 {x0,x1,y0,y1} (모두 %)
