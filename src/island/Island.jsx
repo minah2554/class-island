@@ -125,7 +125,7 @@ function World({ me }) {
   // 섬 주인(내 섬이면 나, 놀러 갔으면 친구)이 받은 선물만큼 낮 아이템과 조명이 놓인다
   const owner = scene === 'visit' ? friend?.no : me.no
   const earned = giftCount(gifts.find((g) => g.id === owner))
-  const items = [...DAY_ITEMS.slice(0, earned), ...LIGHTS.slice(0, earned).map((l, i) => ({ ...l, key: `light${i}`, cls: 'lit' }))]
+  const items = [...DAY_ITEMS.slice(0, earned), ...(phase === 'night' ? LIGHTS.slice(0, earned).map((l, i) => ({ ...l, key: `light${i}`, cls: 'lit' })) : [])]
   const lights = Math.min(earned, LIGHTS.length)
   const spots = {
     island: [

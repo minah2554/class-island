@@ -53,10 +53,16 @@ function Weather({ kind }) {
 }
 
 // 혼자 돌아다니는 캐릭터. target이 생기면 그곳으로 걸어가고 도착하면 onArrive를 부른다.
-function Walker({ walk, blocks = [], character, bubble, name, who, start, target, onArrive, hold }) {
+function Walker({ walk, blocks = [], scale = 1, character, bubble, name, who, start, target, onArrive, hold }) {
   const [pos, setPos] = useState({ ...start, flip: false, view: '', moving: false, dur: 0 })
   const [missingViews, setMissingViews] = useState({})
   const [talk, setTalk] = useState(false)
+  const [step, setStep] = useState(0) // 걷는 동안 두 칸을 번갈아 보여 준다
+  useEffect(() => {
+    if (!pos.moving) return
+    const t = setInterval(() => setStep((n) => 1 - n), 190)
+    return () => clearInterval(t)
+  }, [pos.moving])
   const at = useRef(start) // 지금 향하는 곳
   const timers = useRef([])
   const solid = useRef(blocks)
@@ -113,12 +119,14 @@ function Walker({ walk, blocks = [], character, bubble, name, who, start, target
 
   const front = `assets/characters/char_${String(character).padStart(2, '0')}`
   const variant = pos.moving && pos.view ? `${front}_${pos.view}` : null
-  const sprite = variant && !missingViews[variant] ? variant : front
+  const stride = variant && pos.view === 'side' ? `${variant}_walk${step + 1}` : null // 걷기 그림이 있으면 그것을
+  const sprite = stride && !missingViews[stride] ? stride : variant && !missingViews[variant] ? variant : front
+  const stepping = sprite === stride
 
   return (
     <button
-      className={`me ${pos.moving ? 'walking' : ''}`}
-      style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y)}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s`, '--lean': pos.flip ? -1 : 1 }}
+      className={`me ${pos.moving ? 'walking' : ''} ${stepping ? 'stepping' : ''}`}
+      style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: `${depth(pos.y) * scale}%`, zIndex: Math.round(pos.y), transitionDuration: `${pos.dur}s`, '--lean': pos.flip ? -1 : 1 }}
       onClick={() => setTalk(!talk)}
       aria-label={name || '내 캐릭터'}
     >
@@ -128,7 +136,8 @@ function Walker({ walk, blocks = [], character, bubble, name, who, start, target
           {bubble}
         </span>
       )}
-      <img src={`${sprite}.webp`} alt="" draggable="false" onError={() => { if (sprite !== front) setMissingViews((views) => ({ ...views, [sprite]: true })) }} style={{ transform: (sprite === front ? pos.flip : pos.view === 'side' && pos.flip) ? 'scaleX(-1)' : undefined }} />
+      <img src={`${sprite}.webp`} alt="" draggable="false" onError={() => { if (sprite !== front) setMissingViews((views) => ({ ...views, [sprite]: true })) }} style={{ transform: (sprite === front ? pos.flip : pos.view === 'side' && pos.flip) ? 'scaleX(-1)' : undefined }}
+        key={stepping ? 'walk' : 'still'} />
       {name && <span className="tag">{name}</span>}
     </button>
   )
@@ -137,14 +146,17 @@ function Walker({ walk, blocks = [], character, bubble, name, who, start, target
 // 배경 그림 위에 시간대 색, 떠다니는 구름 그림자, 날씨를 겹치고 그 위를 캐릭터가 스스로 돌아다닌다.
 // 건물(이름표가 있는 spot)을 누르면 캐릭터가 그 앞까지 걸어간 뒤 onClick이 불린다.
 // bg: scenes/ 아래 파일 이름, phase: dawn|day|dusk|night, kind: 날씨 종류, spots: [{x,y,w,img,label,onClick}]
-export default function Scene({ bg, phase, kind, walk, character, bubble, who, spots = [], others = [], hold, lights = 0, indoor, blocks = [], children }) {
+export default function Scene({ bg, phase, kind, walk, character, bubble, who, spots = [], others = [], hold, lights = 0, indoor, blocks = [], scale = 1, children }) {
   if (indoor) { phase = "day"; kind = "clear" }
   const [target, setTarget] = useState(null)
   const dim = phase === 'night' || kind === 'cloudy' || kind === 'rain' || kind === 'storm'
   const bugs = useMemo(() => spread(14, (i) => ({ left: pr(i, 43) * 100, top: pr(i, 61) * 100, delay: pr(i, 17) * 6 })), [])
   // 발밑 타원: 건물·장식은 밟고 지나갈 수 없다(물고기 그림자·곤충은 뺀다)
   const solid = [
-    ...spots.filter((s) => s.w && !(s.cls ?? '').includes('critter')).map((s) => ({ x: s.x, y: s.y - 0.5, rx: s.w * 0.42 + 1.5, ry: s.w * 0.26 + 1.5 })),
+    ...spots
+      .filter((s) => s.w && !(s.cls ?? '').includes('critter'))
+      // 오려 낸 나무·꽃은 그림 둘레에 잔디가 넓게 붙어 있어서 자리를 작게 잡는다
+      .map((s) => ((s.cls ?? '').includes('patch') ? { x: s.x, y: s.y - s.w * 0.25, rx: s.w * 0.22, ry: s.w * 0.14 } : { x: s.x, y: s.y - 0.5, rx: s.w * 0.42 + 1.5, ry: s.w * 0.26 + 1.5 })),
     ...blocks,
   ]
   const center = { x: 50, y: (walk.cy ?? (walk.y0 + walk.y1) / 2) + 6 }
@@ -203,6 +215,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
         <Walker
           walk={walk}
           blocks={solid}
+          scale={scale}
           character={character}
           bubble={bubble}
           who={who}
@@ -217,7 +230,7 @@ export default function Scene({ bg, phase, kind, walk, character, bubble, who, s
         />
       )}
       {others.map((o) => (
-        <Walker key={o.id} walk={walk} blocks={solid} character={o.character} bubble={o.bubble} name={o.name} start={{ x: o.x, y: o.y }} />
+        <Walker key={o.id} walk={walk} blocks={solid} scale={scale} character={o.character} bubble={o.bubble} name={o.name} start={{ x: o.x, y: o.y }} />
       ))}
 
       <Weather kind={kind} />

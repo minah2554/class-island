@@ -44,7 +44,7 @@ const SLOTS = [
   { x: 32, y: 9, w: 6 }, { x: 50, y: 8, w: 8 }, { x: 68, y: 9, w: 6 }, { x: 5, y: 26, w: 5 }, { x: 92, y: 22, w: 6 },
 ]
 // 수족관 안 물고기 자리(수족관 크기에 대한 %)
-const TANK = [[16, 28], [44, 20], [74, 30], [30, 55], [62, 52], [86, 58], [14, 72], [48, 78], [76, 76], [28, 86]]
+const TANK = [[12, 30], [32, 22], [52, 34], [72, 24], [90, 36], [20, 68], [41, 74], [61, 66], [80, 76], [50, 52]]
 
 export default function Museum({ me, cols, settings, scene }) {
   const [dex, setDex] = useState(false)
@@ -90,25 +90,21 @@ export default function Museum({ me, cols, settings, scene }) {
       )}
       <div className="museum-view">
         {scene && (
-          <Scene {...scene} indoor spots={[]} blocks={[{ x: 50, y: 71, rx: 20, ry: 9 }]}>
+          <Scene {...scene} indoor scale={1.5} spots={[]} blocks={[{ x: 50, y: 74, rx: 25, ry: 10 }]}>
             {bugs.map((id, i) => (
               <button key={id} className={`exhibit ${SLOTS[i].glass ? 'case' : ''}`} style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, zIndex: Math.round(SLOTS[i].y) }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
                 <img src={imageOf(id)} alt="" draggable="false" />
               </button>
             ))}
             <div className="aqua" aria-label="수족관">
-              <i className="lid" />
-              <div className="tank">
-              <i className="sand" />
-              <i className="weed w1" />
-              <i className="weed w2" />
-              {fish.map((id, i) => (
-                <button key={id} className="fish-ex" style={{ left: `${TANK[i][0]}%`, top: `${TANK[i][1]}%` }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
-                  <img src={imageOf(id)} alt="" draggable="false" />
-                </button>
-              ))}
+              <img src="assets/scenes/aquarium.webp" alt="" draggable="false" />
+              <div className="water">
+                {fish.map((id, i) => (
+                  <button key={id} className="fish-ex" style={{ left: `${TANK[i][0]}%`, top: `${TANK[i][1]}%` }} onClick={() => setOpen(id)} aria-label={nameOf(id)} title={nameOf(id)}>
+                    <img src={imageOf(id)} alt="" draggable="false" />
+                  </button>
+                ))}
               </div>
-              <i className="stand" />
             </div>
             {!found && <p className="empty-note">아직 전시된 친구가 없어요. 바다와 숲에서 잡아 보세요!</p>}
           </Scene>

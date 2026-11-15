@@ -30,6 +30,8 @@ export default function Home({ me, settings = {}, scene }) {
   const months = {}
   Object.entries(stats?.reading ?? {}).forEach(([d, val]) => (months[d.slice(0, 7)] ||= []).push([d, val]))
 
+  const thisMonth = months[new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7)] ?? [] // 한국 시간 기준 이번 달
+
   // 내 캐릭터를 누르면 나오는 말풍선을 고친다
   async function saveGreeting(e) {
     e.preventDefault()
@@ -44,7 +46,28 @@ export default function Home({ me, settings = {}, scene }) {
       <h2>
         {me.islandName ? `${me.islandName}의 집` : '내 집'} <small>{me.no} {me.name}</small>
       </h2>
-      {scene && <Scene {...scene} indoor spots={[]} />}
+      {scene && (
+        <Scene {...scene} indoor scale={2.1} spots={[]}>
+          <ul className="room-status" aria-label="내 기록 한눈에 보기">
+            <li>
+              <small>청소면제권</small>
+              <b>{left}</b>장 남음
+            </li>
+            <li>
+              <small>지각</small>
+              <b>{dates.length}</b>번
+            </li>
+            <li>
+              <small>이번 달 독서</small>
+              <b>{thisMonth.filter(([, x]) => x === 'o').length}/{thisMonth.length}</b>
+            </li>
+            <li>
+              <small>섬 선물</small>
+              <b>{gp.perfect + gp.book + gp.tickets + gp.bonus}</b>개
+            </li>
+          </ul>
+        </Scene>
+      )}
 
       <form className="card" onSubmit={saveGreeting}>
         <h3>내 말풍선</h3>
@@ -57,8 +80,8 @@ export default function Home({ me, settings = {}, scene }) {
         </div>
       </form>
 
-      <div className="card">
-        <h3>내 캐릭터 바꾸기</h3>
+      <details className="card">
+        <summary>내 캐릭터 바꾸기</summary>
         <div className="picker" role="radiogroup" aria-label="캐릭터 고르기">
           {Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (
             <button type="button" key={n} role="radio" aria-checked={me.character === n} className={me.character === n ? 'on' : ''} onClick={() => me.character !== n && updateDoc(doc(db, 'years', String(me.year), 'students', me.no), { character: n })}>
@@ -66,11 +89,11 @@ export default function Home({ me, settings = {}, scene }) {
             </button>
           ))}
         </div>
-      </div>
+      </details>
 
       <div className="card">
         <h3>내 섬 선물 {gp.perfect + gp.book + gp.tickets + gp.bonus}개</h3>
-        <p>선물 1개마다 내 섬에 낮 아이템 1개와 밤 조명 1개가 생겨요.</p>
+        <p>선물 1개마다 내 섬에 낮에는 나무나 꽃이, 밤에는 가로등이 하나씩 늘어나요.</p>
         <p className="chips">
           <span className="chip">한 달 독서 모두 제출 {gp.perfect}</span>
           <span className="chip">월말 기록장 제출 {gp.book}</span>
@@ -149,7 +172,7 @@ export default function Home({ me, settings = {}, scene }) {
                     return (
                       <tr key={m}>
                         <td>{Number(m.slice(5))}월</td>
-                        <td>{o}/{list.length}일</td>
+                        <td>{o}/{list.length}</td>
                         <td className="wrap">{miss.join(', ') || '-'}</td>
                         <td className="wrap">{other.map(([d, x]) => `${short(d)} ${x}`).join(', ') || '-'}</td>
                         <td>{g.perfect ? '⭐' : ''}</td>

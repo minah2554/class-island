@@ -341,19 +341,11 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
 .museum-side { margin: 0; }
 .museum-side p { margin: 10px 0 4px; }
 @media (max-width: 760px) { .museum-view { grid-template-columns: 1fr; } }
-.exhibit.case::after { content: ''; position: absolute; inset: -22% -30% -8%; border-radius: 12%; border: 1px solid rgba(255, 255, 255, 0.8); background: linear-gradient(120deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 42%, rgba(255, 255, 255, 0.28)); pointer-events: none; }
-/* 수족관: 방 안 진열장과 같은 나무 받침 + 위에서 살짝 내려다본 유리 수조 */
-.aqua { position: absolute; left: 50%; top: 66%; width: 34%; translate: -50% -50%; z-index: 72; filter: drop-shadow(0 10px 8px rgba(120, 80, 40, 0.28)); }
-.aqua .lid { display: block; height: 0; padding-bottom: 7%; margin: 0 3%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(214, 240, 246, 0.85)); clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%); border-radius: 6px 6px 0 0; }
-.tank { position: relative; margin: 0 3%; aspect-ratio: 2.5; border: 3px solid rgba(255, 255, 255, 0.92); border-top-width: 2px; border-radius: 4px 4px 10px 10px; background: linear-gradient(180deg, #d5f2f7, #a6dcea 70%); overflow: hidden; box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.6); }
-.tank::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, rgba(255, 255, 255, 0.5), transparent 28%, transparent 62%, rgba(255, 255, 255, 0.22) 75%, transparent 86%); pointer-events: none; }
-.tank .sand { position: absolute; left: 0; right: 0; bottom: 0; height: 15%; background: linear-gradient(180deg, #f3e3b8, #e6cf98); border-radius: 50% 50% 0 0 / 30% 30% 0 0; }
-.tank .weed { position: absolute; bottom: 9%; width: 5%; height: 28%; border-radius: 50% 50% 20% 20%; background: linear-gradient(90deg, #8ccf8f, #5fae6b); }
-.tank .w1 { left: 7%; } .tank .w2 { right: 9%; height: 20%; }
-.aqua .stand { display: block; position: relative; height: 0; padding-bottom: 15%; margin-top: -1%; background: linear-gradient(180deg, #f0bd83, #dea163 30%, #cf8f52); border-radius: 12px 12px 14px 14px; box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35), inset 0 -5px 0 rgba(150, 95, 45, 0.25); }
-.aqua .stand::before, .aqua .stand::after { content: ''; position: absolute; top: 42%; width: 3%; aspect-ratio: 1; border-radius: 50%; background: #f6d24e; box-shadow: 0 1px 0 rgba(120, 80, 20, 0.4); }
-.aqua .stand::before { left: 46%; } .aqua .stand::after { left: 51%; }
-.fish-ex { position: absolute; width: 17%; background: none; border: 0; padding: 0; cursor: pointer; translate: -50% -50%; z-index: 2; }
+/* 수족관: 그림 위, 물이 보이는 앞 유리 자리에 물고기를 올린다 */
+.aqua { position: absolute; left: 50%; top: 64%; width: 46%; translate: -50% -50%; z-index: 74; }
+.aqua > img { width: 100%; display: block; filter: drop-shadow(0 8px 6px rgba(120, 80, 40, 0.25)); }
+.aqua .water { position: absolute; left: 15%; right: 15%; top: 25%; height: 20%; }
+.fish-ex { position: absolute; width: 13%; background: none; border: 0; padding: 0; cursor: pointer; translate: -50% -50%; z-index: 2; }
 .fish-ex img { width: 100%; display: block; }
 .fish-ex:hover { scale: 1.25; }
 
@@ -394,3 +386,18 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
 @keyframes bubble-in { from { scale: 0.6; opacity: 0; } }
 @keyframes bubble-arrow { to { translate: -50% 3px; } }
 @media (max-width: 520px) { .bubble { font-size: 0.85rem; padding: 12px 12px 9px; max-width: 12em; } }
+
+/* 걷기 그림이 있을 때는 통통 튀지 않고 살짝만 오르내린다 */
+.me.walking.stepping img { animation: stride 0.38s ease-in-out infinite; }
+@keyframes stride { 50% { translate: 0 -2%; } }
+/* 섬에 늘어나는 나무·꽃: 배경에서 오려 낸 조각이라 그림자·밤 필터를 따로 주지 않는다 */
+.spot.patch::before { display: none; }
+.scene .spot.patch img { filter: none !important; }
+/* 내 집: 방 그림 위 현황 */
+.room-status { position: absolute; left: 2%; bottom: 3%; z-index: 96; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.room-status li { background: rgba(255, 248, 225, 0.94); border-radius: 14px; padding: 6px 12px; box-shadow: 0 3px 0 rgba(107, 74, 43, 0.18); color: #6b4a2b; font-size: 0.9rem; }
+.room-status small { display: block; color: #a07a4a; font-size: 0.72rem; }
+.room-status b { font-size: 1.15rem; }
+details.card summary { cursor: pointer; font-weight: 700; }
+details.card[open] summary { margin-bottom: 10px; }
+@media (max-width: 520px) { .room-status li { padding: 3px 8px; font-size: 0.72rem; } .room-status b { font-size: 0.9rem; } .room-status small { font-size: 0.6rem; } }

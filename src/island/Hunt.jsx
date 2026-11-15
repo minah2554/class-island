@@ -3,6 +3,8 @@ import { doc, increment, serverTimestamp, setDoc } from 'firebase/firestore'
 import { isClassTime, kst } from '../clock'
 import { yearCol } from '../data'
 import { tell } from '../popup'
+import { catchBlock } from './gifts'
+import { useDoc, useWhere } from './hooks'
 import Scene from './Scene'
 import { KINDS, TIERS, draw, imageOf, nameOf, speciesId, tierOf } from './species'
 
@@ -91,6 +93,10 @@ export default function Hunt({ me, kind, cols, left, limit, scene }) {
   const k = KINDS[kind]
   const mine = cols.find((c) => c.id === me.no) ?? {}
   const ref = doc(yearCol(me.year, 'collections'), me.no)
+  // 독서기록장을 내고 지각하지 않은 날에만 채집할 수 있다
+  const stats = useDoc(me.year, 'stats', me.no)
+  const tardies = useWhere(me.year, 'tardies', 'no', me.no)
+  const block = catchBlock(stats?.reading, tardies.map((x) => x.date), kst().ymd)
 
   // 생물이 하나씩 나타나고, 시간이 지나면 달아난다(쫓는 중인 것은 남는다)
   useEffect(() => {
@@ -111,6 +117,7 @@ export default function Hunt({ me, kind, cols, left, limit, scene }) {
   function guard() {
     if (stage !== 'idle') return false
     if (isClassTime(kst())) return tell('수업 시간이에요. 쉬는 시간이나 방과 후에 다시 와요, 총총!'), false
+    if (block) return tell(block), false
     if (left < 1) return tell('오늘 횟수를 다 썼어요. 내일 또 만나요!'), false
     return true
   }
@@ -164,7 +171,7 @@ export default function Hunt({ me, kind, cols, left, limit, scene }) {
   return (
     <Scene {...scene} spots={spots} hold={stage !== 'idle'}>
       <p className="hunt-top" role="status">
-        {k.label} · 오늘 남은 횟수 <b>{left}</b>/{limit}
+        {k.label} · {block ? '오늘은 쉬는 날' : <>오늘 남은 횟수 <b>{left}</b>/{limit}</>}
       </p>
       {stage === 'idle' && <p className="hunt-tip">{kind === 'fish' ? '물속에 그림자가 보이면 눌러서 낚싯대를 던져요.' : '나무와 꽃 근처를 잘 봐요. 곤충이 고개를 내밀면 눌러서 살금살금 다가가요.'}</p>}
       {stage === 'go' && <p className="hunt-tip">{kind === 'fish' ? '물가로 가는 중…' : '살금살금…'}</p>}
