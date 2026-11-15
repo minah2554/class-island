@@ -401,3 +401,14 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
 details.card summary { cursor: pointer; font-weight: 700; }
 details.card[open] summary { margin-bottom: 10px; }
 @media (max-width: 520px) { .room-status li { padding: 3px 8px; font-size: 0.72rem; } .room-status b { font-size: 0.9rem; } .room-status small { font-size: 0.6rem; } }
+
+/* 선생님 메뉴: 묶음 이름 + 버튼 */
+.menu { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0; padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+.menu-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.menu-group small { font-size: 0.75rem; margin-right: 2px; }
+.menu button { padding: 6px 12px; }
+.menu .count { display: inline-block; min-width: 1.4em; margin-left: 6px; padding: 0 5px; border-radius: 10px; background: var(--danger); color: #fff; font-size: 0.75rem; }
+/* 우편함: 선생님 말씀, 새 소식 표시 */
+.teacher-note { background: #fff8e1; border-color: #f2d48a; }
+.teacher-note p { margin: 4px 0; }
+.spot.alert::after { content: '!'; position: absolute; right: 8%; top: 4%; width: 1.5em; height: 1.5em; line-height: 1.5em; border-radius: 50%; background: var(--danger); color: #fff; font-weight: 700; font-size: 0.85rem; animation: flutter 0.6s ease-in-out infinite alternate; }

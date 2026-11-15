@@ -7,7 +7,7 @@ const newest = (a, b) => (b.at?.seconds ?? 9e9) - (a.at?.seconds ?? 9e9)
 const when = (x) => (x.at ? short(dateOf(x)) : '방금')
 
 // 학생들의 편지·방명록·민원. 선생님은 이름과 함께 모두 보고 지울 수 있다.
-export default function Post({ year }) {
+export default function Post({ year, only }) {
   const letters = useDocs(year, 'letters').sort(newest)
   const notes = useDocs(year, 'guestbook').sort(newest)
   const complaints = useDocs(year, 'complaints').sort(newest)
@@ -16,6 +16,8 @@ export default function Post({ year }) {
 
   return (
     <section>
+      {only !== 'letters' && (
+        <>
       <h2>민원 ({complaints.filter((c) => !c.reply).length}건 답변 전)</h2>
       {complaints.map((c) => (
         <article key={c.id} className="card">
@@ -33,6 +35,10 @@ export default function Post({ year }) {
         </article>
       ))}
       {!complaints.length && <p>민원이 없습니다.</p>}
+        </>
+      )}
+      {only !== 'complaints' && (
+        <>
 
       <h2>편지 ({letters.length})</h2>
       <table className="sheet">
@@ -80,6 +86,8 @@ export default function Post({ year }) {
           ))}
         </tbody>
       </table>
+        </>
+      )}
     </section>
   )
 }

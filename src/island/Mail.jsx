@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { addDoc, serverTimestamp } from 'firebase/firestore'
 import { useStudents, yearCol } from '../data'
 import { tell } from '../popup'
@@ -12,7 +12,15 @@ export default function Mail({ me, settings, to: first }) {
   const students = useStudents(me.year)
   const inbox = useWhere(me.year, 'letters', 'to', me.no)
   const sent = useWhere(me.year, 'letters', 'from', me.no)
-  const president = students.find((s) => s.no === settings.president)
+  const notice = settings.mayorLines ?? []
+  // 우편함을 열면 선생님 말씀을 읽은 것으로 표시한다(내 섬 우편함의 새 소식 표시가 꺼진다)
+  useEffect(() => {
+    try {
+      localStorage.setItem(`island-notice-${me.year}-${me.no}`, notice.join('\n'))
+    } catch {
+      /* 저장 못 해도 편지는 볼 수 있다 */
+    }
+  }, [notice.join('\n')])
 
   async function send(e) {
     e.preventDefault()
@@ -31,6 +39,14 @@ export default function Mail({ me, settings, to: first }) {
   return (
     <section>
       <h2>우편함</h2>
+      {notice.length > 0 && (
+        <div className="card teacher-note">
+          <h3>담임 선생님 말씀</h3>
+          {notice.map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+      )}
       <div className="tabs">
         {[['in', `받은 편지 ${inbox.length}`], ['write', '편지 쓰기'], ['out', '보낸 편지']].map(([k, label]) => (
           <button key={k} className={tab === k ? '' : 'ghost'} aria-pressed={tab === k} onClick={() => setTab(k)}>
@@ -44,9 +60,8 @@ export default function Mail({ me, settings, to: first }) {
             받는 사람
             <select value={to} onChange={(e) => setTo(e.target.value)}>
               <option value="">고르기</option>
-              {president && <option value={president.no}>반장 {president.name}에게</option>}
               {students
-                .filter((s) => s.no !== me.no && s.no !== president?.no)
+                .filter((s) => s.no !== me.no)
                 .map((s) => (
                   <option key={s.no} value={s.no}>
                     {s.name}

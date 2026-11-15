@@ -25,7 +25,16 @@ import Roster from './Roster'
 import Tardy from './Tardy'
 import Tickets from './Tickets'
 
-const TABS = { 명단: Roster, 통계: Report, 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, '정정 요청': Corrections, '편지·민원': Post, 공지: Notices, 섬마을: Village, '설정·백업': Manage }
+const Letters = (p) => <Post {...p} only="letters" />
+const Complaints = (p) => <Post {...p} only="complaints" />
+// 메뉴 묶음: 학급 / 기록 / 소통 / 섬
+const GROUPS = [
+  ['학급', { 명단: Roster, 통계: Report }],
+  ['기록', { 지각: Tardy, 청소면제권: Tickets, 독서기록장: Reading, 정정요청: Corrections }],
+  ['소통', { 공지: Notices, 편지: Letters, 민원: Complaints }],
+  ['섬', { 섬마을: Village, 설정: Manage }],
+]
+const TABS = Object.assign({}, ...GROUPS.map(([, t]) => t))
 
 const teacherDoc = () => doc(db, 'config', 'teacher')
 
@@ -114,7 +123,6 @@ export default function Teacher() {
 
 function Dashboard() {
   const [year, setYear] = useState(schoolYear)
-  const [country, setCountry] = useState('')
   const years = useYears()
   const [tab, setTab] = useState('명단')
   const [cfg, setCfg] = useState({})
@@ -124,13 +132,12 @@ function Dashboard() {
   // 탭 이름 옆에 확인할 건수를 보여 준다
   const alerts = {
     청소면제권: useDocs(year, 'tickets').filter(mismatched).length,
-    '정정 요청': useDocs(year, 'corrections').filter((c) => !c.done).length,
-    '편지·민원': useDocs(year, 'complaints').filter((c) => !c.reply).length,
+    정정요청: useDocs(year, 'corrections').filter((c) => !c.done).length,
+    민원: useDocs(year, 'complaints').filter((c) => !c.reply).length,
   }
 
   useEffect(
     () => onSnapshot(doc(db, 'years', String(year)), (snap) => {
-        setCountry(snap.data()?.countryName ?? '')
         setCfg(snap.data() ?? {})
       }),
     [year],
@@ -161,47 +168,35 @@ function Dashboard() {
         >
           학년도 추가
         </button>
-        <label>
-          나라 이름
-          <input
-            value={country}
-            placeholder="우리 반 섬나라"
-            onChange={(e) => setCountry(e.target.value)}
-            onBlur={() => setDoc(doc(db, 'years', String(year)), { countryName: country.trim() }, { merge: true })}
-          />
-        </label>
-        <label>
-          채집 횟수(하루)
-          <input type="number" min="1" max="10" style={{ width: '5em' }} key={cfg.catchPerDay} defaultValue={cfg.catchPerDay ?? 2} onBlur={(e) => save({ catchPerDay: Math.min(10, Math.max(1, Number(e.target.value) || 2)) })} />
-        </label>
-        <label>
-          도감 완성 보상
-          <input key={cfg.reward} defaultValue={cfg.reward ?? ''} placeholder="예: 단체 간식!" onBlur={(e) => save({ reward: e.target.value.trim() })} />
-        </label>
         <RoomLinks />
         <button className="ghost" onClick={() => signOut(auth)}>
           로그아웃
         </button>
       </header>
+      <nav className="menu" aria-label="선생님 메뉴">
+        {GROUPS.map(([group, tabs]) => (
+          <div key={group} className="menu-group">
+            <small>{group}</small>
+            {Object.keys(tabs).map((name) => (
+              <button key={name} className={name === tab ? '' : 'ghost'} aria-pressed={name === tab} onClick={() => setTab(name)}>
+                {name}
+                {alerts[name] > 0 && <b className="count">{alerts[name]}</b>}
+              </button>
+            ))}
+          </div>
+        ))}
+      </nav>
       {alerts.청소면제권 > 0 && (
         <p className="card alert" role="alert">
           청소면제권 기록이 담당 학생과 다른 학생이 {alerts.청소면제권}명 있습니다.{' '}
           <button onClick={() => setTab('청소면제권')}>확인하기</button>
         </p>
       )}
-      {alerts['정정 요청'] > 0 && (
+      {alerts.정정요청 > 0 && (
         <p className="card alert" role="alert">
-          담당 학생의 정정 요청이 {alerts['정정 요청']}건 있습니다. <button onClick={() => setTab('정정 요청')}>확인하기</button>
+          담당 학생의 정정 요청이 {alerts.정정요청}건 있습니다. <button onClick={() => setTab('정정요청')}>확인하기</button>
         </p>
       )}
-      <nav className="tabs">
-        {Object.keys(TABS).map((name) => (
-          <button key={name} className={name === tab ? "" : "ghost"} aria-pressed={name === tab} onClick={() => setTab(name)}>
-            {name}
-            {alerts[name] > 0 && ` (${alerts[name]})`}
-          </button>
-        ))}
-      </nav>
       <Tab year={year} students={students} cfg={cfg} />
     </main>
   )

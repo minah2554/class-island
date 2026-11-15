@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { catchBlock, giftCount, giftParts, perfectMonth, topRanks } from './gifts.js'
+import { catchBlock, giftCount, giftParts, perfectMonth, readingStreak, topRanks } from './gifts.js'
 
 test('아무 기록이 없으면 0', () => assert.equal(giftCount(undefined), 0))
 test('잘한 달·제출·면제권 5장·선생님 선물을 더한다', () => {
@@ -31,4 +31,11 @@ test('채집: 가장 최근 독서기록이 ✕면 못 한다', () => assert.mat
 test('채집: 다시 내면 풀린다, 기타 사유는 괜찮다', () => {
   assert.equal(catchBlock({ '2026-11-13': 'x', '2026-11-16': 'o' }, [], '2026-11-16'), null)
   assert.equal(catchBlock({ '2026-11-16': '병결' }, [], '2026-11-16'), null)
+})
+
+test('독서 연속: 최근 달부터 ✕ 없는 달이 이어진 수', () => {
+  assert.equal(readingStreak([['o', 'x'], ['o', 'o'], ['o', '병결']]), 2)
+  assert.equal(readingStreak([['o'], ['x']]), 0)
+  assert.equal(readingStreak([['o'], []]), 0)
+  assert.equal(readingStreak([]), 0)
 })

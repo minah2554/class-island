@@ -43,15 +43,16 @@ export default function Manage({ year, students }) {
       <h2>설정</h2>
       <div className="card">
         <label>
-          반장 (학생이 반장님께 편지를 쓸 때 쓰입니다)
-          <select value={cfg.president ?? ''} onChange={(e) => save({ president: e.target.value })}>
-            <option value="">정하지 않음</option>
-            {students.map((s) => (
-              <option key={s.no} value={s.no}>
-                {s.no} {s.name}
-              </option>
-            ))}
-          </select>
+          나라 이름 (학생 화면 맨 위에 나옵니다)
+          <input key={cfg.countryName} defaultValue={cfg.countryName ?? ''} placeholder="우리 반 섬나라" onBlur={(e) => save({ countryName: e.target.value.trim() })} />
+        </label>
+        <label>
+          하루 채집 횟수
+          <input type="number" min="1" max="10" style={{ width: '6em' }} key={cfg.catchPerDay} defaultValue={cfg.catchPerDay ?? 2} onBlur={(e) => save({ catchPerDay: Math.min(10, Math.max(1, Number(e.target.value) || 2)) })} />
+        </label>
+        <label>
+          도감 완성 보상
+          <input key={cfg.reward} defaultValue={cfg.reward ?? ''} placeholder="예: 단체 간식!" onBlur={(e) => save({ reward: e.target.value.trim() })} />
         </label>
         <label>
           추가로 막을 낱말 (쉼표로 구분, 기본 나쁜 말은 이미 막혀 있습니다)
@@ -65,7 +66,7 @@ export default function Manage({ year, students }) {
       </div>
       <div className="card">
         <label>
-          주민센터 이장님이 하는 말 (한 줄에 하나, 학생이 이장님을 누를 때마다 차례로 나옵니다)
+          담임 선생님 말씀 (한 줄에 하나) — 학생마다 자기 섬 우편함에 "새 소식"으로 뜨고, 주민센터 이장님도 이 말을 차례로 합니다
           <textarea
             key={(cfg.mayorLines ?? []).join('|')}
             rows="5"
@@ -75,7 +76,7 @@ export default function Manage({ year, students }) {
             onBlur={(e) => save({ mayorLines: e.target.value.split('\n').map((w) => w.trim()).filter(Boolean).slice(0, 20) })}
           />
         </label>
-        <small>비워 두면 기본 말을 합니다.</small>
+        <small>고치면 모든 학생의 우편함에 새 소식 표시가 다시 뜹니다. 비워 두면 이장님은 기본 말을 합니다.</small>
       </div>
       <h2>백업과 삭제</h2>
       <div className="card">

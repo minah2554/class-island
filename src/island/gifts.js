@@ -57,3 +57,11 @@ export function topRanks(rows, key, asc = false) {
   }
   return out
 }
+
+// 독서기록장 연속 성실 달 수. months: 오래된 달부터, 그 학생의 그 달 기록 값들.
+// 가장 최근 달부터 거꾸로, "기록이 있고 ✕가 없는 달"이 이어진 수를 센다(기타 사유는 괜찮다).
+export function readingStreak(months) {
+  let n = 0
+  for (let i = months.length - 1; i >= 0 && months[i].length && !months[i].includes('x'); i--) n++
+  return n
+}

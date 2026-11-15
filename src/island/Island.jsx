@@ -127,11 +127,18 @@ function World({ me }) {
   const earned = giftCount(gifts.find((g) => g.id === owner))
   const items = [...DAY_ITEMS.slice(0, earned), ...(phase === 'night' ? LIGHTS.slice(0, earned).map((l, i) => ({ ...l, key: `light${i}`, cls: 'lit' })) : [])]
   const lights = Math.min(earned, LIGHTS.length)
+  // 담임 선생님 말씀이 바뀌었는데 아직 우편함을 열지 않았으면 새 소식 표시
+  let noticeNew = false
+  try {
+    noticeNew = !!settings.mayorLines?.length && localStorage.getItem(`island-notice-${me.year}-${me.no}`) !== settings.mayorLines.join('\n')
+  } catch {
+    /* 저장소를 못 쓰면 표시하지 않는다 */
+  }
   const spots = {
     island: [
       ...items,
       { x: 50, y: 33, w: 20, img: 'buildings/house', label: '내 집', onClick: () => setScene('house') },
-      { x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: '우편함', onClick: () => (setMailTo(''), setScene('mail')) },
+      { x: 72, y: 56, w: 9, img: 'buildings/mailbox', label: noticeNew ? '우편함 · 새 소식' : '우편함', cls: noticeNew ? 'alert' : '', onClick: () => (setMailTo(''), setScene('mail')) },
     ],
     visit: [
       ...items,
