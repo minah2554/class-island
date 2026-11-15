@@ -30,6 +30,7 @@ const WALK = {
   shop: { x0: 12, x1: 88, y0: 36, y1: 90 },
   museum: { x0: 12, x1: 88, y0: 36, y1: 92 },
   house: { x0: 16, x1: 84, y0: 46, y1: 90 },
+  center: { x0: 12, x1: 88, y0: 52, y1: 90 },
 }
 const Wrap = ({ className, children }) => (className ? <main className={className}>{children}</main> : <div>{children}</div>)
 const PHASE_LABEL = { dawn: '새벽', day: '낮', dusk: '저녁', night: '밤' }
@@ -154,7 +155,7 @@ function World({ me }) {
       ...DECOR.filter((d) => bought[d.id]).map((d) => ({ x: d.x, y: d.y, w: d.w, img: `decor/${d.id}` })),
     ],
   }[scene]
-  const inScene = ['island', 'plaza', 'sea', 'forest', 'visit', 'shop', 'museum', 'house'].includes(scene)
+  const inScene = ['island', 'plaza', 'sea', 'forest', 'visit', 'shop', 'museum', 'house', 'center'].includes(scene)
   const others = scene === 'visit' && friend ? [{ id: friend.no, x: 40, y: 62, character: friend.character, name: friend.name, bubble: friend.greeting || `어서 와! ${friend.catchphrase ?? ''}` }] : []
   const tab = TAB_OF[scene] ?? scene
 
@@ -191,7 +192,6 @@ function World({ me }) {
         {
           country: <Country me={me} cols={cols} settings={settings} bought={bought} onVisit={visit} onBoard={() => setScene('board')} onPlaza={() => setScene('plaza')} />,
           mail: <Mail me={me} settings={settings} to={mailTo} />,
-          center: <Center me={me} settings={settings} left={left} />,
           board: <Board me={me} settings={settings} />,
         }[scene]
       ) : (
@@ -214,6 +214,7 @@ function World({ me }) {
             if (!me.teacher && (scene === 'sea' || scene === 'forest'))
               return <Hunt key={key} me={me} kind={scene === 'sea' ? 'fish' : 'bug'} cols={cols} left={left} limit={limit} scene={rest} />
             if (scene === 'house') return <Home key={key} me={me} settings={settings} scene={rest} />
+            if (scene === 'center') return <Center key={key} me={me} settings={settings} left={left} scene={rest} />
             if (scene === 'shop') return <Shop key={key} me={me} cols={cols} bought={bought} scene={rest} />
             if (scene === 'museum') return <Museum key={key} me={me} cols={cols} settings={settings} scene={rest} />
             return <Scene key={key} {...rest} spots={spots} />

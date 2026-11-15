@@ -154,6 +154,13 @@ service cloud.firestore {
         allow write: if isTeacher();
         allow create: if isMember(year) && request.resource.data.from == myNo()
           && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 300;
+        // 선생님이 확인(seen)하거나 답변(reply)하기 전에는 낸 본인이 글만 고치거나 취소할 수 있다
+        allow update: if isMember(year) && resource.data.from == myNo()
+          && resource.data.get('seen', false) == false && resource.data.get('reply', '') == ''
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text'])
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 300;
+        allow delete: if isMember(year) && resource.data.from == myNo()
+          && resource.data.get('seen', false) == false && resource.data.get('reply', '') == '';
       }
       match /notices/{id} {
         allow read: if isTeacher() || isMember(year);

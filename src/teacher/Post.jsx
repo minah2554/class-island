@@ -18,23 +18,25 @@ export default function Post({ year, only }) {
     <section>
       {only !== 'letters' && (
         <>
-      <h2>민원 ({complaints.filter((c) => !c.reply).length}건 답변 전)</h2>
+      <h2>상담·건의 ({complaints.filter((c) => !c.reply && !c.seen).length}건 확인 전)</h2>
+      <p className="hint">학생은 선생님이 [확인]을 누르거나 답변하기 전까지만 글을 고치거나 취소할 수 있습니다.</p>
       {complaints.map((c) => (
         <article key={c.id} className="card">
           <small>
-            {when(c)} · {c.fromName} ({c.from})
+            {when(c)} · <span className="chip">{c.kind ?? '건의'}</span> {c.fromName} ({c.from}) {c.seen || c.reply ? '· 확인함' : ''}
           </small>
           <p className="memo">{c.text}</p>
           <label>
             답변 (입력 후 칸 밖을 누르면 저장)
             <input key={c.reply} defaultValue={c.reply ?? ''} onBlur={reply(c)} />
           </label>
-          <button className="ghost" onClick={() => remove('complaints', c.id, '민원')}>
+          {!c.seen && !c.reply && <button onClick={() => updateDoc(doc(yearCol(year, 'complaints'), c.id), { seen: true })}>확인</button>}
+          <button className="ghost" onClick={() => remove('complaints', c.id, '글')}>
             지우기
           </button>
         </article>
       ))}
-      {!complaints.length && <p>민원이 없습니다.</p>}
+      {!complaints.length && <p>받은 글이 없습니다.</p>}
         </>
       )}
       {only !== 'complaints' && (

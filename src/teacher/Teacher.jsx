@@ -133,7 +133,7 @@ function Dashboard() {
   const alerts = {
     청소면제권: useDocs(year, 'tickets').filter(mismatched).length,
     정정요청: useDocs(year, 'corrections').filter((c) => !c.done).length,
-    민원: useDocs(year, 'complaints').filter((c) => !c.reply).length,
+    민원: useDocs(year, 'complaints').filter((c) => !c.reply && !c.seen).length,
   }
 
   useEffect(
