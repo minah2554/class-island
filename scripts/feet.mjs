@@ -4,7 +4,7 @@ import sharp from 'sharp'
 import { readdirSync, writeFileSync } from 'node:fs'
 
 const out = {}
-for (const dir of ['buildings', 'decor']) {
+for (const dir of ['buildings', 'decor', 'nature']) {
   for (const f of readdirSync(`public/assets/${dir}`)) {
     const { data, info } = await sharp(`public/assets/${dir}/${f}`).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
     let l = info.width, r = 0, b = 0
@@ -16,6 +16,7 @@ for (const dir of ['buildings', 'decor']) {
           if (y > b) b = y
         }
     const p = (v, n) => Math.round((v / n) * 100) / 100
+    if (dir === 'nature') { l = info.width * 0.12; r = info.width * 0.88 - 1 } // 잎이 넓어도 그림자는 밑동 쪽에만
     out[`${dir}/${f.replace('.webp', '')}`] = { l: p(l, info.width), r: p(r + 1, info.width), b: p(b + 1, info.height) }
   }
 }

@@ -391,9 +391,6 @@ td.wrap { white-space: normal; max-width: 14em; text-align: left; }
 /* 걷기 그림이 있을 때는 통통 튀지 않고 살짝만 오르내린다 */
 .me.walking.stepping img { animation: stride 0.38s ease-in-out infinite; }
 @keyframes stride { 50% { translate: 0 -2%; } }
-/* 섬에 늘어나는 나무·꽃: 배경에서 오려 낸 조각이라 그림자·밤 필터를 따로 주지 않는다 */
-.spot.patch::before { display: none; }
-.scene .spot.patch img { filter: none !important; }
 /* 내 집: 방 그림 위 현황 */
 .room-status { position: absolute; left: 2%; bottom: 3%; z-index: 96; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .room-status li { background: rgba(255, 248, 225, 0.94); border-radius: 14px; padding: 6px 12px; box-shadow: 0 3px 0 rgba(107, 74, 43, 0.18); color: #6b4a2b; font-size: 0.9rem; }
